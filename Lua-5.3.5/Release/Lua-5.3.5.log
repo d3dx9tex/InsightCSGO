@@ -1,0 +1,29 @@
+﻿  lapi.c
+D:\Документы\SNAKEWARE\Lua-5.3.5\src\lapi.c(258,9): warning C4013: UNUSED: нет определения; предполагается "extern" с возвратом типа "int"
+D:\Документы\SNAKEWARE\Lua-5.3.5\src\lapi.c(398,49): warning C4244: return: преобразование "lua_Unsigned" в "size_t", возможна потеря данных
+  lcode.c
+  lctype.c
+  ldebug.c
+  ldo.c
+  ldump.c
+  lfunc.c
+  lgc.c
+D:\Документы\SNAKEWARE\Lua-5.3.5\src\lgc.c(802,9): warning C4013: UNUSED: нет определения; предполагается "extern" с возвратом типа "int"
+  llex.c
+  lmem.c
+  lobject.c
+  lopcodes.c
+  lparser.c
+  lstate.c
+D:\Документы\SNAKEWARE\Lua-5.3.5\src\lstate.c(205,9): warning C4013: UNUSED: нет определения; предполагается "extern" с возвратом типа "int"
+  lstring.c
+  ltable.c
+  ltm.c
+  luac.c
+D:\Документы\SNAKEWARE\Lua-5.3.5\src\luac.c(124,8): warning C4013: UNUSED: нет определения; предполагается "extern" с возвратом типа "int"
+  lundump.c
+  lvm.c
+  Компиляция...
+  lzio.c
+luac.obj : warning LNK4006: _main єцх юяЁхфхыхэ т luac.obj; тЄюЁюх юяЁхфхыхэшх яЁюяє∙хэю
+  Lua-5.3.5.vcxproj -> D:\Документы\SNAKEWARE\Release\Lua-5.3.5.lib
