@@ -133,7 +133,7 @@ int RageBot::GetTargetFOV ( ) {
 
 		for (const auto& Point : Points) {
 
-			if (AutoWall::Get().Think(Point,entity).iDamage > 0)
+			if (AutoWall::Get().GetPointDamage(Point,entity) > 0)
 				return true;
 		}
 		return false;
@@ -186,7 +186,7 @@ int RageBot::GetTargetDistance ( ) {
 
 		for (const auto& Point : Points) {
 
-			if (AutoWall::Get().Think(Point, entity).iDamage > 0)
+			if (AutoWall::Get().GetPointDamage(Point, entity) > 0)
 				return true;
 		}
 		return false;
@@ -238,7 +238,7 @@ int RageBot::GetTargetHealth ( ) {
 
 		for (const auto& Point : Points) {
 
-			if (AutoWall::Get().Think( Point, entity).iDamage > 0)
+			if (AutoWall::Get().GetPointDamage( Point, entity) > 0)
 				return true;
 		}
 		return false;
@@ -265,7 +265,7 @@ int RageBot::GetTargetHealth ( ) {
 void RageBot::ResetTarget() {
 
 	Snakeware::OnShot = false;
-	AutoWall::Get().reset();
+	
 }
 
 
@@ -615,9 +615,9 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 
 	auto force_baim = false;
 	if (g_Options.ragebot_baim_if_lethal) {
-		auto aw_dmg1 = AutoWall::Get().Think(pTarget->GetHitboxPos(HITBOX_STOMACH),  pTarget).iDamage;
-		auto aw_dmg2 = AutoWall::Get().Think(pTarget->GetHitboxPos(HITBOX_PELVIS),   pTarget).iDamage;
-		auto aw_dmg3 = AutoWall::Get().Think(pTarget->GetHitboxPos(HITBOX_CHEST),    pTarget).iDamage;
+		auto aw_dmg1 = AutoWall::Get().GetPointDamage(pTarget->GetHitboxPos(HITBOX_STOMACH),  pTarget);
+		auto aw_dmg2 = AutoWall::Get().GetPointDamage(pTarget->GetHitboxPos(HITBOX_PELVIS),   pTarget);
+		auto aw_dmg3 = AutoWall::Get().GetPointDamage(pTarget->GetHitboxPos(HITBOX_CHEST),    pTarget);
 		if ((aw_dmg1 > enemyhp) || (aw_dmg2 > enemyhp) || (aw_dmg3 > enemyhp)) {
 			force_baim = true;
 		}
@@ -712,7 +712,7 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 
 	for (auto point : points) {
 
-		auto  WallDamage = AutoWall::Get().Think(point, pTarget).iDamage;
+		auto  WallDamage = AutoWall::Get().GetPointDamage(point, pTarget);
 
 		if   (WallDamage <= 0) continue;
 

@@ -416,7 +416,7 @@ namespace Hooks {
 			auto net_channel        = *reinterpret_cast<INetChannel * *>(reinterpret_cast<uintptr_t>(g_ClientState) + 0x9C);
 			int32_t new_commands    = *pNumNewCommands;
 			auto NextCmdNumb        =  g_ClientState->nLastOutgoingCommand + g_ClientState->iChokedCommands + 1;
-			auto TotalNewCmds       =  std::min(Snakeware::m_nTickbaseShift, 17);
+			auto TotalNewCmds       =  std::min(Snakeware::m_nTickbaseShift, 16);
 
 
 			Snakeware::m_nTickbaseShift -= TotalNewCmds;
@@ -445,7 +445,7 @@ namespace Hooks {
 
 			CUserCmd toCmd = fromCmd;
 			toCmd.command_number++;
-			toCmd.tick_count++;
+			toCmd.tick_count+= 200;
 
 			for (int i = new_commands; i <= TotalNewCmds; i++) {
 				WriteUserCmd(buf, &toCmd, &fromCmd);

@@ -275,6 +275,7 @@ void RenderRageBotTab()
 				ImGui::SliderFloat("Other scale", &g_Options.ragebot_otherscale[curGroup], 0, 100);
 			}
 			ImGui::CheckboxEX("Smart body-aim", &g_Options.ragebot_adaptive_baim[curGroup], "Smart baim", 7);
+			ImGui::CheckboxEX("Body-aim if lethal", &g_Options.ragebot_baim_if_lethal[curGroup], "Smart baim", 7);
 			ImGui::CheckboxEX("Auto-scope", &g_Options.ragebot_autoscope, "Automaticaly scope", 8);
 			ImGui::CheckboxEX("Auto-stop", &g_Options.ragebot_autostop, "Automaticaly stop", 9);
 			const char* hitboxes[] = { "Head", "Neck", "Chest", "Body", "Arms", "Legs" };
