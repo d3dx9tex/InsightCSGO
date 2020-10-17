@@ -96,6 +96,8 @@ void LagCompensation::UpdateAnimationsData(C_BasePlayer* pPlayer) {
 	auto pIndex  = pPlayer->EntIndex() - 1;
 	auto pRecord = &Snakeware::pLagRecords[pIndex];
 
+	if (pPlayer)
+		FixNetvarCompression (pPlayer);
 
 	if (pRecord->pRecords->size() < 2) 
 		return;
@@ -576,4 +578,49 @@ bool LagCompensation::bShouldLagCompensate (C_BasePlayer *pPlayer)  {
 		return false;
 
 	return true;
+}
+
+
+void LagCompensation::FixNetvarCompression (C_BasePlayer* pPlayer) {
+	// Repasted from eexomi hack.
+	// by 5n4k3
+	static auto sv_gravity       = g_CVar->FindVar("sv_gravity");
+	auto& HistoryRecord          = Snakeware::pLagRecords[pPlayer->EntIndex() - 1].pRecords;
+
+	if (HistoryRecord->size() < 2 || pPlayer == nullptr || sv_gravity == nullptr)
+		return;
+
+	auto& Record     = HistoryRecord->front();
+	auto& preRecord  = HistoryRecord->at(1);
+
+	
+
+	float chokedTime = pPlayer->m_flSimulationTime() - Record.flSimTime;
+	chokedTime       = Math::Clamp(chokedTime, g_GlobalVars->interval_per_tick, 1.0f);
+
+	Vector vecOrigin   = pPlayer->m_vecOrigin();
+	Vector deltaOrigin = (vecOrigin - Record.vecOrigin) * (1.0f / chokedTime);
+
+	float penultimateChoke = Record.flSimTime - preRecord.flSimTime;
+	penultimateChoke       = Math::Clamp(penultimateChoke, g_GlobalVars->interval_per_tick, 1.0f);
+
+	float Delta = RAD2DEG(atan2((Record.vecOrigin.y - preRecord.vecOrigin.y) * (1.0f / penultimateChoke),
+		(Record.vecOrigin.x - preRecord.vecOrigin.x) * (1.0f / penultimateChoke)));
+
+	float Direction = RAD2DEG(atan2(deltaOrigin.y, deltaOrigin.x));
+	float deltaDirection = Math::NormalizeYaw(Direction - Delta);
+
+	deltaDirection = DEG2RAD(deltaDirection * 0.5f + Direction);
+
+	float dirCos = cos(deltaDirection), dirSin = sin(deltaDirection);
+
+	float move = deltaOrigin.Length2D();
+	Vector velocity;
+	pPlayer->m_vecVelocity().x = dirCos * move;
+	pPlayer->m_vecVelocity().y = dirSin * move;
+	pPlayer->m_vecVelocity().z = deltaOrigin.z;
+
+	if (!(pPlayer->m_fFlags() & FL_ONGROUND)) {
+		pPlayer->m_vecVelocity().z -= sv_gravity->GetFloat() * chokedTime * 0.5f;
+	}
 }

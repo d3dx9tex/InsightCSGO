@@ -142,7 +142,7 @@ public:
 	static void        FinishPositionAdjustment    (C_BasePlayer * pPlayer);
 	static void        SetInterpolationFlags       (C_BasePlayer * pPlayer, int iFlag);
 	static void        Reset                       ();
-
+	static void        FixNetvarCompression        (C_BasePlayer * pPlayer);
 
 
 
