@@ -293,7 +293,7 @@ void Miscellaneous::LegitAntiAim(CUserCmd *cmd)
 	
 		UpdateBreaker(cmd);
 		if (next_lby >= g_GlobalVars->curtime) {
-			if (!broke_lby && Snakeware::bSendPacket && g_ClientState->m_nChokedCmds > 0)
+			if (!broke_lby && Snakeware::bSendPacket && g_ClientState->iChokedCommands > 0)
 				return;
 
 			broke_lby = false;
@@ -348,7 +348,7 @@ void Miscellaneous::LegitAntiAim(CUserCmd *cmd)
 
 int IsCheater() {
 
-	const auto choked_ticks = std::max(0, TIME_TO_TICKS(g_LocalPlayer->m_flSimulationTime() - g_LocalPlayer->m_flOldSimulationTime()) );
+	const auto choked_ticks = g_ClientState->iChokedCommands;
 
 	return choked_ticks;
 }
@@ -517,7 +517,7 @@ void Miscellaneous::FakeDuck (CUserCmd * cmd) {
 	if (!g_LocalPlayer || !g_LocalPlayer->IsAlive())                                return;
 	if (!g_LocalPlayer->m_fFlags() & FL_ONGROUND)                                   return;
 	if (!g_Options.misc_fakeduck || !GetAsyncKeyState(g_Options.misc_fakeduck_key)) return;
-	auto NetChannel = g_ClientState->m_NetChannel;
+	auto NetChannel = g_ClientState->pNetChannel;
 
 	if (!NetChannel)
 		return;

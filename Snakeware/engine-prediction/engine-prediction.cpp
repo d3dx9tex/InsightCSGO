@@ -5,8 +5,8 @@ void EnginePrediction::PreStart()
 	if (Snakeware::g_flVelocityModifer < 1.f)
 		*(bool*)((uintptr_t)g_Prediction + 0x24) = true;
 
-	if (g_ClientState->m_nDeltaTick > 0)
-		g_Prediction->Update(g_ClientState->m_nDeltaTick, true, g_ClientState->last_command_ack, g_ClientState->m_nLastOutgoingCmd + g_ClientState->m_nChokedCmds);
+	if (g_ClientState->iDeltaTick > 0)
+		g_Prediction->Update(g_ClientState->iDeltaTick, true, g_ClientState->nLastCommandAck, g_ClientState->nLastOutgoingCommand + g_ClientState->iChokedCommands);
 }
 
 void EnginePrediction::Start(CUserCmd* cmd, C_BasePlayer* local) {

@@ -328,6 +328,7 @@ public:
 	OPTION(bool, misc_fakelag_safety, false);
 	OPTION(bool, misc_engine_radar, false);
 	OPTION(int, misc_fakelag_ticks, 0);
+	OPTION(int, misc_fakelag_triggered_ticks, 0);
 	OPTION(int, misc_fakelag_type, 0);
 	OPTION(bool, misc_legit_antihit, false);
 	OPTION(bool, misc_legit_antihit_lby, false);
@@ -348,6 +349,8 @@ public:
 	OPTION(bool, event_log_item, false);
 	OPTION(bool, event_log_plant, false);
 	OPTION(bool, event_log_defuse, false);
+
+	bool  misc_fakelag_triggers[4] = { false, false, false, false};
 	// 
 	// COLORS
 	// 

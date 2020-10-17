@@ -7,9 +7,21 @@ class Fakelag : public Singleton < Fakelag > {
 
    public:
 
-	   void Instance (CUserCmd * pCmd);
+	   void  OnCreateMove (CUserCmd * pCmd);
 
-	   int iChoke = 0;
-	   int iChoked = 0;
+	   void  ForceChoke   (int iForceChoked = 0);
+
+	   void  FakelagTriggererd ();
+
+	   int   iChoke, iChoked, iLlamaTick , iRandomTick = 0 ;
+
+	   float flSpeed, flSpeed2D = 0.f;
+
+
+	   // Fakelag-trigger's
+
+	   bool  bStandTrigger, bMoveTrigger, bHighMoveTrigger, bAirTrigger, bSlowWalkTrigger;
+
+
 };
 

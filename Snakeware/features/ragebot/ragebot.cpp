@@ -818,7 +818,7 @@ bool RageBot::Aim(Vector point, int idx) {
 
 	auto IsValidTick = Snakeware::pLagRecords[Idx].TickCount != -1; // aye
 
-	if  (Hitchanced && IsValidTick) {
+	if  (Hitchanced) {
 
 		
 		if (g_Options.ragebot_autofire && shoot_state) {
