@@ -484,13 +484,12 @@ bool RageBot::IsAbleToShoot() {
 
 	}
 	else {
-		auto server_time = g_LocalPlayer->CalcServerTime(pCmd);
-
-		if (server_time < wep->m_flNextPrimaryAttack())
+	
+		if (!wep->CanFire())
 			return false;
 
-		if (server_time < g_LocalPlayer->m_flNextAttack())
-			return false;
+		// rebulided
+
 
 	}
 
@@ -816,14 +815,16 @@ bool RageBot::Aim(Vector point, int idx) {
 
 	auto TickRecord = -1;
 	Snakeware::OnShot = false;
- 
-	if  (Hitchanced) {
+
+	auto IsValidTick = Snakeware::pLagRecords[Idx].TickCount != -1;
+
+	if  (Hitchanced && IsValidTick) {
 
 		
 		if (g_Options.ragebot_autofire && shoot_state) {
 			Snakeware::OnShot = true;
+			pCmd->tick_count  = TIME_TO_TICKS(pTarget->m_flSimulationTime() + LagCompensation::Get().LerpTime());
 
-			
 			pCmd->buttons |= IN_ATTACK;
 		}
 		if (pCmd->buttons & IN_ATTACK) {
