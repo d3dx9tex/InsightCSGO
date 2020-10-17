@@ -816,7 +816,7 @@ bool RageBot::Aim(Vector point, int idx) {
 	auto TickRecord = -1;
 	Snakeware::OnShot = false;
 
-	auto IsValidTick = Snakeware::pLagRecords[Idx].TickCount != -1;
+	auto IsValidTick = Snakeware::pLagRecords[Idx].TickCount != -1; // aye
 
 	if  (Hitchanced && IsValidTick) {
 

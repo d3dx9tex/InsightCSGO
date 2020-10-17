@@ -120,6 +120,10 @@ void LagCompensation::UpdateAnimationsData(C_BasePlayer* pPlayer) {
 	g_GlobalVars->realtime             = pPlayer->m_flSimulationTime();
 
 	pPlayer->m_iEFlags()       &= ~0x1000;
+
+	if (pPlayer->m_fFlags() & FL_ONGROUND && pPlayer->m_vecVelocity().Length() > 0.0f && backupLayers[6].m_flWeight <= 0.0f)
+		pPlayer->m_vecVelocity().Zero(); // Fix by LED42
+
 	pPlayer->m_vecAbsVelocity() = pPlayer->m_vecVelocity();
 
 	if (pState->m_iLastClientSideAnimationUpdateFramecount == g_GlobalVars->framecount)
@@ -363,6 +367,24 @@ void LagCompensation::StartPositionAdjustment () const {
 	}
 }
 
+void LagCompensation::FixDormantAnimation(C_BasePlayer* pPlayer) {
+
+	// By @Snake
+	auto pState = pPlayer->GetPlayerAnimState();
+
+	if (pPlayer && pPlayer->IsDormant()) {
+
+		if (pPlayer->m_fFlags() & FL_ONGROUND) {
+			pState->m_bOnGround             = true;
+			pState->m_bInHitGroundAnimation = false;
+		}
+
+		pState->m_flTimeSinceInAir()  = 0.0f;
+		pState->m_flGoalFeetYaw       = Math::NormalizeYaw(pPlayer->m_angEyeAngles().yaw);
+	}
+
+}
+
 
 void LagCompensation::StartPositionAdjustment (C_BasePlayer* pPlayer) const {
 
@@ -490,11 +512,8 @@ void LagCompensation::UpdatePlayerRecordData (C_BasePlayer* pPlayer) const {
 				pRecord->pRecords->pop_back();
 		}
 
-
-		if (newRecord.iEntFlags & FL_ONGROUND) 	{
-			pPlayer->GetPlayerAnimState()->m_bOnGround             = true;
-			pPlayer->GetPlayerAnimState()->m_bInHitGroundAnimation = false;
-		}
+		// Old removed, new added..
+		FixDormantAnimation (pPlayer);
 
 		// SetAbsAngles too...
 		pPlayer->SetAbsOrigin  (newRecord.vecOrigin);

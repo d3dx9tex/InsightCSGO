@@ -712,6 +712,10 @@ public:
 	char pad9[4]; //NaN
 	float m_flUnknown3;
 	char pad10[528];
+
+	float& m_flTimeSinceInAir() {
+		return *(float*)((uintptr_t)this + 0x110);
+	}
 }; //Size=0x344
 
 class DT_CSPlayerResource
