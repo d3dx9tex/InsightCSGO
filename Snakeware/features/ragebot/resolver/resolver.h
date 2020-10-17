@@ -11,6 +11,7 @@ struct ResolveInfo {
 
 	AnimationLayer          ResolverLayers[3][13];
 	int                     iResolvingWay;
+	int                     iMissedShots = 0;
 	bool                    bWasUpdated;
 };
 

@@ -147,6 +147,16 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 			Math::NormalizeYaw(flYaw);
 			pPlayer->GetPlayerAnimState()->m_flGoalFeetYaw = flYaw;
 		}
+
+
+		switch (rRecord.iMissedShots % 2) {
+		case 0 :
+			 // baimov pasti
+			break;
+		case 1:
+			// baimov pasti
+			break;
+		}
 		
 	}
 }

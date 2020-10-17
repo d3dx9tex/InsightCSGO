@@ -265,6 +265,7 @@ int RageBot::GetTargetHealth ( ) {
 void RageBot::ResetTarget() {
 
 	Snakeware::OnShot = false;
+	iTargetID         = -1;
 	
 }
 
@@ -464,33 +465,27 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 
 bool RageBot::IsAbleToShoot() {
 	auto wep = g_LocalPlayer->m_hActiveWeapon();
-	if (!wep) return false;
+	if (!wep)                                                 return false;
+
 	if (wep->m_Item() .m_iItemDefinitionIndex() == WEAPON_C4) return true;
-	if (wep->IsWeaponNonAim()) false;
-	if (wep->m_iClip1() == 0) return false;
 
-	if (Snakeware::m_nTickbaseShift && g_Options.exploit_doubletap && GetAsyncKeyState(g_Options.exploit_doubletap_key)) {
+	if (wep->IsWeaponNonAim())                                return false;
 
-		auto server_time = g_LocalPlayer->CalcServerTime(pCmd);
-
-		if (Snakeware::m_nTickbaseShift)
-			server_time -= TICKS_TO_TIME(Snakeware::m_nTickbaseShift) - 1;
-
-		if (server_time < wep->m_flNextPrimaryAttack()) //-V807
-			return false;
-
-		if (server_time < g_LocalPlayer->m_flNextAttack())
-			return false;
-
-	}
-	else {
-	
-		if (!wep->CanFire())
-			return false;
-
-		// rebulided
+	auto time = TICKS_TO_TIME(g_LocalPlayer->m_nTickBase());
 
 
+	if (pCmd->weaponselect)
+		return false;
+
+	if (wep->m_iClip1() < 1)
+		return false;
+
+	if ((g_LocalPlayer->m_flNextAttack() > time) || wep->m_flNextPrimaryAttack() > time || wep->m_flNextSecondaryAttack() > time) {
+		
+
+		// Revolver check maybe...
+
+		return false;
 	}
 
 	return true;

@@ -517,6 +517,8 @@ void LagCompensation::UpdatePlayerRecordData (C_BasePlayer* pPlayer) const {
 
 		// SetAbsAngles too...
 		pPlayer->SetAbsOrigin  (newRecord.vecOrigin);
+
+		if (pPlayer->m_fFlags() & FL_ONGROUND)
 		pPlayer->m_angEyeAngles().roll = 0.f;
 
 		// Safepoint Part

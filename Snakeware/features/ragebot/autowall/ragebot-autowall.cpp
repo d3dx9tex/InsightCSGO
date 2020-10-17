@@ -70,6 +70,12 @@ void AutoWall::ScaleDamage  (trace_t * Trace, CCSWeaponInfo * Inf, int & iHitgro
 	case HITGROUP_HEAD:
 		flDamage *= 2.f;
 		break;
+	case HITGROUP_CHEST:
+	case HITGROUP_LEFTARM:
+	case HITGROUP_RIGHTARM:
+
+		flDamage *= 1.f;
+		break;
 	case HITGROUP_STOMACH:
 		flDamage *= 1.25f;
 		break;

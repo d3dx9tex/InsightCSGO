@@ -1,5 +1,7 @@
 #include "bullet-event.h"
 #include "../../valve_sdk/interfaces/IVRenderBeams.h"
+#include "../../features/ragebot/ragebot.h"
+#include "../../features/ragebot/resolver/resolver.h"
 
 void BulletImpactEvent::FireGameEvent(IGameEvent *event) {
 	if (!g_LocalPlayer || !event) return;
@@ -17,7 +19,40 @@ void BulletImpactEvent::FireGameEvent(IGameEvent *event) {
 		}
 	}
 
+	
+		int32_t userid = g_EngineClient->GetPlayerForUserID(event->GetInt("userid"));
 
+		if (userid == g_EngineClient->GetLocalPlayer()) {
+
+			if (RageBot::Get().iTargetID != NULL) {
+
+				auto player = C_BasePlayer::GetPlayerByIndex(RageBot::Get().iTargetID);
+				if (!player)	return;
+
+				int32_t idx = player->EntIndex();
+				auto &player_recs = Resolver::Get().ResolveRecord[idx];
+
+				if (!player->IsDormant())
+				{
+					int32_t tickcount = g_GlobalVars->tickcount;
+
+					if (tickcount != tickHitWall)
+					{
+						tickHitWall = tickcount;
+						originalShotsMissed = player_recs.iMissedShots;
+						
+
+						if (tickcount != tickHitPlayer) {
+							tickHitWall = tickcount;
+							++player_recs.iMissedShots;
+
+				
+						}
+					}
+				}
+			}
+		}
+	
 	
 
 }
