@@ -34,7 +34,7 @@ void EventLogs::Draw() {
 		}
 
 		const auto text = log.message.c_str();
-		const auto pidoras = ("snakeware");
+		const auto pidoras = ("Insight");
 		
 		auto sz = g_pDefaultFont->CalcTextSizeA(16.f, FLT_MAX, 0.0f, pidoras);
 	

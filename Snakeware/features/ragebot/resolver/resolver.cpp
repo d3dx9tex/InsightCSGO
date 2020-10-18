@@ -87,18 +87,20 @@ void Resolver::PreverseSafePoint (C_BasePlayer * pPlayer , int iSafeSide, float 
 }
 
 
-
+void StoreStatusPlayer(C_BasePlayer* pPlayer, int resolve_info, int side) {
+	Snakeware::Delta = side == -1 ? (resolve_info > 30 ? "Max Left" : "Low Left") : (resolve_info > 30 ? "Max Right" : "Low Right");
+}
 
 
 void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 
 	if (!pPlayer) return;
-	auto Index    = pPlayer->EntIndex() - 1;
-	auto &rRecord = ResolveRecord[Index];
-	float flYaw   = pPlayer->m_angEyeAngles().yaw;
+	auto Index		= pPlayer->EntIndex() - 1;
+	auto &rRecord	= ResolveRecord[Index];
+	float flYaw		= pPlayer->m_angEyeAngles().yaw;
+	int missedshots = 0;
 
 	StoreResolveDelta(pPlayer, &rRecord);
-
 
 	if (pPlayer->m_fFlags() & FL_ONGROUND) {
 
@@ -111,7 +113,6 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 			}
 		}
 		else {
-
 
 			float Rate  = abs (pPlayer->GetAnimOverlays()[6].m_flPlaybackRate - rRecord.ResolverLayers[0][6].m_flPlaybackRate);
 			float Rate2 = abs (pPlayer->GetAnimOverlays()[6].m_flPlaybackRate - rRecord.ResolverLayers[1][6].m_flPlaybackRate);
@@ -130,21 +131,101 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 				rRecord.bWasUpdated   = true;
 			}
 		}
-
-
-		const auto Choked = std::max(0, TIME_TO_TICKS(pPlayer->m_flSimulationTime() - pPlayer->m_flOldSimulationTime()) - 1);
-
+	    int		   resolve_value		= (pPlayer->GetAnimOverlay(3)->m_flCycle == 0.f && pPlayer->GetAnimOverlay(3)->m_flWeight == 0.f) ? 60 : 29;
+		const auto Choked				= std::max(0, TIME_TO_TICKS(pPlayer->m_flSimulationTime() - pPlayer->m_flOldSimulationTime()) - 1);
+		bool       backward				= pPlayer->m_angEyeAngles().yaw > 90 && pPlayer->m_angEyeAngles().yaw < -90;
 		if (Choked >= 1 && !GetAsyncKeyState(g_Options.ragebot_force_safepoint)) {
+
 			if (rRecord.iResolvingWay < 0) {
-				flYaw -= 60;
-				Snakeware::Delta = "Left";
+
+				if (missedshots != 0) {
+					//bruteforce player angle accordingly
+					switch (missedshots % 2) {
+					case 1: {
+						if (backward) {
+							flYaw += resolve_value;
+							StoreStatusPlayer(pPlayer, resolve_value, 1);
+
+						}
+						else {
+							flYaw -= resolve_value;
+						    StoreStatusPlayer(pPlayer, resolve_value, -1);
+						}
+					}
+					break;
+
+					case 0: {
+						if (backward) {
+							flYaw -= resolve_value;
+							StoreStatusPlayer(pPlayer, resolve_value, -1);
+						}
+						else {
+							flYaw += resolve_value;
+							StoreStatusPlayer(pPlayer, resolve_value, 1);
+						}
+					}
+					break;
+
+					}
+				}
+				else {
+					if (backward) {
+						flYaw -= resolve_value;
+						StoreStatusPlayer(pPlayer, resolve_value, -1);
+					}
+					else {
+						flYaw += resolve_value;
+						StoreStatusPlayer(pPlayer, resolve_value, 1);
+					}
+				}
 			}
 			else if (rRecord.iResolvingWay > 0) {
-				flYaw += 60;
-				Snakeware::Delta = "Right";
-			}
 
-			Math::NormalizeYaw(flYaw);
+				if (missedshots != 0) {
+					//bruteforce player angle accordingly
+					switch (missedshots % 2) {
+					case 1: {
+						if (backward) {
+							flYaw -= resolve_value;
+							StoreStatusPlayer(pPlayer, resolve_value, -1);
+
+						}
+						else {
+							flYaw += resolve_value;
+							StoreStatusPlayer(pPlayer, resolve_value, 1);
+						}
+					}
+					break;
+
+					case 0: {
+						if (backward) {
+							flYaw += resolve_value;
+							StoreStatusPlayer(pPlayer, resolve_value, 1);
+						}
+						else {
+							flYaw -= resolve_value;
+							StoreStatusPlayer(pPlayer, resolve_value, -1);
+						}
+					}
+					break;
+
+					}
+				}
+				else {
+					if (backward) {
+						flYaw += resolve_value;
+						StoreStatusPlayer(pPlayer, resolve_value, 1);
+					}
+					else {
+						flYaw -= resolve_value;
+						StoreStatusPlayer(pPlayer, resolve_value, -1);
+					}
+				}
+			}
+			
+
+			Math::NormalizeYaw(flYaw						);
+			Math::NormalizeYaw(pPlayer->m_angEyeAngles().yaw);
 			pPlayer->GetPlayerAnimState()->m_flGoalFeetYaw = flYaw;
 		}
 		

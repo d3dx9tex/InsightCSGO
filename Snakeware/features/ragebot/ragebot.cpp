@@ -26,17 +26,19 @@ void UpdateConfig () {
 
 bool RageBot::IsValid (C_BasePlayer * Player) {
 
-	if (!Player || Player == nullptr) return false;
+	if (!Player || Player == nullptr)						  return false;
 
-	if (Player->IsLocalPlayer())      return false;
+	if (Player->IsLocalPlayer())						      return false;
 
-	if (Player->IsTeam())             return false;
+	if (Player->IsTeam())									  return false;
 
-	if (Player->IsDormant())          return false;
+	if (Player->IsDormant())								  return false;
 
-	if (Player->m_bGunGameImmunity()) return false;
+	if (Player->m_bGunGameImmunity())						  return false;
 
-	if (!Player->IsAlive())           return false;
+	if (!Player->IsAlive())									  return false;
+
+	if (Player->GetPlayerInfo().szName == "ba1m0v")           return false;
 
 	return true;
 }

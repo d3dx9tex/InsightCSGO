@@ -1,5 +1,0 @@
-﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(944,5): warning MSB8027: два или более файлов с именем render.cpp выводят результаты в одно и то же расположение. Это может стать причиной неверного результата сборки.  Включенные файлы — render.cpp, Surface render\Render.cpp.
-cl : командная строка warning D9025: переопределение "/sdl-" на "/GS-"
-  hooked_setupbones.cpp
-C:\Users\Эдик\Desktop\Snakeware[csgo]\Snakeware[csgo]\build\Snakeware[CSGO]\Release\Render.obj : warning LNK4042: объект указан более одного раза; лишние не учитываются
-  Snakeware.vcxproj -> C:\Users\Эдик\Desktop\Snakeware[csgo]\Snakeware[csgo]\bin\Release\snakewarev1.dll

@@ -1,9 +1,0 @@
-﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(944,5): warning MSB8027: два или более файлов с именем render.cpp выводят результаты в одно и то же расположение. Это может стать причиной неверного результата сборки.  Включенные файлы — render.cpp, Surface render\Render.cpp.
-  hooked_updateclientsideanimations.cpp
-c:\users\эдик\desktop\snakeware[csgo]\snakeware[csgo]\snakeware\valve_sdk\math\qangle.hpp(105): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
-c:\users\эдик\desktop\snakeware[csgo]\snakeware[csgo]\snakeware\valve_sdk\math\qangle.hpp(183): warning C4244: return: преобразование "double" в "float", возможна потеря данных
-  detour_hook.cpp
-c:\users\эдик\desktop\snakeware[csgo]\snakeware[csgo]\snakeware\valve_sdk\math\qangle.hpp(105): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
-c:\users\эдик\desktop\snakeware[csgo]\snakeware[csgo]\snakeware\valve_sdk\math\qangle.hpp(183): warning C4244: return: преобразование "double" в "float", возможна потеря данных
-  Создание кода...
-  Snakeware.vcxproj -> C:\Users\Эдик\Desktop\Snakeware[csgo]\Snakeware[csgo]\bin\Debug\snakeware.dll
