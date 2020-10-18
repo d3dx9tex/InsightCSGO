@@ -135,7 +135,7 @@ int RageBot::GetTargetFOV ( ) {
 
 		for (const auto& Point : Points) {
 
-			if (AutoWall::Get().Think(Point,entity).iDamage > 0)
+			if (AutoWall::Get().GetPointDamage(Point,entity) > 0)
 				return true;
 		}
 		return false;
@@ -188,7 +188,7 @@ int RageBot::GetTargetDistance ( ) {
 
 		for (const auto& Point : Points) {
 
-			if (AutoWall::Get().Think(Point, entity).iDamage > 0)
+			if (AutoWall::Get().GetPointDamage(Point, entity) > 0)
 				return true;
 		}
 		return false;
@@ -240,7 +240,7 @@ int RageBot::GetTargetHealth ( ) {
 
 		for (const auto& Point : Points) {
 
-			if (AutoWall::Get().Think( Point, entity).iDamage > 0)
+			if (AutoWall::Get().GetPointDamage( Point, entity) > 0)
 				return true;
 		}
 		return false;
@@ -267,7 +267,8 @@ int RageBot::GetTargetHealth ( ) {
 void RageBot::ResetTarget() {
 
 	Snakeware::OnShot = false;
-	AutoWall::Get().reset();
+	iTargetID         = -1;
+	
 }
 
 
@@ -466,34 +467,27 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 
 bool RageBot::IsAbleToShoot() {
 	auto wep = g_LocalPlayer->m_hActiveWeapon();
-	if (!wep) return false;
+	if (!wep)                                                 return false;
+
 	if (wep->m_Item() .m_iItemDefinitionIndex() == WEAPON_C4) return true;
-	if (wep->IsWeaponNonAim()) false;
-	if (wep->m_iClip1() == 0) return false;
 
-	if (Snakeware::m_nTickbaseShift && g_Options.exploit_doubletap && GetAsyncKeyState(g_Options.exploit_doubletap_key)) {
+	if (wep->IsWeaponNonAim())                                return false;
 
-		auto server_time = g_LocalPlayer->CalcServerTime(pCmd);
+	auto time = TICKS_TO_TIME(g_LocalPlayer->m_nTickBase());
 
-		if (Snakeware::m_nTickbaseShift)
-			server_time -= TICKS_TO_TIME(Snakeware::m_nTickbaseShift) - 1;
 
-		if (server_time < wep->m_flNextPrimaryAttack()) //-V807
-			return false;
+	if (pCmd->weaponselect)
+		return false;
 
-		if (server_time < g_LocalPlayer->m_flNextAttack())
-			return false;
+	if (wep->m_iClip1() < 1)
+		return false;
 
-	}
-	else {
-		auto server_time = g_LocalPlayer->CalcServerTime(pCmd);
+	if ((g_LocalPlayer->m_flNextAttack() > time) || wep->m_flNextPrimaryAttack() > time || wep->m_flNextSecondaryAttack() > time) {
+		
 
-		if (server_time < wep->m_flNextPrimaryAttack())
-			return false;
+		// Revolver check maybe...
 
-		if (server_time < g_LocalPlayer->m_flNextAttack())
-			return false;
-
+		return false;
 	}
 
 	return true;
@@ -618,9 +612,9 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 
 	auto force_baim = false;
 	if (g_Options.ragebot_baim_if_lethal) {
-		auto aw_dmg1 = AutoWall::Get().Think(pTarget->GetHitboxPos(HITBOX_STOMACH),  pTarget).iDamage;
-		auto aw_dmg2 = AutoWall::Get().Think(pTarget->GetHitboxPos(HITBOX_PELVIS),   pTarget).iDamage;
-		auto aw_dmg3 = AutoWall::Get().Think(pTarget->GetHitboxPos(HITBOX_CHEST),    pTarget).iDamage;
+		auto aw_dmg1 = AutoWall::Get().GetPointDamage(pTarget->GetHitboxPos(HITBOX_STOMACH),  pTarget);
+		auto aw_dmg2 = AutoWall::Get().GetPointDamage(pTarget->GetHitboxPos(HITBOX_PELVIS),   pTarget);
+		auto aw_dmg3 = AutoWall::Get().GetPointDamage(pTarget->GetHitboxPos(HITBOX_CHEST),    pTarget);
 		if ((aw_dmg1 > enemyhp) || (aw_dmg2 > enemyhp) || (aw_dmg3 > enemyhp)) {
 			force_baim = true;
 		}
@@ -715,7 +709,7 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 
 	for (auto point : points) {
 
-		auto  WallDamage = AutoWall::Get().Think(point, pTarget).iDamage;
+		auto  WallDamage = AutoWall::Get().GetPointDamage(point, pTarget);
 
 		if   (WallDamage <= 0) continue;
 
@@ -818,14 +812,16 @@ bool RageBot::Aim(Vector point, int idx) {
 
 	auto TickRecord = -1;
 	Snakeware::OnShot = false;
- 
+
+	auto IsValidTick = Snakeware::pLagRecords[Idx].TickCount != -1; // aye
+
 	if  (Hitchanced) {
 
 		
 		if (g_Options.ragebot_autofire && shoot_state) {
 			Snakeware::OnShot = true;
+			pCmd->tick_count  = TIME_TO_TICKS(pTarget->m_flSimulationTime() + LagCompensation::Get().LerpTime());
 
-			
 			pCmd->buttons |= IN_ATTACK;
 		}
 		if (pCmd->buttons & IN_ATTACK) {

@@ -137,12 +137,13 @@ public:
 	void               PredictPlayer               (C_BasePlayer * pPlayer, cTickRecord * curRecord, cTickRecord * nextRecord) const;
 	int                StartLagCompensation        (C_BasePlayer * pPlayer, int iTick, cTickRecord * outRecord) const;
 	void               StartPositionAdjustment     () const;
+	static void        FixDormantAnimation         (C_BasePlayer * Player);
 	void               StartPositionAdjustment     (C_BasePlayer * pPlayer) const;
 	void               FinishPositionAdjustment    () const;
 	static void        FinishPositionAdjustment    (C_BasePlayer * pPlayer);
 	static void        SetInterpolationFlags       (C_BasePlayer * pPlayer, int iFlag);
 	static void        Reset                       ();
-
+	static void        FixNetvarCompression        (C_BasePlayer * pPlayer);
 
 
 

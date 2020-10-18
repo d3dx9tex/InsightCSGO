@@ -193,7 +193,7 @@ void AntiHit::updateLbyBreaker (CUserCmd *usercmd) {
 	}
 
 	float_t curtime = TICKS_TO_TIME( getTickBase () ) ;
-	if (!g_ClientState->m_nChokedCmds && m_serverAnimState)
+	if (!g_ClientState->iChokedCommands && m_serverAnimState)
 	{
 		C_BasePlayer::UpdateAnimationState(m_serverAnimState, usercmd->viewangles);
 

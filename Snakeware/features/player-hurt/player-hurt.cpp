@@ -98,6 +98,34 @@ void PlayerHurtEvent::FireGameEvent(IGameEvent *event)
 	event_ex = event;
 
 	
+	int32_t userid = event->GetInt("userid");
+	auto player = C_BasePlayer::GetPlayerByUserId(userid);
+	if (!player)
+		return;
+
+	int32_t idx = player->EntIndex();
+	auto &player_recs = Resolver::Get().ResolveRecord[idx];
+
+	if (!player->IsDormant()) {
+		int32_t local_id = g_EngineClient->GetLocalPlayer();
+		int32_t attacker = g_EngineClient->GetPlayerForUserID(event->GetInt("attacker"));
+
+		if (attacker == local_id) {
+			bool airJump = !(player->m_fFlags() & FL_ONGROUND) && player->m_vecVelocity().Length2D() > 1.0f;
+			int32_t tickcount = g_GlobalVars->tickcount;
+
+			if (tickHitWall == tickcount) {
+				player_recs.iMissedShots = originalShotsMissed;
+		
+			}
+			if (tickcount != tickHitPlayer) 	{
+				tickHitPlayer = tickcount;
+				player_recs.iMissedShots = 0;
+
+			
+			}
+		}
+	}
 	
 	
 }

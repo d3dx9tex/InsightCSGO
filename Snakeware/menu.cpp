@@ -275,6 +275,7 @@ void RenderRageBotTab()
 				ImGui::SliderFloat("Other scale", &g_Options.ragebot_otherscale[curGroup], 0, 100);
 			}
 			ImGui::CheckboxEX("Smart body-aim", &g_Options.ragebot_adaptive_baim[curGroup], "Smart baim", 7);
+			ImGui::CheckboxEX("Body-aim if lethal", &g_Options.ragebot_baim_if_lethal[curGroup], "Smart baim", 7);
 			ImGui::CheckboxEX("Auto-scope", &g_Options.ragebot_autoscope, "Automaticaly scope", 8);
 			ImGui::CheckboxEX("Auto-stop", &g_Options.ragebot_autostop, "Automaticaly stop", 9);
 			const char* hitboxes[] = { "Head", "Neck", "Chest", "Body", "Arms", "Legs" };
@@ -1185,13 +1186,28 @@ void RenderMiscTab()
 				ImGuiEX::Hotkey("##fakeduck key", &g_Options.misc_fakeduck_key, ImVec2(150, 20));
 				ImGui::SliderInt("fakeduck tick's", &g_Options.misc_fakeduck_ticks, 0, 16);
 			}
-			const char* fakelag_type[] = { "Default" };
+			const char* fakelag_type[]     = { "Factor","Adaptive","Random" };
+			const char* fakelag_triggers[] = { "Stand","Move","HighMove" , "Air", "Slowwalk" };
 			ImGui::CheckboxEX("Fakelag", &g_Options.misc_fakelag, "Fake lags", 95);
 			ImGui::CheckboxEX("Shot ignore", &g_Options.misc_fakelag_on_shot, "No fl on shot", 96);
 			if (g_Options.misc_fakelag)
 			{
 				ImGui::Combo("Fakelag-type", &g_Options.misc_fakelag_type, fakelag_type, IM_ARRAYSIZE(fakelag_type));
 				ImGui::SliderInt("Fakelag ticks :", &g_Options.misc_fakelag_ticks, 0, 14);
+				ImGui::SliderInt("Triggered ticks :", &g_Options.misc_fakelag_triggered_ticks, 0, 16);
+				if (ImGui::BeginCombo("Triggers", "Select", 0))
+				{
+		
+					for (size_t i = 0; i < IM_ARRAYSIZE(fakelag_triggers); i++)
+					{
+						ImGui::Selectable(fakelag_triggers[i], &g_Options.misc_fakelag_triggers[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
+						
+					}
+
+					ImGui::EndCombo();
+				}
+				
+
 			}
 			ImGui::CheckboxEX("Knife-bot", &g_Options.misc_knifebot, "Autoknife", 97);
 			if (g_Options.misc_knifebot)

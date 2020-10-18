@@ -48,7 +48,7 @@ namespace Hooks {
 
 	void Initialize() {
 
-		INetChannel* g_NetChannel = (INetChannel*)g_ClientState->m_NetChannel;
+		INetChannel* g_NetChannel = (INetChannel*)g_ClientState->pNetChannel;
 		net_hook.setup(g_NetChannel);
 		prediction_hook.setup(g_Prediction);
 		engine_hook.setup(g_EngineClient);
@@ -307,7 +307,7 @@ namespace Hooks {
 			FixAttackPacket(ucmd, true);
 
 
-			if (Snakeware::g_bOverrideVelMod && ucmd->command_number == g_ClientState->last_command_ack + 1)
+			if (Snakeware::g_bOverrideVelMod && ucmd->command_number == g_ClientState->nLastCommandAck + 1)
 				g_LocalPlayer->m_flVelocityModifier() = Snakeware::g_flVelocityModifer;
 
 			FixResolverPacket();
@@ -405,7 +405,7 @@ namespace Hooks {
 
 		if (g_EngineClient->IsConnected() && g_EngineClient->IsInGame() && g_LocalPlayer) {
 
-			if (Snakeware::m_nTickbaseShift <= 0 || g_ClientState->m_nChokedCmds > 3)
+			if (Snakeware::m_nTickbaseShift <= 0 || g_ClientState->iChokedCommands > 3)
 				return oFunc(ECX, nSlot, buf, from, to, isNewCmd);
 
 			if (from != -1) return true;
@@ -415,8 +415,8 @@ namespace Hooks {
 			int* pNumNewCommands    = (int*)((uintptr_t)buf - 0x2C);
 			auto net_channel        = *reinterpret_cast<INetChannel * *>(reinterpret_cast<uintptr_t>(g_ClientState) + 0x9C);
 			int32_t new_commands    = *pNumNewCommands;
-			auto NextCmdNumb        =  g_ClientState->m_nLastOutgoingCmd + g_ClientState->m_nChokedCmds + 1;
-			auto TotalNewCmds       =  std::min(Snakeware::m_nTickbaseShift, 17);
+			auto NextCmdNumb        =  g_ClientState->nLastOutgoingCommand + g_ClientState->iChokedCommands + 1;
+			auto TotalNewCmds       =  std::min(Snakeware::m_nTickbaseShift, 16);
 
 
 			Snakeware::m_nTickbaseShift -= TotalNewCmds;
@@ -445,7 +445,7 @@ namespace Hooks {
 
 			CUserCmd toCmd = fromCmd;
 			toCmd.command_number++;
-			toCmd.tick_count++;
+			toCmd.tick_count+= 200;
 
 			for (int i = new_commands; i <= TotalNewCmds; i++) {
 				WriteUserCmd(buf, &toCmd, &fromCmd);
@@ -467,13 +467,13 @@ namespace Hooks {
 	void __fastcall hkProcessPacket(void* ecx, void* edx, void* packet, bool header) {
 		using ProcessPacket_t = void(__thiscall*)(void*, void*, bool);
 		auto ProcessPacket = net_hook.get_original<ProcessPacket_t>(index::ProcessPacket);
-		if (!g_ClientState->m_NetChannel)
+		if (!g_ClientState->pNetChannel)
 			return ProcessPacket(ecx, packet, header);
 
 		ProcessPacket(ecx, packet, header);
 
 		// get this from CL_FireEvents string "Failed to execute event for classId" in engine.dll
-		for (CEventInfo* it{ g_ClientState->m_events }; it != nullptr; it = it->m_next) {
+		for (CEventInfo* it{ g_ClientState->pEvents }; it != nullptr; it = it->m_next) {
 			if (!it->m_class_id)
 				continue;
 
@@ -594,7 +594,7 @@ namespace Hooks {
 		
 	
 		GrenadePredict.trace(cmd); // trace lines
-		Fakelag::Get().Instance (cmd);
+		Fakelag::Get().OnCreateMove(cmd); // After prediction O_o
 
 		Snakeware::g_bOverrideVelMod = true;
 		Prediction->PreStart();
@@ -633,7 +633,7 @@ namespace Hooks {
 		}
 		Prediction->Finish(g_LocalPlayer);
 
-		if (g_ClientState->m_nChokedCmds > 14)
+		if (g_ClientState->iChokedCommands > 14)
 			Snakeware::bSendPacket = true; // own
 
 	
@@ -873,7 +873,7 @@ namespace Hooks {
 			static int m_iLastCmdAck = 0;
 			static float m_flNextCmdTime = 0.f;
 
-			if (g_ClientState && (m_iLastCmdAck != g_ClientState->last_command_ack || m_flNextCmdTime != g_ClientState->m_flNextCmdTime))
+			if (g_ClientState && (m_iLastCmdAck != g_ClientState->nLastCommandAck || m_flNextCmdTime != g_ClientState->flNextCmdTime))
 			{
 				if (Snakeware::g_flVelocityModifer != g_LocalPlayer->m_flVelocityModifier())
 				{
@@ -881,8 +881,8 @@ namespace Hooks {
 					Snakeware::g_flVelocityModifer = g_LocalPlayer->m_flVelocityModifier();
 				}
 
-				m_iLastCmdAck = g_ClientState->last_command_ack;
-				m_flNextCmdTime = g_ClientState->m_flNextCmdTime;
+				m_iLastCmdAck = g_ClientState->nLastCommandAck;
+				m_flNextCmdTime = g_ClientState->flNextCmdTime;
 			}
 
 

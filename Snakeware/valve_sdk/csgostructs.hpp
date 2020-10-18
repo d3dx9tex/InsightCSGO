@@ -358,8 +358,8 @@ public:
 	NETVAR(int32_t, m_nSurvivalTeam, "DT_CSPlayer", "m_nSurvivalTeam");
 	NETVAR(float, m_flHealthShotBoostExpirationTime, "DT_CSPlayer", "m_flHealthShotBoostExpirationTime");
 	NETVAR(QAngle, m_angAbsAngles, "DT_BaseEntity", "m_angAbsAngles");
-	NETVAR(float, m_flDuckSpeed, "DT_BaseEntity", "m_flDuckSpeed");
-	NETVAR(float, m_flDuckAmount, "DT_BaseEntity", "m_flDuckAmount");
+	NETVAR(float, m_flDuckSpeed, "DT_BasePlayer", "m_flDuckSpeed"); // gitt
+	NETVAR(float, m_flDuckAmount, "DT_BasePlayer", "m_flDuckAmount");// gitt
 
 	NETVAR(int32_t, m_iFOV, "DT_BasePlayer", "m_iFOV");
 	NETVAR(int32_t, m_iDefaultFOV, "DT_BasePlayer", "m_iDefaultFOV");
@@ -712,6 +712,10 @@ public:
 	char pad9[4]; //NaN
 	float m_flUnknown3;
 	char pad10[528];
+
+	float& m_flTimeSinceInAir() {
+		return *(float*)((uintptr_t)this + 0x110);
+	}
 }; //Size=0x344
 
 class DT_CSPlayerResource
