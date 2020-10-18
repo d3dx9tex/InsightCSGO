@@ -90,12 +90,16 @@ void ConfigSystem::SetupVisuals()
 	SetupValue(g_Options.glow_team_type, 1, ("player-glow"), ("glow_team_type"));
 	//chams
 	SetupValue(g_Options.chams_player_enabled, false, ("player-chams"), ("chams_enabled"));
+	SetupValue(g_Options.chams_player_enabled_l, false, ("player-chams"), ("chams_ploverlay_enabled"));
+	SetupValue(g_Options.chams_player_type_layer, 1, ("player-chams"), ("chams_type"));
 	SetupValue(g_Options.chams_player_type, 1, ("player-chams"), ("chams_type"));
 	SetupValue(g_Options.chams_player_ignorez, false, ("player-chams"), ("chams_ignore_wall"));
 	SetupValue(g_Options.chams_player_enemies_only, false, ("player-chams"), ("chams_ignore_team"));
 	SetupValue(g_Options.chams_arms_enabled, false, ("player-arms"), ("chams_arms"));
 	SetupValue(g_Options.misc_no_hands, false, ("player-arms"), ("no_arms"));
+	SetupValue(g_Options.chams_hands_enabled_l, false, ("player-arms"), ("arms_overlay"));
 	SetupValue(g_Options.chams_arms_type, 1, ("player-arms"), ("arms_type"));
+	SetupValue(g_Options.chams_arms_type_layer, 1, ("player-arms"), ("arms_layer_type"));
 	SetupValue(g_Options.viewmodel_fov, 69, ("viewmodel"), ("viewmodel_type"));
 
 	SetupValue(g_Options.chams_weapons, false, ("player-weapon"), ("chams_weapons"));
@@ -321,6 +325,8 @@ void ConfigSystem::SetupColors()
 	SetupColor(g_Options.color_chams_player_ally_occluded, "color_player_chams_player_ally_occluded");
 	SetupColor(g_Options.color_chams_player_enemy_visible, "color_player_chams_player_enemy_visible");
 	SetupColor(g_Options.color_chams_player_enemy_occluded, "color_player_chams_player_enemy_occluded");
+	SetupColor(g_Options.color_chams_player_enemy_visible_l, "color_player_chams_player_enemy_overlay");
+	SetupColor(g_Options.color_chams_arms_visible_layer, "colorarms_layer");
 	SetupColor(g_Options.color_chams_arms_visible, "color_arms");
 	SetupColor(g_Options.color_chams_weapons, "color_weapons");
 	SetupColor(g_Options.color_esp_crosshair, "color_crosshair");

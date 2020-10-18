@@ -397,11 +397,22 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 	if (!hbx)
 		return;
 
+
+	Vector vecMin = { 0, 0, 0 };
+	Math::VectorTransform(hbx->bbmin, bones[hbx->bone], vecMin);
+
+	Vector vecMax = { 0, 0, 0 };
+	Math::VectorTransform(hbx->bbmax, bones[hbx->bone], vecMax);
+
+	float flMod = hbx->m_flRadius != -1.f ? hbx->m_flRadius : 0.f;
+
+
 	Vector mins, maxs;
-	Math::VectorTransform(hbx->bbmin, bones[hbx->bone], mins);
-	Math::VectorTransform(hbx->bbmax, bones[hbx->bone], maxs);
+	Math::VectorTransform (Vector(hbx->bbmax.x + flMod, hbx->bbmax.y + flMod, hbx->bbmax.z + flMod), bones[hbx->bone], maxs);
+	Math::VectorTransform (Vector(hbx->bbmin.x - flMod, hbx->bbmin.y - flMod, hbx->bbmin.z - flMod), bones[hbx->bone], mins);
 
 	Vector center = (mins + maxs) * 0.5f;
+
 	Vector angle  = Math::CalcAngle2(center, g_LocalPlayer->GetEyePos());
 
 	Vector forward;
@@ -414,8 +425,14 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 
 	float adjusted_radius = 0.f;
 	switch (hitbox) {
+
 	case HITBOX_HEAD:
-		adjusted_radius = hbx->m_flRadius * float(g_Options.ragebot_pointscale[iCurGroup] / 100.f);
+
+		// pFix what
+		if (pTarget->m_vecVelocity().Length() >= 256.f && hitbox > 0)
+			adjusted_radius = 0.1f;
+		else
+		    adjusted_radius = hbx->m_flRadius * float(g_Options.ragebot_pointscale[iCurGroup] / 125.f);
 
 		if (adjusted_radius > 0.f) {
 			points.push_back({ center + top * adjusted_radius });
@@ -439,7 +456,7 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 		if (adjusted_radius > 0.f) {
 			points.push_back({ center + right * adjusted_radius });
 			points.push_back({ center + left * adjusted_radius });
-			points.push_back({ center + bottom * adjusted_radius });
+			
 		}
 		break;
 
@@ -447,33 +464,34 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 		adjusted_radius = hbx->m_flRadius * float(g_Options.ragebot_bodyscale[iCurGroup] / 100.f);
 
 		if (adjusted_radius > 0.f) {
-			points.push_back({ center + top * adjusted_radius });
+			
 			points.push_back({ center + right * adjusted_radius });
 			points.push_back({ center + left * adjusted_radius });
 		}
 		break;
 
 	case HITBOX_STOMACH:
-		adjusted_radius = hbx->m_flRadius * float(g_Options.ragebot_bodyscale[iCurGroup] / 100.f);
+		adjusted_radius = hbx->m_flRadius * float(g_Options.ragebot_bodyscale[iCurGroup] / 125.f);
 
 		if (adjusted_radius > 0.f) {
-			points.push_back({ center + top * adjusted_radius });
+		
 			points.push_back({ center + right * adjusted_radius });
 			points.push_back({ center + left * adjusted_radius });
 		}
 		break;
 
 	case HITBOX_PELVIS:
-		adjusted_radius = hbx->m_flRadius * float(g_Options.ragebot_bodyscale[iCurGroup] / 100.f);
+		adjusted_radius = hbx->m_flRadius * float(g_Options.ragebot_bodyscale[iCurGroup] / 125.f);
 
 		if (adjusted_radius > 0.f) {
 			points.push_back({ center + right * adjusted_radius });
 			points.push_back({ center + left * adjusted_radius });
-			points.push_back({ center + bottom * adjusted_radius });
+	
 		}
 		break;
 
 	case HITBOX_LEFT_FOREARM:
+
 	case HITBOX_RIGHT_FOREARM:
 		adjusted_radius = hbx->m_flRadius * float(g_Options.ragebot_otherscale[iCurGroup] / 100.f);
 
@@ -484,6 +502,7 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 		break;
 
 	case HITBOX_LEFT_CALF:
+
 	case HITBOX_RIGHT_CALF:
 		adjusted_radius = hbx->m_flRadius * float(g_Options.ragebot_otherscale[iCurGroup] / 100.f);
 
@@ -743,6 +762,7 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 	int best_damage = 0;
 	Vector best_point = Vector (0, 0, 0);
 
+	
 	for (auto point : points) {
 
 		auto  WallDamage = AutoWall::Get().GetPointDamage(point, pTarget);
@@ -840,6 +860,8 @@ bool RageBot::Aim(Vector point, int idx) {
 	bool canShoot      = (wep->m_flNextPrimaryAttack() <= flServerTime && wep->m_iClip1() > 0);
 	auto aimangle      = Math::CalcAngle (g_LocalPlayer->GetEyePos(), point);
 	QAngle localview;
+
+
 	g_EngineClient->GetViewAngles(&localview);
 	auto shoot_state = this->IsAbleToShoot();
 	bool Hitchanced  = this->Hitchance(aimangle);
@@ -854,17 +876,18 @@ bool RageBot::Aim(Vector point, int idx) {
 
 		
 		if (g_Options.ragebot_autofire && shoot_state) {
-			Snakeware::OnShot = true;
-			pCmd->tick_count  = TIME_TO_TICKS(pTarget->m_flSimulationTime() + LagCompensation::Get().LerpTime());
 
+			Snakeware::OnShot = true;
+			// Some stores
 			pCmd->buttons |= IN_ATTACK;
+
 		}
 		if (pCmd->buttons & IN_ATTACK) {
 
 			Snakeware::bSendPacket = true;
 
 			
-
+			pCmd->tick_count       = TIME_TO_TICKS(pTarget->m_flSimulationTime() + LagCompensation::Get().LerpTime());
 			pCmd->viewangles       = aimangle;
 
 			if (!g_Options.ragebot_silent) {
@@ -897,6 +920,7 @@ bool RageBot::Aim(Vector point, int idx) {
 }
 
 void RageBot::QuickStop () {
+
 	if (!g_Options.ragebot_autostop)
 		return;
 
