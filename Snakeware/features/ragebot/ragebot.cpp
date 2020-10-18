@@ -5,8 +5,9 @@
 #include <random>
 
 
-int iCurGroup;
-
+int              iCurGroup;
+static const int iTotalSeeds = 255;
+static std::vector<std::tuple<float, float, float>> PreComputedSeeds = {};
 
 void UpdateConfig () {
 	C_BaseCombatWeapon* weapon = g_LocalPlayer->m_hActiveWeapon();
@@ -42,6 +43,20 @@ bool RageBot::IsValid (C_BasePlayer * Player) {
 
 	return true;
 }
+
+void BulidSeedTable () {
+
+	if (!PreComputedSeeds.empty()) return;
+
+	for (auto i = 0; i < iTotalSeeds; i++) {
+		RandomSeed(i + 1);
+
+		const auto pi_seed = Math::RandomFloat (0.f, M_PI * 2);
+
+		PreComputedSeeds.emplace_back(Math::RandomFloat(0.f, 1.f), sin(pi_seed), cos(pi_seed));
+	}
+}
+
 
 void RageBot::Instance (CUserCmd * Cmd) {
 
@@ -303,16 +318,15 @@ void AutoRevolver(CUserCmd* cmd) {
 }
 
 bool RageBot::Hitchance (QAngle Aimangle) {
+
+	BulidSeedTable();
+
 	float flChance ;
-	auto  wep = g_LocalPlayer->m_hActiveWeapon();
+	auto  wep    = g_LocalPlayer->m_hActiveWeapon();
 	auto  wepidx = wep->m_Item().m_iItemDefinitionIndex();
-
-
 
 	if (!wep)
 		return false;
-
-
 
 	if (wepidx == WEAPON_ZEUS)
 		flChance = 80.f;
@@ -324,15 +338,20 @@ bool RageBot::Hitchance (QAngle Aimangle) {
 	Math::AngleVectors(Aimangle, fw, rw, uw);
 
 	int hits = 0;
-	int needed_hits = static_cast<int>(256.f * (flChance / 100.f));
+	int needed_hits = static_cast<int>(iTotalSeeds * (flChance / 100.f));
 
 	
 	float cone = wep->GetSpread();
 	float inacc = wep->GetInaccuracy();
-
+	std::tuple<float, float, float>* fSeed;
 	Vector src = g_LocalPlayer->GetEyePos();
 
-	for (int i = 0; i < 256; i++) {
+	for (int i = 0; i < iTotalSeeds; i++) {
+
+		// Zakonchit !
+
+		//fSeed = &PreComputedSeeds[i];
+
 		float a = Math::RandomFloat(0.f, 1.f);
 		float b = Math::RandomFloat(0.f, M_PI * 2.f);
 		float c = Math::RandomFloat(0.f, 1.f);
@@ -374,10 +393,10 @@ bool RageBot::Hitchance (QAngle Aimangle) {
 		if (tr.hit_entity == pTarget)
 			hits++;
 
-		if (static_cast<int>((static_cast<float>(hits) / 256.f) * 100.f) >= flChance)
+		if (static_cast<int>((static_cast<float>(hits) / iTotalSeeds) * 100.f) >= flChance)
 			return true;
 
-		if ((256 - i + hits) < needed_hits)
+		if ((iTotalSeeds - i + hits) < needed_hits)
 			return false;
 	}
 
@@ -603,41 +622,13 @@ bool RageBot::CheckSafePoint(Vector  pPoint) {
 	if (pPoint == Vector (0, 0, 0)) return false;
 
 	// Check safe-point on head
-	if (CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_HEAD, true, Resolver::Get().pMiddleMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_HEAD, true, Resolver::Get().pLeftMatrix))   
-		return true;
+	for (int iSafeBox = HITBOX_HEAD; iSafeBox < HITBOX_LEFT_THIGH; iSafeBox++) {
 
-	if (CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_HEAD, true, Resolver::Get().pMiddleMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_HEAD, true, Resolver::Get().pRightMatrix))
-		return true;
-
-	// Check safe-point on stomach (body)
-	if (CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_STOMACH, true, Resolver::Get().pMiddleMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_STOMACH, true, Resolver::Get().pLeftMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_STOMACH, true, Resolver::Get().pRightMatrix))
-		return true;
-
-	if (CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_PELVIS, true, Resolver::Get().pMiddleMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_PELVIS, true, Resolver::Get().pLeftMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_PELVIS, true, Resolver::Get().pRightMatrix))
-		return true;
-
-
-	if (CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_UPPER_CHEST, true, Resolver::Get().pMiddleMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_UPPER_CHEST, true, Resolver::Get().pLeftMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_UPPER_CHEST, true, Resolver::Get().pRightMatrix))
-		return true;
-
-	if (CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_CHEST, true, Resolver::Get().pMiddleMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_CHEST, true, Resolver::Get().pLeftMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_CHEST, true, Resolver::Get().pRightMatrix))
-		return true;
-
-
-	if (CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_LOWER_CHEST, true, Resolver::Get().pMiddleMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_LOWER_CHEST, true, Resolver::Get().pLeftMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_LOWER_CHEST, true, Resolver::Get().pRightMatrix))
-		return true;
+		if (CanHitHitbox (g_LocalPlayer->GetShootPos(), pPoint, pTarget, iSafeBox, true, Resolver::Get().pMiddleMatrix) &&
+			CanHitHitbox (g_LocalPlayer->GetShootPos(), pPoint, pTarget, iSafeBox, true, Resolver::Get().pLeftMatrix)   &&
+			CanHitHitbox (g_LocalPlayer->GetShootPos(), pPoint, pTarget, iSafeBox, true, Resolver::Get().pRightMatrix))
+			return true;
+	}
 
 	return false;
 }
@@ -772,10 +763,19 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 
 		bool bIsSafePoint = CheckSafePoint (point);
 			
-		if ( GetAsyncKeyState (g_Options.ragebot_force_safepoint) && !bIsSafePoint ) continue;
+		if (GetAsyncKeyState(g_Options.ragebot_force_safepoint) && !bIsSafePoint) {
+
+			bSafePointBox = true;
+
+			points.emplace_back (point);
+
+			continue;
+
+		}
 
 
 		auto isVisible = g_LocalPlayer->PointVisible(point);
+
 		if (g_Options.ragebot_autowall && !isVisible) {
 				
 				if (wep) {

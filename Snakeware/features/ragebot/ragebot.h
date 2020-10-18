@@ -52,7 +52,7 @@ public:
 	C_BasePlayer*  pTarget = nullptr;
 	int            iTargetID = 0;
 	CUserCmd      *pCmd; 
-
+	bool           bSafePointBox = false;
 	
 
 	Vector OldPoint[65];
