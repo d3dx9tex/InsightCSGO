@@ -35,6 +35,7 @@ namespace Snakeware
 
 	bool bBoneSetup;
 
+
 	std::string Delta;
 	std::string Delta2;
 	std::string Delta3;

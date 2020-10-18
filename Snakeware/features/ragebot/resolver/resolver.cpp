@@ -87,15 +87,15 @@ void Resolver::PreverseSafePoint (C_BasePlayer * pPlayer , int iSafeSide, float 
 }
 
 
-void StoreStatusPlayer(C_BasePlayer* pPlayer, int resolve_info, int side) {
-	Snakeware::Delta = side == -1 ? (resolve_info > 30 ? "Max Left" : "Low Left") : (resolve_info > 30 ? "Max Right" : "Low Right");
+void Resolver::StoreStatusPlayer(C_BasePlayer* pPlayer, int resolve_info, int side) {
+	ResolveRecord[pPlayer->EntIndex()].info = side == -1 ? "Max Left" :  "Max Right" ;
 }
 
 
 void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 
 	if (!pPlayer) return;
-	auto Index		= pPlayer->EntIndex() - 1;
+	auto Index		= pPlayer->EntIndex();
 	auto &rRecord	= ResolveRecord[Index];
 	float flYaw		= pPlayer->m_angEyeAngles().yaw;
 	int missedshots = 0;
@@ -131,7 +131,7 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 				rRecord.bWasUpdated   = true;
 			}
 		}
-	    int		   resolve_value		= (pPlayer->GetAnimOverlay(3)->m_flCycle == 0.f && pPlayer->GetAnimOverlay(3)->m_flWeight == 0.f) ? 60 : 29;
+	    int		   resolve_value		= 60;
 		const auto Choked				= std::max(0, TIME_TO_TICKS(pPlayer->m_flSimulationTime() - pPlayer->m_flOldSimulationTime()) - 1);
 		bool       backward				= pPlayer->m_angEyeAngles().yaw > 90 && pPlayer->m_angEyeAngles().yaw < -90;
 		if (Choked >= 1 && !GetAsyncKeyState(g_Options.ragebot_force_safepoint)) {
@@ -213,12 +213,12 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 				}
 				else {
 					if (backward) {
-						flYaw += resolve_value;
-						StoreStatusPlayer(pPlayer, resolve_value, 1);
-					}
-					else {
 						flYaw -= resolve_value;
 						StoreStatusPlayer(pPlayer, resolve_value, -1);
+					}
+					else {
+						flYaw += resolve_value;
+						StoreStatusPlayer(pPlayer, resolve_value, 1);
 					}
 				}
 			}

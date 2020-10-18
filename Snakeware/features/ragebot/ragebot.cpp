@@ -651,11 +651,18 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 	
 	if (GetAsyncKeyState(g_Options.ragebot_baim_key))
 		force_baim = true;
+	else
+		force_baim = false;
+
 	if (wepidx == WEAPON_ZEUS || wep->IsKnife())
 		force_baim = true;
+	else
+		force_baim = false;
 
 	if (g_Options.ragebot_adaptive_baim && (pTarget->m_iHealth() <= 39 || !(pTarget->m_fFlags() & FL_ONGROUND || (pTarget->m_vecVelocity().Length2D() >= 202))))
 		force_baim = true;
+	else
+		force_baim = false;
 
 	
 	pTarget->ForceBoneRebuilid ();
@@ -669,7 +676,7 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 
 		points.push_back({ pTarget->GetHitboxPos(HITBOX_HEAD) });
 
-		if (g_Options.ragebot_multipoint && Math::NormalizePitch(pTarget->m_angEyeAngles().pitch) >= 45.f ) {
+		if (g_Options.ragebot_multipoint ) {
 			Multipoints(HITBOX_HEAD, bones, points);
 		}
 	}
@@ -769,7 +776,6 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 
 						best_damage = WallDamage;
 						best_point  = point;
-
 					
 					}
 				}
@@ -894,24 +900,21 @@ void RageBot::QuickStop () {
 	if (!g_Options.ragebot_autostop)
 		return;
 
-	Vector Velocity = g_LocalPlayer->m_vecVelocity();
+	auto speed = 0.5;
 
-	if (Velocity.Length2D() == 0)
-		return;
 
-	static float Speed = 450.f;
+	float min_speed = (float)(Math::FASTSQRT((pCmd->forwardmove) * (pCmd->forwardmove) + (pCmd->sidemove) * (pCmd->sidemove) + (pCmd->upmove) * (pCmd->upmove)));
+	if (min_speed <= 3.f) return;
 
-	Vector Direction;
-	QAngle RealView;
-	Math::VectorAngles2(Velocity, Direction);
-	g_EngineClient->GetViewAngles (&RealView);
-	Direction.y = RealView.yaw - Direction.y;
+	if (pCmd->buttons & IN_DUCK)
+		speed *= 2.94117647f;
 
-	Vector Forward;
-	Math::AngleVectorS(Direction, &Forward);
-	Vector NegativeDirection = Forward * -Speed;
+	if (min_speed <= speed) return;
 
-	pCmd->forwardmove = NegativeDirection.x;
-	pCmd->sidemove = NegativeDirection.y;
+	float finalSpeed = (speed / min_speed);
+
+	pCmd->forwardmove *= finalSpeed;
+	pCmd->sidemove *= finalSpeed;
+	pCmd->upmove *= finalSpeed;
 }
 

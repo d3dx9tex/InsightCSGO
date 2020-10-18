@@ -299,7 +299,9 @@ void Visuals::Player::RenderFlags()
 
 	if (g_Options.esp_flags_flash && ctx.pl->IsFlashed())
 		AddFlag("flashed", Color(255, 255, 255, 155));
-		
+
+	AddFlag(Resolver::Get().ResolveRecord[ctx.pl->EntIndex()].info, Color(255, 255, 255, 155));
+
 
 }
 //--------------------------------------------------------------------------------

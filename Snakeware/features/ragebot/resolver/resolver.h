@@ -13,6 +13,7 @@ struct ResolveInfo {
 	int                     iResolvingWay;
 	int                     iMissedShots = 0;
 	bool                    bWasUpdated;
+	std::string			    info;
 };
 
 class Resolver : public Singleton < Resolver > {
@@ -21,10 +22,11 @@ public :
 	void PreverseSafePoint (C_BasePlayer * pPlayer, int iSafeSide, float flTime);
 
 	void DetectFakeSide    (C_BasePlayer * pPlayer);
+	void StoreStatusPlayer (C_BasePlayer* pPlayer, int resolve_info, int side);
 	void StoreResolveDelta (C_BasePlayer * pPlayer, ResolveInfo * cData);
 
 
-	ResolveInfo ResolveRecord [64];
+	ResolveInfo ResolveRecord [65];
 	
 	// SafePoint side's.
 	BoneArray pLeftMatrix    [MAXSTUDIOBONES];

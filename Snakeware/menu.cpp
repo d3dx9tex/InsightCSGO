@@ -211,6 +211,8 @@ void RenderRageBotTab()
 
 			ImGui::Text("Force safe-point  :");
 			ImGuiEX::Hotkey("##forcesp	  ", &g_Options.ragebot_force_safepoint, ImVec2(150, 20));
+			ImGui::Text("Force body  :");
+			ImGuiEX::Hotkey("forcebody	  ", &g_Options.ragebot_baim_key, ImVec2(150, 20));
 		
 		}
 		ImGui::EndChild();
