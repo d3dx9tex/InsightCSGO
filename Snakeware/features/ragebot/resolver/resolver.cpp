@@ -138,9 +138,9 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 
 			if (rRecord.iResolvingWay < 0) {
 
-				if (missedshots != 0) {
+				if (rRecord.iMissedShots != 0) {
 					//bruteforce player angle accordingly
-					switch (missedshots % 2) {
+					switch (rRecord.iMissedShots % 2) {
 					case 1: {
 						if (backward) {
 							flYaw += resolve_value;
@@ -181,9 +181,9 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 			}
 			else if (rRecord.iResolvingWay > 0) {
 
-				if (missedshots != 0) {
+				if (rRecord.iMissedShots != 0) {
 					//bruteforce player angle accordingly
-					switch (missedshots % 2) {
+					switch (rRecord.iMissedShots % 2) {
 					case 1: {
 						if (backward) {
 							flYaw -= resolve_value;
@@ -227,16 +227,6 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 			Math::NormalizeYaw(flYaw						);
 			Math::NormalizeYaw(pPlayer->m_angEyeAngles().yaw);
 			pPlayer->GetPlayerAnimState()->m_flGoalFeetYaw = flYaw;
-		}
-
-
-		switch (rRecord.iMissedShots % 2) {
-		case 0 :
-			 // baimov pasti
-			break;
-		case 1:
-			// baimov pasti
-			break;
 		}
 		
 	}

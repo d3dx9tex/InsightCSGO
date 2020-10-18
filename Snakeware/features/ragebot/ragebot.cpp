@@ -270,7 +270,37 @@ void RageBot::ResetTarget() {
 	iTargetID         = -1;
 	
 }
+void AutoRevolver(CUserCmd* cmd) {
 
+	if (g_LocalPlayer->m_hActiveWeapon()->m_Item().m_iItemDefinitionIndex() != WEAPON_REVOLVER)
+		return;
+
+	if (cmd->buttons & IN_ATTACK)
+		return;
+
+	cmd->buttons &= ~IN_ATTACK2;
+
+	static auto r8cock_time = 0.0f;
+	auto server_time = TICKS_TO_TIME(g_LocalPlayer->m_nTickBase() * g_GlobalVars->interval_per_tick);
+
+	if (g_LocalPlayer->m_hActiveWeapon()->CanFire())
+	{
+		if (r8cock_time <= server_time) //-V807
+		{
+			if (g_LocalPlayer->m_hActiveWeapon()->m_flNextSecondaryAttack() <= server_time)
+				r8cock_time = server_time + 0.234375f;
+			else
+				cmd->buttons|= IN_ATTACK2;
+		}
+		else
+			cmd->buttons |= IN_ATTACK;
+	}
+	else
+	{
+		r8cock_time = server_time + 0.234375f;
+		cmd->buttons &= ~IN_ATTACK;
+	}
+}
 
 bool RageBot::Hitchance (QAngle Aimangle) {
 	float flChance ;
@@ -482,11 +512,10 @@ bool RageBot::IsAbleToShoot() {
 	if (wep->m_iClip1() < 1)
 		return false;
 
+	if (g_LocalPlayer->m_hActiveWeapon()->m_Item().m_iItemDefinitionIndex() == WEAPON_REVOLVER)
+		return false;
+
 	if ((g_LocalPlayer->m_flNextAttack() > time) || wep->m_flNextPrimaryAttack() > time || wep->m_flNextSecondaryAttack() > time) {
-		
-
-		// Revolver check maybe...
-
 		return false;
 	}
 
@@ -504,7 +533,7 @@ bool RageBot::CanHitHitbox(Vector vecStart, Vector vecEnd, C_BasePlayer* pPlayer
 	if (in_shot)
 		matrix = bones;
 
-	if (!matrix)
+	if (!matrix)	
 		return false;
 
 	const model_t* model = pPlayer->GetModel();

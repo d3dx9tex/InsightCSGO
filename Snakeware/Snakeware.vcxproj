@@ -97,7 +97,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>C:\Users\Эдик\Desktop\Snakeware[csgo]\Snakeware[csgo]\lua53.lib;C:\Users\Эдик\Desktop\Snakeware[csgo]\Snakeware[csgo]\Snakeware\helpers\det0ur-hook\detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>D:\Документы\GitHub\InsightCSGO\lua53.lib;D:\Документы\GitHub\InsightCSGO\Snakeware\helpers\det0ur-hook\detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalOptions>/SAFESEH:NO %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>

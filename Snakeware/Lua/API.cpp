@@ -898,7 +898,6 @@ namespace lua {
 		lua_state["cmd"] = cmd;
 
 		auto clientstate = lua_state.create_table();
-		lua_state["m_nChokedCmds"] = g_ClientState->m_nChokedCmds;
 		lua_state["clientstate"] = clientstate;
 
 		auto config = lua_state.create_table();
