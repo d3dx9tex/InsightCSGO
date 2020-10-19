@@ -696,6 +696,59 @@ bool C_BasePlayer::SetupBonesRebulid () {
 	return bSetuped;
 }
 
+bool C_BasePlayer::SetupBonesFixed (matrix3x4_t mMatrix[MAXSTUDIOBONES] , int iMask) {
+	// From onetapv3 dump...
+	// by @5N4K3 && @sharklaser1
+
+	bool bSetuped = false;
+	float flSimTime = m_flSimulationTime();
+
+	auto BackupCurtime = g_GlobalVars->curtime;
+	auto BackupFrametime = g_GlobalVars->frametime;
+	auto BackupAbsFrametime = g_GlobalVars->absoluteframetime;
+	auto BackupFramecount = g_GlobalVars->framecount;
+	auto BackupTickcount = g_GlobalVars->tickcount;
+
+	auto BackupOcclusionFlags = GetOcclusionFlags();
+	auto BackupOcclusionFramecount = GetOcclusionFramecount();
+	auto BackupBoneArray = GetBoneArrayForWrite();
+
+	g_GlobalVars->curtime = flSimTime;
+	g_GlobalVars->frametime = g_GlobalVars->interval_per_tick;
+	g_GlobalVars->absoluteframetime = g_GlobalVars->interval_per_tick;
+	g_GlobalVars->framecount = TIME_TO_TICKS(flSimTime);
+	g_GlobalVars->tickcount = TIME_TO_TICKS(flSimTime);
+
+	GetOcclusionFlags() = 0;
+	GetOcclusionFramecount() = 0;
+
+	GetReadableBones() = GetWritableBones() = 0;
+
+	GetEffect() |= 0x8;
+
+	Snakeware::bBoneSetup = true;
+
+	bSetuped = SetupBones(mMatrix, MAXSTUDIOBONES, iMask, flSimTime); // SetupBones
+
+	Snakeware::bBoneSetup = false;
+
+	GetBoneArrayForWrite() = BackupBoneArray;
+	GetOcclusionFlags() = BackupOcclusionFlags;
+	GetOcclusionFramecount() = BackupOcclusionFramecount;
+
+	GetEffect() &= ~0x8;
+
+
+	g_GlobalVars->curtime = BackupCurtime;
+	g_GlobalVars->frametime = BackupFrametime;
+	g_GlobalVars->absoluteframetime = BackupAbsFrametime;
+	g_GlobalVars->framecount = BackupFramecount;
+	g_GlobalVars->tickcount = BackupTickcount;
+
+	return bSetuped;
+}
+
+
 void C_BasePlayer::SetSnakewareAngles(QAngle angles)
 {
 	// nixer paster esli 4o ))00)0

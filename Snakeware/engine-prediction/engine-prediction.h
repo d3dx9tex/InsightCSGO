@@ -1,32 +1,53 @@
 #pragma once
 #include "../valve_sdk/csgostructs.hpp"
 #include "../helpers/math.hpp"
-class EnginePrediction : public Singleton<EnginePrediction>
-{
-public:
-	void PreStart();
-	void Start(CUserCmd* cmd, C_BasePlayer* local);
-	void Finish(C_BasePlayer* local);
-	CMoveData data;
-	int get_tickbase();
+// Engine-prediction
+// by Slazy && PlatinaTrisotni
+// Баимов как ты и просил
 
-	float get_curtime();
-
-	
-	Vector get_unpred_vel() const;
-	Vector get_pred_vel() const;
-	Vector get_unpred_eyepos() const;
-	
-	struct {
-		float curtime, frametime;
-		int tickcount, tickbase;
-	}old_vars;
-
-	struct Viewmodel {
-		float m_flViewmodelCycle;
-		float m_flViewmodelAnimTime;
-	} StoredViewmodel;
+class EnginePrediction : public Singleton<EnginePrediction> {
 private:
-	int32_t TickBase{}, SeqDiff{};
-	Vector unpred_vel, unpred_eyepos,pred_vel;
+
+	struct {
+		__forceinline void Store() {
+			flCurTime = g_GlobalVars->curtime;
+			flFrameTime = g_GlobalVars->frametime;
+
+			bInPrediction = g_Prediction->InPrediction();
+
+		}
+
+		__forceinline void Restore() {
+			g_GlobalVars->curtime = flCurTime;
+			g_GlobalVars->frametime = flFrameTime;
+
+			*(bool*)(uintptr_t(g_Prediction) + 8) = bInPrediction;
+
+		}
+
+		float flFrameTime, flCurTime;
+		bool  bInPrediction;
+	} Backup;
+
+public:
+	EnginePrediction() {
+		iRandomSeed = *(int**)(Utils::PatternScan(GetModuleHandleA("client.dll"), "8B 0D ?? ?? ?? ?? BA ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 C4") + 0x2);
+	}
+
+	void Predict(C_BasePlayer* pPlayer, CUserCmd* pCmd);
+
+	void ProcessPredict(C_BasePlayer * pPlayer, CUserCmd * pCmd);
+
+	void Restore(C_BasePlayer * pPlayer, CUserCmd * pCmd);
+
+	int* iRandomSeed;
+	C_BasePlayer* m_pPlayer;
+
+	CMoveData* MoveData;
+	float flSpread, flInaccuracy;
+
+
+
+	void PreStart();
+
 };

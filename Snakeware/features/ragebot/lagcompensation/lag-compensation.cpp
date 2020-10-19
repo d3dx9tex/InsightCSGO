@@ -32,9 +32,10 @@ void LagCompensation::Instance() const {
 
 		// Раньше я делал по концепту gucci, но нахуя нам обновлять анимации далеко до стора самой даты..
 	
+		
+		SetInterpolationFlags          (Entity, DISABLE_INTERPOLATION);   // Disable data interpolation's.
+		UpdatePlayerRecordData         (Entity);                          // Update record data && Update player data..
 		Resolver::Get().DetectFakeSide (Entity);                          // Find fake side..
-		SetInterpolationFlags          (Entity, DISABLE_INTERPOLATION);  // Disable data interpolation's.
-		UpdatePlayerRecordData         (Entity);                       // Update record data && Update player data..
 		
 		
 		
@@ -337,8 +338,13 @@ int LagCompensation::StartLagCompensation (C_BasePlayer* pPlayer, int iTick, cTi
 	if (!curRecord.m_bDataFilled || !nextRecord.m_bDataFilled || iTick > 0 && IsTimeDelta2Large(curRecord))
 		return -1;
 
-	if (iTick == 0 && (curRecord.vecOrigin - nextRecord.vecOrigin).LengthSqr () > 4096.f)
-		PredictPlayer (pPlayer, &curRecord, &nextRecord);
+	if (iTick == 0 && (curRecord.vecOrigin - nextRecord.vecOrigin).LengthSqr() > 4096.f) {
+		PredictPlayer              (pPlayer, &curRecord, &nextRecord);
+		ApplyRecordData            (pPlayer, &curRecord);
+		pPlayer->ForceBoneRebuilid ();
+		pPlayer->SetupBonesRebulid ();
+		StoreRecordData            (pPlayer, &curRecord);
+	}
 	// Some rebulides
 
 	if  (outRecord != nullptr && curRecord.m_bDataFilled)
@@ -526,17 +532,50 @@ void LagCompensation::UpdatePlayerRecordData (C_BasePlayer* pPlayer) const {
 		auto  AbsAngle = newRecord.m_absEyeAngles;
 		// Null matix
 		
+		const auto flPoses = pPlayer->m_flPoseParameter();
+		const auto angEyeAngles = pPlayer->m_angEyeAngles();
+		const auto vecVelocity = pPlayer->m_vecVelocity();
+		const auto vecOrigin = pPlayer->m_vecOrigin();
+		const auto flDuckAmount = pPlayer->m_flDuckAmount();
+		const auto flSimtime = pPlayer->m_flSimulationTime();
+		const auto fFlags = pPlayer->m_fFlags();
+
+
 		Resolver::Get().PreverseSafePoint (pPlayer, 0, newRecord.flSimTime);
 
-		ApplyRecordData(pPlayer, &newRecord);
 		
+		pPlayer->ForceBoneRebuilid();
+		pPlayer->m_vecVelocity()      = vecVelocity;
+		pPlayer->m_vecOrigin()        = vecOrigin;
+		pPlayer->m_flDuckAmount()     = flDuckAmount;
+		pPlayer->m_flSimulationTime() = flSimtime;
+		pPlayer->m_angEyeAngles()     = angEyeAngles;
+		pPlayer->m_fFlags()           = fFlags;
+		pPlayer->m_vecAbsVelocity()   = vecVelocity;
+
 		Resolver::Get().PreverseSafePoint(pPlayer, -1, newRecord.flSimTime);
 
-		ApplyRecordData(pPlayer, &newRecord);
+		pPlayer->ForceBoneRebuilid ();
+		pPlayer->m_vecVelocity()      = vecVelocity;
+		pPlayer->m_vecOrigin()        = vecOrigin;
+		pPlayer->m_flDuckAmount()     = flDuckAmount;
+		pPlayer->m_flSimulationTime() = flSimtime;
+		pPlayer->m_angEyeAngles()     = angEyeAngles;
+		pPlayer->m_fFlags()           = fFlags;
+		pPlayer->m_vecAbsVelocity()   = vecVelocity;
 
 		Resolver::Get().PreverseSafePoint(pPlayer, 1, newRecord.flSimTime);
 
-		ApplyRecordData (pPlayer, &newRecord);
+		pPlayer->ForceBoneRebuilid();
+		pPlayer->m_vecVelocity()      = vecVelocity;
+		pPlayer->m_vecOrigin()        = vecOrigin;
+		pPlayer->m_flDuckAmount()     = flDuckAmount;
+		pPlayer->m_flSimulationTime() = flSimtime;
+		pPlayer->m_angEyeAngles()     = angEyeAngles;
+		pPlayer->m_fFlags()           = fFlags;
+		pPlayer->m_vecAbsVelocity()   = vecVelocity;
+
+		
 
 	}
 }
@@ -644,4 +683,64 @@ void LagCompensation::FixNetvarCompression (C_BasePlayer* pPlayer) {
 	if (!(pPlayer->m_fFlags() & FL_ONGROUND)) {
 		pPlayer->m_vecVelocity().z -= sv_gravity->GetFloat() * chokedTime * 0.5f;
 	}
+}
+
+
+void LagCompensation::UpdateAnimationsInfo (C_BasePlayer* pPlayer, cTickRecord* fFrom) {
+
+
+	auto ResolveInfo = &Resolver::Get().ResolveRecord[pPlayer->EntIndex() - 1];
+
+	pPlayer->SetAbsOrigin (pPlayer->m_vecOrigin());
+
+	auto iLag = fFrom == nullptr ? 1 : TICKS_TO_TIME(pPlayer->m_flSimulationTime() - fFrom->flSimTime);
+	    iLag  = Math::Clamp(iLag, 1, 17);
+
+		if (fFrom) {
+
+			pPlayer->m_angEyeAngles().pitch = std::clamp(Math::NormalizePitch(pPlayer->m_angEyeAngles().pitch), -89.f, 89.f);
+
+		}
+
+
+		if (fFrom == nullptr ||  (iLag - 1) <= 1) {
+
+			pPlayer->GetPlayerAnimState()->m_flFeetYawRate = 0.f;
+			pPlayer->UpdateClientSideAnimation ();
+			
+			return;
+		}
+
+		for (auto i = 0; i < iLag; i++) {
+			const auto flTime = fFrom->flSimTime + TICKS_TO_TIME(i + 1);
+			const auto flLerp = 1.f - (pPlayer->m_flSimulationTime() - flTime) / (pPlayer->m_flSimulationTime() - fFrom->flSimTime);
+			const auto backupCurtime   = g_GlobalVars->curtime;
+			const auto backupRealtime  = g_GlobalVars->realtime;
+			const auto backupFrametime = g_GlobalVars->frametime;
+
+
+			pPlayer->m_flDuckAmount() = Math::Interpolate(fFrom->flDuckAmmount, pPlayer->m_flDuckAmount(), flLerp);
+
+
+			auto flEyeAngles              = Math::Interpolate(fFrom->m_eyeAngles, pPlayer->m_angEyeAngles(), flLerp);
+			flEyeAngles.yaw               = Math::NormalizeYaw(flEyeAngles.yaw);
+			pPlayer->m_angEyeAngles().yaw = flEyeAngles.yaw;
+
+			// fix feet spin.
+			pPlayer->GetPlayerAnimState()->m_flFeetCycle    =  fFrom->AnimLayers[6].m_flCycle;
+			pPlayer->GetPlayerAnimState()->m_flFeetYawRate  =  fFrom->AnimLayers[6].m_flWeight;
+
+			g_GlobalVars->realtime  = flTime;
+			g_GlobalVars->curtime   = flTime;
+			g_GlobalVars->frametime = g_GlobalVars->interval_per_tick;
+
+			pPlayer->UpdateClientSideAnimation();
+
+			g_GlobalVars->realtime = backupRealtime;
+			g_GlobalVars->curtime  = backupCurtime;
+			g_GlobalVars->frametime = backupFrametime;
+
+
+		}
+
 }

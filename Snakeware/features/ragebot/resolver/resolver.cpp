@@ -133,7 +133,7 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 		}
 	    int		   resolve_value		= 60;
 		const auto Choked				= std::max(0, TIME_TO_TICKS(pPlayer->m_flSimulationTime() - pPlayer->m_flOldSimulationTime()) - 1);
-		bool       backward				= pPlayer->m_angEyeAngles().yaw > 90 && pPlayer->m_angEyeAngles().yaw < -90;
+		bool       backward				= pPlayer->m_angEyeAngles().yaw > 116 && pPlayer->m_angEyeAngles().yaw < -116;
 		if (Choked >= 1 && !GetAsyncKeyState(g_Options.ragebot_force_safepoint)) {
 
 			if (rRecord.iResolvingWay < 0) {
@@ -244,7 +244,7 @@ void Resolver::StoreResolveDelta(C_BasePlayer * pPlayer,ResolveInfo * cData) {
 	const auto flDuckAmount   = pPlayer->m_flDuckAmount();
 	const auto flSimtime      = pPlayer->m_flSimulationTime();
 	const auto fFlags         = pPlayer->m_fFlags();
-
+	
 
 	std::memcpy(cData->ResolverLayers[0], pPlayer->GetAnimOverlays(), (sizeof(AnimationLayer) * pPlayer->GetNumAnimOverlays()));
 
@@ -258,6 +258,8 @@ void Resolver::StoreResolveDelta(C_BasePlayer * pPlayer,ResolveInfo * cData) {
 	pPlayer->m_vecAbsVelocity()   = vecVelocity;
 
 
+	
+
 	std::memcpy(cData->ResolverLayers[1], pPlayer->GetAnimOverlays(), (sizeof(AnimationLayer) * pPlayer->GetNumAnimOverlays()));
 
 	pPlayer->ForceBoneRebuilid();
@@ -268,6 +270,8 @@ void Resolver::StoreResolveDelta(C_BasePlayer * pPlayer,ResolveInfo * cData) {
 	pPlayer->m_angEyeAngles() = angEyeAngles;
 	pPlayer->m_fFlags() = fFlags;
 	pPlayer->m_vecAbsVelocity() = vecVelocity;
+
+
 
 	std::memcpy(cData->ResolverLayers[2], pPlayer->GetAnimOverlays(), (sizeof(AnimationLayer) * pPlayer->GetNumAnimOverlays()));
 

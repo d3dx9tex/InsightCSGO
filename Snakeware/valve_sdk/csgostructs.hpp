@@ -432,7 +432,8 @@ public:
 	}
 	/*Gladiator v2.1*/
 	void InvalidateBoneCache();
-	bool SetupBonesRebulid();
+	bool SetupBonesRebulid  ();
+	bool SetupBonesFixed    (matrix3x4_t mMatrix[MAXSTUDIOBONES], int iMask);
 	void SetSnakewareAngles(QAngle angles);
 	void SetAbsAngles(const QAngle& angles);
 	const Vector WorldSpaceCenter();

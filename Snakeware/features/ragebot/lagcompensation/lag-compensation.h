@@ -97,7 +97,8 @@ public:
 	bool          bLagCompensated;
 	float         flLby, flLbyLastUpdate;
 
-	std::deque < cTickRecord > pRecords[LAG_COMPENSATION_TICKS];
+	std::deque < cTickRecord > pRecords   [LAG_COMPENSATION_TICKS];
+	
 };
 
 class cSimulationRecord  {
@@ -144,6 +145,7 @@ public:
 	static void        SetInterpolationFlags       (C_BasePlayer * pPlayer, int iFlag);
 	static void        Reset                       ();
 	static void        FixNetvarCompression        (C_BasePlayer * pPlayer);
+	static void        UpdateAnimationsInfo        (C_BasePlayer * pPlayer, cTickRecord * fFrom);
 
 
 
