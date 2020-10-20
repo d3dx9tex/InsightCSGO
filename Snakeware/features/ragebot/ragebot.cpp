@@ -92,7 +92,7 @@ void RageBot::Instance (CUserCmd * Cmd) {
 	int  iBestHealth    = 101;
 
 	
-	//LagCompensation::Get().StartPositionAdjustment();
+	LagCompensation::Get().StartPositionAdjustment();
 	if (bFindNewTarget) {
 
 		
@@ -114,11 +114,6 @@ void RageBot::Instance (CUserCmd * Cmd) {
 		
 	}
 
-	
-
-	if (!IsValid(pTarget)) {
-		LagCompensation::Get().Reset();
-	}
 
 	
 
@@ -131,7 +126,11 @@ void RageBot::Instance (CUserCmd * Cmd) {
 		}
 	}
 
-	//LagCompensation::Get().FinishPositionAdjustment();
+	LagCompensation::Get().FinishPositionAdjustment();
+
+	if (!IsValid(pTarget)) {
+		LagCompensation::Get().Reset();
+	}
 
 	if (pCmd->buttons & IN_ATTACK) {
 		if (g_Options.ragebot_remove_recoil)
@@ -670,7 +669,7 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 
 	
 	pTarget->ForceBoneRebuilid ();
-	pTarget->SetupBones        (bones, 128 , BONE_USED_BY_ANYTHING , 0)        ; // rebulid time
+	pTarget->SetupBonesFixed(bones, BONE_USED_BY_ANYTHING); // rebulid time
 
 	if (bones == nullptr)
 		return Vector(0, 0 ,0);
@@ -864,7 +863,9 @@ bool RageBot::Aim(Vector point, int idx) {
 
 		if (g_Options.ragebot_autofire && shoot_state) {
 			Snakeware::OnShot = true;
-			pCmd->tick_count  = TIME_TO_TICKS(pTarget->m_flSimulationTime() + LagCompensation::Get().LerpTime());
+
+			if (IsValidTick)
+				pCmd->tick_count = Snakeware::pLagRecords[Idx].TickCount;
 
 			pCmd->buttons |= IN_ATTACK;
 		}
