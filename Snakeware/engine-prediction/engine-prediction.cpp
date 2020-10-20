@@ -1,7 +1,7 @@
 #include "engine-prediction.h"
 #include "../options.hpp"
-void EnginePrediction::PreStart()
-{
+void EnginePrediction::PreStart() {
+
 	if (Snakeware::g_flVelocityModifer < 1.f)
 		*(bool*)((uintptr_t)g_Prediction + 0x24) = true;
 
@@ -9,90 +9,71 @@ void EnginePrediction::PreStart()
 		g_Prediction->Update(g_ClientState->iDeltaTick, true, g_ClientState->nLastCommandAck, g_ClientState->nLastOutgoingCommand + g_ClientState->iChokedCommands);
 }
 
-void EnginePrediction::Start(CUserCmd* cmd, C_BasePlayer* local) {
 
-	static auto weapon    = local->m_hActiveWeapon();
-	static auto oldorigin = g_LocalPlayer->m_vecOrigin();
+void EnginePrediction::Predict (C_BasePlayer* pPlayer, CUserCmd* pCmd) {
 
+	if (!pPlayer->IsAlive()) return;
 
-	if (weapon && local) {
-		Snakeware::flNextSecondaryAttack = weapon->m_flNextSecondaryAttack();
+	//m_player = player;
+	*iRandomSeed = pCmd->random_seed;
+
+	*(bool*)(uintptr_t(g_Prediction) + 8) = true; // InPrediction
+	// One more + gamefunc
+
+	g_GlobalVars->curtime    = TICKS_TO_TIME(pPlayer->m_nTickBase());
+	g_GlobalVars->frametime  = pPlayer->m_fFlags() & FL_FROZEN ? 0.f : g_GlobalVars->interval_per_tick;
+
+	g_MoveHelper->SetHost                       (pPlayer);
+
+	g_GameMovement->StartTrackPredictionErrors  (pPlayer);
+
+	g_GameMovement->ProcessMovement             (pPlayer, MoveData);
+
+	g_Prediction->FinishMove                    (pPlayer, pCmd, MoveData);
+
+	g_GameMovement->FinishTrackPredictionErrors (pPlayer);
+
+	g_MoveHelper->SetHost                       (nullptr);
+
+	//m_player = nullptr;
+	*iRandomSeed = -1;
+
+	const auto pWeapon = pPlayer->m_hActiveWeapon();
+
+	if (!pWeapon) {
+		flSpread = flInaccuracy = 0.f;
+		return;
 	}
-
-	//g_Prediction->InPrediction() = true;;
 	
-	unpred_vel = (g_LocalPlayer->m_vecOrigin() - oldorigin) * (1.0 / g_GlobalVars->interval_per_tick);
-	oldorigin = g_LocalPlayer->m_vecOrigin();
+	pWeapon->UpdateAccuracyPenalty ();
 
-	unpred_eyepos = g_LocalPlayer->GetEyePos();
+	flSpread     = pWeapon->GetSpread();
 
-
-	old_vars.curtime   = g_GlobalVars->curtime;
-	old_vars.frametime = g_GlobalVars->frametime;
-	old_vars.tickcount = g_GlobalVars->tickcount;
-
-	g_GlobalVars->curtime   = TICKS_TO_TIME(local->m_nTickBase());
-	g_GlobalVars->frametime =  g_EngineClient->IsPaused() ? 0.f : g_GlobalVars->interval_per_tick;
-	g_GlobalVars->tickcount = TIME_TO_TICKS(g_GlobalVars->curtime);
-
-	g_GameMovement->StartTrackPredictionErrors(local);
-	g_MoveHelper->SetHost(local);
-
-	
-
-	memset(&data, 0, sizeof(data));
-
-	g_Prediction->SetupMove(local, cmd, g_MoveHelper, &data);
-	g_GameMovement->ProcessMovement(local, &data);
-	
-	unpred_eyepos = g_LocalPlayer->GetEyePos();
-
-	g_Prediction->FinishMove(local, cmd, &data);
-	
-
-	if (weapon)
-	weapon->UpdateAccuracyPenalty(); 
-
-
-
+	flInaccuracy = pWeapon->GetInaccuracy();
 }
 
-void EnginePrediction::Finish(C_BasePlayer* local) {
+void EnginePrediction::ProcessPredict (C_BasePlayer* pPlayer, CUserCmd* pCmd) {
 
-	//g_Prediction->InPrediction = false;
-	g_GameMovement->FinishTrackPredictionErrors(local);
-	g_MoveHelper->SetHost(nullptr);
-	g_GameMovement->Reset();
+	Backup.Store();
 
-	g_GlobalVars->curtime   = old_vars.curtime;
-	g_GlobalVars->frametime = old_vars.frametime;
-	g_GlobalVars->tickcount = old_vars.tickcount;
-}
-// beta shit predict
+	//m_player = player;
+	*iRandomSeed = pCmd->random_seed;
 
+	g_GlobalVars->curtime   = TICKS_TO_TIME (pPlayer->m_nTickBase());
+	g_GlobalVars->frametime = g_GlobalVars->interval_per_tick;
 
-int EnginePrediction::get_tickbase()
-{
-	return g_LocalPlayer->m_nTickBase();
+	g_GameMovement->StartTrackPredictionErrors (pPlayer);
+
+	g_Prediction->SetupMove (pPlayer, pCmd, g_MoveHelper, MoveData);
+
+	Predict (pPlayer, pCmd);
 }
 
-float EnginePrediction::get_curtime()
-{
-	return get_tickbase() * g_GlobalVars->interval_per_tick;
+void EnginePrediction::Restore (C_BasePlayer* pPlayer, CUserCmd* pCmd) {
+	//m_player = nullptr;
+	*iRandomSeed = -1;
+
+	Backup.Restore();
 }
 
-
-Vector EnginePrediction::get_unpred_vel() const
-{
-	return unpred_vel;
-}
-
-Vector EnginePrediction::get_pred_vel() const
-{
-	return pred_vel;
-}
-
-Vector EnginePrediction::get_unpred_eyepos() const
-{
-	return unpred_eyepos;
-}
+// Need more cmd-fix

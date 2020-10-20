@@ -381,7 +381,7 @@ namespace Hooks {
 
 	//----------------------------------------------------------------------------------------------------------------
 	void WriteUserCmd(bf_write* buf, CUserCmd* in, CUserCmd* out) {
-		static DWORD WriteUsercmdF = (DWORD)Utils::PatternScan(GetModuleHandleA("client.dll"), "55 8B EC 83 E4 F8 51 53 56 8B D9 8B 0D");
+		static DWORD WriteUsercmdF = (DWORD)Utils::PatternScan(GetModuleHandleA("client.dll"), "55 8B EC 83 E4 F8 51 53 56 8B D9");
 
 		__asm
 		{
@@ -393,74 +393,82 @@ namespace Hooks {
 		}
 	}
 	//-------------------------------------------------------------------------------
-	bool __fastcall hkWriteUsercmdDeltaToBuffer(void* ECX, void* EDX, int nSlot, bf_write* buf, int from, int to, bool isNewCmd)
+	bool __fastcall hkWriteUsercmdDeltaToBuffer(void* ECX, void* EDX, int nSlot, bf_write* Buffer, int fFrom, int iTo, bool isNewCmd)
 	{
 	
 		static auto oReturn = Utils::PatternScan(GetModuleHandleA(solution::Get().enginedll.c_str()), "84 C0 74 04 B0 01 EB 02 32 C0 8B FE 46 3B F3 7E C9 84 C0 0F 84 ? ? ? ?");
 		static auto oFunc = hlclient_hook.get_original<WriteUsercmdDeltaToBufferFn>(24);
 
+		if (!Snakeware::m_nTickbaseShift) return oFunc(ECX, nSlot, Buffer, fFrom, iTo, isNewCmd);
 
-		if ((_ReturnAddress()) != oReturn)
-			return oFunc(ECX, nSlot, buf, from, to, isNewCmd);
+		if (fFrom != -1)                  return true;
 
-		if (g_EngineClient->IsConnected() && g_EngineClient->IsInGame() && g_LocalPlayer) {
+		auto iFinalFrom = -1;
 
-			if (Snakeware::m_nTickbaseShift <= 0 || g_ClientState->iChokedCommands > 3)
-				return oFunc(ECX, nSlot, buf, from, to, isNewCmd);
+		uintptr_t frame_ptr; // from LVv3
+		__asm mov frame_ptr, ebp;
 
-			if (from != -1) return true;
+		auto BackupCommands = reinterpret_cast <int*> (frame_ptr + 0xFD8);
+		auto NewCommands    = reinterpret_cast <int*> (frame_ptr + 0xFDC);
 
-			// number of backup and new commands
-			int* pNumBackupCommands = (int*)((uintptr_t)buf - 0x30);
-			int* pNumNewCommands    = (int*)((uintptr_t)buf - 0x2C);
-			auto net_channel        = *reinterpret_cast<INetChannel * *>(reinterpret_cast<uintptr_t>(g_ClientState) + 0x9C);
-			int32_t new_commands    = *pNumNewCommands;
-			auto NextCmdNumb        =  g_ClientState->nLastOutgoingCommand + g_ClientState->iChokedCommands + 1;
-			auto TotalNewCmds       =  std::min(Snakeware::m_nTickbaseShift, 16);
+		auto NewCmds = *NewCommands;
+		auto iShift  = Snakeware::m_nTickbaseShift;
 
+		Snakeware::m_nTickbaseShift = 0;
+		*BackupCommands             = 0;
 
-			Snakeware::m_nTickbaseShift -= TotalNewCmds;
+		auto m_nTotalNewCmds = NewCmds + iShift;
 
+		if (m_nTotalNewCmds > 62)
+			m_nTotalNewCmds = 62;
 
-			from = -1;
-			*pNumNewCommands    = TotalNewCmds;
-			*pNumBackupCommands = 0;
+		*NewCommands = m_nTotalNewCmds;
 
+		auto mNextCmd = g_ClientState->iChokedCommands + g_ClientState->nLastOutgoingCommand + 1;
+		auto iFinalTo = mNextCmd - NewCmds + 1;
 
+		if (iFinalTo <= mNextCmd) {
 
+			while (oFunc(ECX, nSlot, Buffer, fFrom, iTo, true)) {
 
+				iFinalFrom = iFinalTo++;
 
-			for (to = NextCmdNumb - new_commands + 1; to <= NextCmdNumb; to++) {
-				if (!oFunc(ECX, nSlot, buf, from, to, true))
-					return false;
-
-				from = to;
+				if (iFinalTo > mNextCmd)
+					goto LABEL_22;
 			}
 
-			CUserCmd* last_realCmd = g_Input->GetUserCmd(nSlot, from);
-			CUserCmd  fromCmd;
+			return false;
+		}
 
-			if (last_realCmd)
-				fromCmd = *last_realCmd;
+	LABEL_22:
 
-			CUserCmd toCmd = fromCmd;
-			toCmd.command_number++;
-			toCmd.tick_count+= 200;
+		auto pUserCmd = g_Input->GetUserCmd(iFinalFrom);
 
-			for (int i = new_commands; i <= TotalNewCmds; i++) {
-				WriteUserCmd(buf, &toCmd, &fromCmd);
-				fromCmd = toCmd;
-				toCmd.command_number++;
-				toCmd.tick_count++;
-			}
+		if (!pUserCmd) return true;
+
+		CUserCmd toCmd;
+		CUserCmd fromCmd;
+
+		fromCmd = *pUserCmd;
+		toCmd   = fromCmd;
+
+		toCmd.command_number++;
+		toCmd.tick_count += 200;
+
+		if (NewCmds > m_nTotalNewCmds)
 			return true;
+
+		for (auto i = m_nTotalNewCmds - NewCmds + 1; i > 0; --i) {
+
+			WriteUserCmd(Buffer, &toCmd, &fromCmd);
+
+			fromCmd = toCmd;
+
+			toCmd.command_number++;
+			toCmd.tick_count++;
 		}
-		else {
-			return oFunc(ECX, nSlot, buf, from, to, isNewCmd);
-		}
 
-
-
+		return true;
 	}
 	//--------------------------------------------------------------------------------
 
@@ -513,8 +521,8 @@ namespace Hooks {
 		if (!player || player != g_LocalPlayer)
 			return;
 
-		if (pMoveData && &EnginePrediction::Get().data != pMoveData)
-			std::memcpy(&EnginePrediction::Get().data, pMoveData, sizeof(CMoveData));
+		if (pMoveData && &EnginePrediction::Get().MoveData != pMoveData)
+			std::memcpy(&EnginePrediction::Get().MoveData, pMoveData, sizeof(CMoveData));
 
 		return ofunc(ecx, edx, player, ucmd, moveHelper, pMoveData);
 	}
@@ -597,9 +605,10 @@ namespace Hooks {
 		Fakelag::Get().OnCreateMove(cmd); // After prediction O_o
 
 		Snakeware::g_bOverrideVelMod = true;
+
 		Prediction->PreStart();
 
-		Prediction->Start(cmd,g_LocalPlayer);
+		Prediction->ProcessPredict (g_LocalPlayer, cmd);
 		{
 			g_LegitBot.OnMove(cmd);
 			g_LegitBot.TriggerBot(cmd);
@@ -631,7 +640,7 @@ namespace Hooks {
 			}
 
 		}
-		Prediction->Finish(g_LocalPlayer);
+		Prediction->Restore(g_LocalPlayer,cmd);
 
 		if (g_ClientState->iChokedCommands > 14)
 			Snakeware::bSendPacket = true; // own

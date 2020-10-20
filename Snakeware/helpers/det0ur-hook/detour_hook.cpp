@@ -16,11 +16,11 @@ namespace DetourHooks {
 		OriginalDoExtraBoneProcessing     = (DoExtraBoneProcessingT    )DetourFunction((PBYTE)pPointer[197], (PBYTE)hkDoExtraBoneProcessing);
 		OriginalStandardBlendingRules     = (StandardBlendingRulesT    )DetourFunction((PBYTE)pPointer[205], (PBYTE)hkStandardBlendingRules);
 
-		OriginalSetupBones = (SetupBonesT)DetourFunction((PBYTE)pBonePointer[13], (PBYTE)hkSetupBones);
+		//OriginalSetupBones = (SetupBonesT)DetourFunction((PBYTE)pBonePointer[13], (PBYTE)hkSetupBones);
 	}
 
 	void Shutdown ( ) 	{
-		DetourRemove((PBYTE)OriginalSetupBones, (PBYTE)hkSetupBones);
+	//	DetourRemove((PBYTE)OriginalSetupBones, (PBYTE)hkSetupBones);
 		DetourRemove((PBYTE)OriginalUpdateClientSideAnimation, (PBYTE)hkUpdateClientSideAnimation);
 		DetourRemove((PBYTE)OriginalDoExtraBoneProcessing,     (PBYTE)hkDoExtraBoneProcessing);
 		DetourRemove((PBYTE)OriginalStandardBlendingRules,     (PBYTE)hkStandardBlendingRules);

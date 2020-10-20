@@ -13,7 +13,9 @@ bool __fastcall DetourHooks::hkSetupBones (IClientRenderable* ECX, void* edx, ma
 
 	auto pPlayer = reinterpret_cast <C_BasePlayer*> ((uintptr_t)ECX - 0x4);
 	// Based on legendware.
-	if (!pPlayer || !pPlayer->IsAlive() || !pPlayer->isPlayer() || !Bone2WorldOut || pPlayer->IsLocalPlayer())
+	if (!ECX)                                                     return OriginalSetupBones(ECX, Bone2WorldOut, iMaxBones, BoneMask, flTime);
+
+	if (!pPlayer || !pPlayer->IsAlive() || pPlayer->IsTeam() || pPlayer->IsLocalPlayer() || pPlayer->IsPlayer()) 
 		return OriginalSetupBones(ECX, Bone2WorldOut, iMaxBones, BoneMask, flTime);
 
 	if (Snakeware::bBoneSetup)                                    return OriginalSetupBones(ECX, Bone2WorldOut, iMaxBones, BoneMask, flTime);
@@ -21,6 +23,8 @@ bool __fastcall DetourHooks::hkSetupBones (IClientRenderable* ECX, void* edx, ma
 	if (pPlayer == g_LocalPlayer)                                 return OriginalSetupBones(ECX, Bone2WorldOut, iMaxBones, BoneMask, flTime);
 
 	if (!g_Options.ragebot_enabled || !g_LocalPlayer->IsAlive())  return OriginalSetupBones(ECX, Bone2WorldOut, iMaxBones, BoneMask, flTime);
+
+
 
 
 
