@@ -32,6 +32,8 @@ private:
 public:
 	EnginePrediction() {
 		iRandomSeed = *(int**)(Utils::PatternScan(GetModuleHandleA("client.dll"), "8B 0D ?? ?? ?? ?? BA ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 C4") + 0x2);
+
+		MoveData = reinterpret_cast<CMoveData*>(g_MemAlloc->Alloc(sizeof(CMoveData)));
 	}
 
 	void Predict(C_BasePlayer* pPlayer, CUserCmd* pCmd);

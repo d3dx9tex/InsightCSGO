@@ -532,20 +532,49 @@ void LagCompensation::UpdatePlayerRecordData (C_BasePlayer* pPlayer) const {
 		auto  AbsAngle = newRecord.m_absEyeAngles;
 		// Null matix
 		
-	
+		const auto flPoses = pPlayer->m_flPoseParameter();
+		const auto angEyeAngles = pPlayer->m_angEyeAngles();
+		const auto vecVelocity = pPlayer->m_vecVelocity();
+		const auto vecOrigin = pPlayer->m_vecOrigin();
+		const auto flDuckAmount = pPlayer->m_flDuckAmount();
+		const auto flSimtime = pPlayer->m_flSimulationTime();
+		const auto fFlags = pPlayer->m_fFlags();
 
+
+		Resolver::Get().PreverseSafePoint (pPlayer, 0, newRecord.flSimTime);
+
+		
+		pPlayer->ForceBoneRebuilid();
+		pPlayer->m_vecVelocity()      = vecVelocity;
+		pPlayer->m_vecOrigin()        = vecOrigin;
+		pPlayer->m_flDuckAmount()     = flDuckAmount;
+		pPlayer->m_flSimulationTime() = flSimtime;
+		pPlayer->m_angEyeAngles()     = angEyeAngles;
+		pPlayer->m_fFlags()           = fFlags;
+		pPlayer->m_vecAbsVelocity()   = vecVelocity;
 
 		Resolver::Get().PreverseSafePoint(pPlayer, -1, newRecord.flSimTime);
 
-		
-	
-		Resolver::Get().PreverseSafePoint(pPlayer, 0, newRecord.flSimTime);
-
-	
+		pPlayer->ForceBoneRebuilid ();
+		pPlayer->m_vecVelocity()      = vecVelocity;
+		pPlayer->m_vecOrigin()        = vecOrigin;
+		pPlayer->m_flDuckAmount()     = flDuckAmount;
+		pPlayer->m_flSimulationTime() = flSimtime;
+		pPlayer->m_angEyeAngles()     = angEyeAngles;
+		pPlayer->m_fFlags()           = fFlags;
+		pPlayer->m_vecAbsVelocity()   = vecVelocity;
 
 		Resolver::Get().PreverseSafePoint(pPlayer, 1, newRecord.flSimTime);
 
-		
+		pPlayer->ForceBoneRebuilid();
+		pPlayer->m_vecVelocity()      = vecVelocity;
+		pPlayer->m_vecOrigin()        = vecOrigin;
+		pPlayer->m_flDuckAmount()     = flDuckAmount;
+		pPlayer->m_flSimulationTime() = flSimtime;
+		pPlayer->m_angEyeAngles()     = angEyeAngles;
+		pPlayer->m_fFlags()           = fFlags;
+		pPlayer->m_vecAbsVelocity()   = vecVelocity;
+
 		
 
 	}

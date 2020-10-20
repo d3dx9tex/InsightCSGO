@@ -47,8 +47,9 @@ void Resolver::PreverseSafePoint (C_BasePlayer * pPlayer , int iSafeSide, float 
 	const auto flSimtime     = pPlayer->m_flSimulationTime();
 	const auto fFlags        = pPlayer->m_fFlags();
 
-	pPlayer->ForceBoneRebuilid   ();
-	pPlayer->InvalidateBoneCache ();
+	pPlayer->ForceBoneRebuilid   (); // Usseless
+
+	pPlayer->InvalidateBoneCache (); 
 
 	pPlayer->GetEffect() |= 8;
 
@@ -62,16 +63,20 @@ void Resolver::PreverseSafePoint (C_BasePlayer * pPlayer , int iSafeSide, float 
 	}
 	else if (iSafeSide == 0) {
 		pPlayer->GetPlayerAnimState()->m_flGoalFeetYaw = Math::NormalizeYaw(pPlayer->m_angEyeAngles().yaw);
+
 		pPlayer->SetupBones (pMiddleMatrix, 128, BONE_USED_BY_ANYTHING, flTime);
 		// Center matrix
 
 	}
 	else if (iSafeSide == 1) {
 		pPlayer->GetPlayerAnimState()->m_flGoalFeetYaw = Math::NormalizeYaw(pPlayer->m_angEyeAngles().yaw + 60);
+
 		pPlayer->SetupBones (pRightMatrix, 128, BONE_USED_BY_ANYTHING, flTime);
 		// Right matrix
 
 	}
+
+	LagCompensation::Get().UpdateAnimationsData (pPlayer);
 
 	// Restore var's.
 	pPlayer->m_vecVelocity() = vecVelocity;
@@ -134,7 +139,7 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 	    int		   resolve_value		= 60;
 		const auto Choked				= std::max(0, TIME_TO_TICKS(pPlayer->m_flSimulationTime() - pPlayer->m_flOldSimulationTime()) - 1);
 		bool       backward				= pPlayer->m_angEyeAngles().yaw > 116 && pPlayer->m_angEyeAngles().yaw < -116;
-		if (Choked >= 1 && !GetAsyncKeyState(g_Options.ragebot_force_safepoint)) {
+		if (Choked >= 2 && !GetAsyncKeyState(g_Options.ragebot_force_safepoint)) {
 
 			if (rRecord.iResolvingWay < 0) {
 

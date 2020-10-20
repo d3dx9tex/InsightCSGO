@@ -728,6 +728,8 @@ bool C_BasePlayer::SetupBonesFixed (matrix3x4_t mMatrix[MAXSTUDIOBONES] , int iM
 
 	Snakeware::bBoneSetup = true;
 
+	*(int*)((uintptr_t)this + 0xA68) = 0;
+
 	bSetuped = SetupBones(mMatrix, MAXSTUDIOBONES, iMask, flSimTime); // SetupBones
 
 	Snakeware::bBoneSetup = false;
