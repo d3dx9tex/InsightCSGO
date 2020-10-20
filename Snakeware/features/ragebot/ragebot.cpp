@@ -23,7 +23,37 @@ void UpdateConfig () {
 	else if (weapon->m_Item().m_iItemDefinitionIndex() == WEAPON_AWP)  iCurGroup = WEAPON_GROUPS::AWP;
 	else    iCurGroup = WEAPON_GROUPS::UNKNOWN;
 }
+void AutoRevolver(CUserCmd* cmd) {
 
+	if (g_LocalPlayer->m_hActiveWeapon()->m_Item().m_iItemDefinitionIndex() != WEAPON_REVOLVER)
+		return;
+
+	if (cmd->buttons & IN_ATTACK)
+		return;
+
+	cmd->buttons &= ~IN_ATTACK2;
+
+	static auto r8cock_time = 0.0f;
+	auto server_time = TICKS_TO_TIME(g_LocalPlayer->m_nTickBase() * g_GlobalVars->interval_per_tick);
+
+	if (g_LocalPlayer->m_hActiveWeapon()->CanFire())
+	{
+		if (r8cock_time <= server_time) //-V807
+		{
+			if (g_LocalPlayer->m_hActiveWeapon()->m_flNextSecondaryAttack() <= server_time)
+				r8cock_time = server_time + 0.234375f;
+			else
+				cmd->buttons |= IN_ATTACK2;
+		}
+		else
+			cmd->buttons |= IN_ATTACK;
+	}
+	else
+	{
+		r8cock_time = server_time + 0.234375f;
+		cmd->buttons &= ~IN_ATTACK;
+	}
+}
 bool RageBot::IsValid (C_BasePlayer * Player) {
 
 	if (!Player || Player == nullptr)						  return false;
@@ -55,6 +85,8 @@ void RageBot::Instance (CUserCmd * Cmd) {
 	if (!pWeapon || pWeapon->IsKnife() || pWeapon->IsGrenade() || pWeapon->IsWeaponNonAim())          return;
 
 	UpdateConfig();
+	AutoRevolver(pCmd);
+
 	bool bFindNewTarget = true; // Scan a new target..
 	int  iBestFov       = 180;
 	int  iBestHealth    = 101;
@@ -270,37 +302,6 @@ void RageBot::ResetTarget() {
 	iTargetID         = -1;
 	
 }
-void AutoRevolver(CUserCmd* cmd) {
-
-	if (g_LocalPlayer->m_hActiveWeapon()->m_Item().m_iItemDefinitionIndex() != WEAPON_REVOLVER)
-		return;
-
-	if (cmd->buttons & IN_ATTACK)
-		return;
-
-	cmd->buttons &= ~IN_ATTACK2;
-
-	static auto r8cock_time = 0.0f;
-	auto server_time = TICKS_TO_TIME(g_LocalPlayer->m_nTickBase() * g_GlobalVars->interval_per_tick);
-
-	if (g_LocalPlayer->m_hActiveWeapon()->CanFire())
-	{
-		if (r8cock_time <= server_time) //-V807
-		{
-			if (g_LocalPlayer->m_hActiveWeapon()->m_flNextSecondaryAttack() <= server_time)
-				r8cock_time = server_time + 0.234375f;
-			else
-				cmd->buttons|= IN_ATTACK2;
-		}
-		else
-			cmd->buttons |= IN_ATTACK;
-	}
-	else
-	{
-		r8cock_time = server_time + 0.234375f;
-		cmd->buttons &= ~IN_ATTACK;
-	}
-}
 
 bool RageBot::Hitchance (QAngle Aimangle) {
 	float flChance ;
@@ -505,6 +506,8 @@ bool RageBot::IsAbleToShoot() {
 
 	auto time = TICKS_TO_TIME(g_LocalPlayer->m_nTickBase());
 
+	if (g_LocalPlayer->m_hActiveWeapon()->m_Item().m_iItemDefinitionIndex() == WEAPON_REVOLVER)
+		return false;
 
 	if (pCmd->weaponselect)
 		return false;
@@ -623,7 +626,8 @@ bool RageBot::CheckSafePoint(Vector  pPoint) {
 	return false;
 }
 
-
+Vector CurentAimVector;
+C_BasePlayer* CurentTarget;
 
 Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 
@@ -749,6 +753,7 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 
 		if   (WallDamage <= 0) continue;
 
+		CurentAimVector = point;
 
 		bool bIsSafePoint = CheckSafePoint (point);
 			
@@ -764,6 +769,11 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 						best_damage = WallDamage;
 						best_point = point;
 
+					}
+					else if (WallDamage > best_damage && WallDamage) {
+						if (WallDamage > 30) {
+							PredictiveAStop( (WallDamage / pTarget->m_iHealth()) );
+						}
 					}
 				}
 			
@@ -852,7 +862,6 @@ bool RageBot::Aim(Vector point, int idx) {
 
 	if  (Hitchanced) {
 
-		
 		if (g_Options.ragebot_autofire && shoot_state) {
 			Snakeware::OnShot = true;
 			pCmd->tick_count  = TIME_TO_TICKS(pTarget->m_flSimulationTime() + LagCompensation::Get().LerpTime());
@@ -862,11 +871,7 @@ bool RageBot::Aim(Vector point, int idx) {
 		if (pCmd->buttons & IN_ATTACK) {
 
 			Snakeware::bSendPacket = true;
-
-			
-
 			pCmd->viewangles       = aimangle;
-
 			if (!g_Options.ragebot_silent) {
 				g_EngineClient->SetViewAngles (&aimangle);
 			}
@@ -878,12 +883,6 @@ bool RageBot::Aim(Vector point, int idx) {
 			pCmd->buttons |= IN_ATTACK2;
 		}
 
-		if (g_Options.ragebot_autoscope && wep->IsSniper() && wep->m_zoomLevel() == 0) {
-			if (pCmd->buttons & IN_ATTACK)
-			    pCmd->buttons &= ~IN_ATTACK;
-
-			pCmd->buttons |= IN_ATTACK2;
-		}
 
 	}
 	if (g_Options.ragebot_autostop) {
@@ -897,24 +896,66 @@ bool RageBot::Aim(Vector point, int idx) {
 }
 
 void RageBot::QuickStop () {
+
 	if (!g_Options.ragebot_autostop)
 		return;
 
-	auto speed = 0.5;
+	/* Default autostop method */ {
 
+		QAngle direction;
+		QAngle real_view;
 
-	float min_speed = (float)(Math::FASTSQRT((pCmd->forwardmove) * (pCmd->forwardmove) + (pCmd->sidemove) * (pCmd->sidemove) + (pCmd->upmove) * (pCmd->upmove)));
-	if (min_speed <= 3.f) return;
+		Math::VectorAngles(g_LocalPlayer->m_vecVelocity(), direction);
+		g_EngineClient->GetViewAngles(&real_view);
 
-	if (pCmd->buttons & IN_DUCK)
-		speed *= 2.94117647f;
+		direction.yaw = real_view.yaw - direction.yaw;
 
-	if (min_speed <= speed) return;
+		Vector forward;
+		Math::AngleVectors(direction, forward);
 
-	float finalSpeed = (speed / min_speed);
+		static auto cl_forwardspeed = g_CVar->FindVar(Xor("cl_forwardspeed"));
+		static auto cl_sidespeed = g_CVar->FindVar(Xor("cl_sidespeed"));
 
-	pCmd->forwardmove *= finalSpeed;
-	pCmd->sidemove *= finalSpeed;
-	pCmd->upmove *= finalSpeed;
+		auto negative_forward_speed = -cl_forwardspeed->GetFloat() * 1.3;
+		auto negative_side_speed = -cl_sidespeed->GetFloat() * 1.3;
+
+		auto negative_forward_direction = forward * negative_forward_speed;
+		auto negative_side_direction = forward * negative_side_speed;
+
+		pCmd->forwardmove = negative_forward_direction.x;
+		pCmd->sidemove = negative_side_direction.y;
+	}
+
 }
+void RageBot::PredictiveAStop(int value) {
+	if (!g_Options.ragebot_autostop)
+		return;
+
+	/* predictive autostop method */ {
+
+		QAngle direction;
+		QAngle real_view;
+
+		Math::VectorAngles(g_LocalPlayer->m_vecVelocity(), direction);
+		g_EngineClient->GetViewAngles(&real_view);
+
+		direction.yaw = real_view.yaw - direction.yaw;
+
+		Vector forward;
+		Math::AngleVectors(direction, forward);
+
+		static auto cl_forwardspeed = g_CVar->FindVar(Xor("cl_forwardspeed"));
+		static auto cl_sidespeed	= g_CVar->FindVar(Xor("cl_sidespeed"));
+
+		auto negative_forward_speed = -cl_forwardspeed->GetFloat() * (value * 0.25);
+		auto negative_side_speed	= -cl_sidespeed->GetFloat() * (value * 0.25);
+
+		auto negative_forward_direction = forward * 0.8;
+		auto negative_side_direction = forward * 0.8;
+
+		pCmd->forwardmove -= negative_forward_direction.x;
+		pCmd->sidemove -= negative_side_direction.y;
+	}
+}
+
 

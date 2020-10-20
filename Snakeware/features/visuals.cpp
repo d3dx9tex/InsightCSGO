@@ -314,15 +314,25 @@ void Visuals::Player::RenderName()
 	Render::Get().RenderTextPixel(info.szName, ctx.feet_pos.x - sz.x / 2, ctx.head_pos.y - sz.y, 13.f, ctx.clr);
 }
 //--------------------------------------------------------------------------------
+
 void Visuals::Player::RenderHealth()
 {
-
+	static int animation_val[65];
 	auto  hp = ctx.pl->m_iHealth();
 	float box_h = (float)fabs(ctx.bbox.bottom - ctx.bbox.top);
 	//float off = (box_h / 6.f) + 5;
 	float off = 8;
 
 	int height = (box_h * hp) / 100;
+
+	if (animation_val[ctx.pl->EntIndex()] != height) {
+
+		if (animation_val[ctx.pl->EntIndex()] > height)
+			animation_val[ctx.pl->EntIndex()] -= (animation_val[ctx.pl->EntIndex()] - height ) / 5;
+
+		if (animation_val[ctx.pl->EntIndex()] < height)
+			animation_val[ctx.pl->EntIndex()] += (height - animation_val[ctx.pl->EntIndex()]) / 5;
+	}
 
 	int green = int(hp * 2.55f);
 	int red = 255 - green;
@@ -334,7 +344,7 @@ void Visuals::Player::RenderHealth()
 	
 
 	Render::Get().RenderBoxFilled(x, y, x + w, y + h, Color(0,0,0,120), 1.f, 0);
-	Render::Get().RenderBox(x + 1, y + 1, x + w - 1, y + height - 2, Color(red, green, 0, 255),1.f, true);
+	Render::Get().RenderBox(x + 1, y + 1, x + w - 1, y + animation_val[ctx.pl->EntIndex()] - 2, Color(red, green, 0, 255),1.f, true);
 
 	
 }

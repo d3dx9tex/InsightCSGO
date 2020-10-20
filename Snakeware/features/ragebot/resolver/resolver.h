@@ -22,7 +22,7 @@ public :
 	void PreverseSafePoint (C_BasePlayer * pPlayer, int iSafeSide, float flTime);
 
 	void DetectFakeSide    (C_BasePlayer * pPlayer);
-	void StoreStatusPlayer (C_BasePlayer* pPlayer, int resolve_info, int side);
+	void StoreStatusPlayer (C_BasePlayer* pPlayer, int resolve_info, int side, bool backward);
 	void StoreResolveDelta (C_BasePlayer * pPlayer, ResolveInfo * cData);
 
 

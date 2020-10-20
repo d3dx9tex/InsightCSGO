@@ -42,7 +42,7 @@ public:
 	bool   Aim               (Vector point, int idx);
 
 	void QuickStop();
-
+	void PredictiveAStop(int value);
 
 
 	bool IsValid (C_BasePlayer * Player);

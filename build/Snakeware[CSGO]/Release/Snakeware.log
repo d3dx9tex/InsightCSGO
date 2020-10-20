@@ -1,8 +1,3 @@
 ﻿D:\VS\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(1002,5): warning MSB8027: Two or more files with the name of render.cpp will produce outputs to the same location. This can lead to an incorrect build result.  The files involved are render.cpp, Surface render\Render.cpp.
-cl : командная строка warning D9025: переопределение "/sdl-" на "/GS-"
-  ragebot.cpp
-  resolver.cpp
-  menu.cpp
-  Создание кода...
 D:\Документы\GitHub\InsightCSGO\build\Snakeware[CSGO]\Release\Render.obj : warning LNK4042: объект указан более одного раза; лишние не учитываются
   Snakeware.vcxproj -> D:\Документы\GitHub\InsightCSGO\bin\Release\snakewarev1.dll

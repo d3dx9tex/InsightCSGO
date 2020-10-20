@@ -87,18 +87,35 @@ void Resolver::PreverseSafePoint (C_BasePlayer * pPlayer , int iSafeSide, float 
 }
 
 
-void Resolver::StoreStatusPlayer(C_BasePlayer* pPlayer, int resolve_info, int side) {
-	ResolveRecord[pPlayer->EntIndex()].info = side == -1 ? "Max Left" :  "Max Right" ;
+void Resolver::StoreStatusPlayer(C_BasePlayer* pPlayer, int resolve_info, int side, bool backward) {
+	if (side == 0) {
+		ResolveRecord[pPlayer->EntIndex()].info = "Middle";
+	}
+		else
+	ResolveRecord[pPlayer->EntIndex()].info = side == -1 ? "Max Left" :  "Max Right";
+
+	ResolveRecord[pPlayer->EntIndex()].info += backward ? "Backward" : "Forward";
 }
 
+float GetAngle(C_BasePlayer* player) {
+	return Math::NormalizeYaw(player->m_angEyeAngles().yaw);
+}
+float GetBackwardYaw(C_BasePlayer* player) {
+	return Math::CalculateAngle(g_LocalPlayer->m_angAbsOrigin(), player->m_angAbsOrigin()).y;
+}
+float GetForwardYaw(C_BasePlayer* player) {
+	return Math::NormalizeYaw(GetBackwardYaw(player) - 180.f);
+}
 
 void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
+
 
 	if (!pPlayer) return;
 	auto Index		= pPlayer->EntIndex();
 	auto &rRecord	= ResolveRecord[Index];
 	float flYaw		= pPlayer->m_angEyeAngles().yaw;
 	int missedshots = 0;
+
 
 	StoreResolveDelta(pPlayer, &rRecord);
 
@@ -131,38 +148,45 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 				rRecord.bWasUpdated   = true;
 			}
 		}
-	    int		   resolve_value		= 60;
+	    int		   resolve_value		= 58;
 		const auto Choked				= std::max(0, TIME_TO_TICKS(pPlayer->m_flSimulationTime() - pPlayer->m_flOldSimulationTime()) - 1);
-		bool       backward				= pPlayer->m_angEyeAngles().yaw > 90 && pPlayer->m_angEyeAngles().yaw < -90;
-		if (Choked >= 1 && !GetAsyncKeyState(g_Options.ragebot_force_safepoint)) {
+		bool       backward				= !(fabsf(Math::NormalizeYaw(GetAngle(pPlayer) - GetForwardYaw(pPlayer))) < 90.f);
+
+		if ( !GetAsyncKeyState(g_Options.ragebot_force_safepoint )) {
 
 			if (rRecord.iResolvingWay < 0) {
 
 				if (rRecord.iMissedShots != 0) {
 					//bruteforce player angle accordingly
-					switch (rRecord.iMissedShots % 2) {
-					case 1: {
+					switch (rRecord.iMissedShots % 3) {
+					case 2: {
 						if (backward) {
 							flYaw += resolve_value;
-							StoreStatusPlayer(pPlayer, resolve_value, 1);
+							StoreStatusPlayer(pPlayer, resolve_value, 1, backward);
 
 						}
 						else {
 							flYaw -= resolve_value;
-						    StoreStatusPlayer(pPlayer, resolve_value, -1);
+						    StoreStatusPlayer(pPlayer, resolve_value, -1, backward);
+						}
+					}
+					break;
+
+					case 1: {
+						if (backward) {
+							flYaw -= resolve_value;
+							StoreStatusPlayer(pPlayer, resolve_value, -1, backward);
+						}
+						else {
+							flYaw += resolve_value;
+							StoreStatusPlayer(pPlayer, resolve_value, 1, backward);
 						}
 					}
 					break;
 
 					case 0: {
-						if (backward) {
-							flYaw -= resolve_value;
-							StoreStatusPlayer(pPlayer, resolve_value, -1);
-						}
-						else {
-							flYaw += resolve_value;
-							StoreStatusPlayer(pPlayer, resolve_value, 1);
-						}
+						flYaw += 0;
+						StoreStatusPlayer(pPlayer, resolve_value, 0, backward);
 					}
 					break;
 
@@ -171,11 +195,11 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 				else {
 					if (backward) {
 						flYaw -= resolve_value;
-						StoreStatusPlayer(pPlayer, resolve_value, -1);
+						StoreStatusPlayer(pPlayer, resolve_value, -1, backward);
 					}
 					else {
 						flYaw += resolve_value;
-						StoreStatusPlayer(pPlayer, resolve_value, 1);
+						StoreStatusPlayer(pPlayer, resolve_value, 1, backward);
 					}
 				}
 			}
@@ -183,29 +207,36 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 
 				if (rRecord.iMissedShots != 0) {
 					//bruteforce player angle accordingly
-					switch (rRecord.iMissedShots % 2) {
-					case 1: {
+					switch (rRecord.iMissedShots % 3) {
+
+					case 2: {
 						if (backward) {
 							flYaw -= resolve_value;
-							StoreStatusPlayer(pPlayer, resolve_value, -1);
+							StoreStatusPlayer(pPlayer, resolve_value, -1, backward);
 
 						}
 						else {
 							flYaw += resolve_value;
-							StoreStatusPlayer(pPlayer, resolve_value, 1);
+							StoreStatusPlayer(pPlayer, resolve_value, 1, backward);
+						}
+					}
+					break;
+
+					case 1: {
+						if (backward) {
+							flYaw += resolve_value;
+							StoreStatusPlayer(pPlayer, resolve_value, 1, backward);
+						}
+						else {
+							flYaw -= resolve_value;
+							StoreStatusPlayer(pPlayer, resolve_value, -1, backward);
 						}
 					}
 					break;
 
 					case 0: {
-						if (backward) {
-							flYaw += resolve_value;
-							StoreStatusPlayer(pPlayer, resolve_value, 1);
-						}
-						else {
-							flYaw -= resolve_value;
-							StoreStatusPlayer(pPlayer, resolve_value, -1);
-						}
+						flYaw += 0;
+						StoreStatusPlayer(pPlayer, resolve_value, 0, backward);
 					}
 					break;
 
@@ -214,11 +245,11 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 				else {
 					if (backward) {
 						flYaw -= resolve_value;
-						StoreStatusPlayer(pPlayer, resolve_value, -1);
+						StoreStatusPlayer(pPlayer, resolve_value, -1, backward);
 					}
 					else {
 						flYaw += resolve_value;
-						StoreStatusPlayer(pPlayer, resolve_value, 1);
+						StoreStatusPlayer(pPlayer, resolve_value, 1, backward);
 					}
 				}
 			}
