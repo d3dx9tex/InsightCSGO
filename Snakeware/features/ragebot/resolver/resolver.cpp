@@ -8,9 +8,13 @@
 #include "../../event-logger/event-logger.h"
 
 static float ResolvedYaw[65];
+#ifndef max
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#endif
 
-
-
+#ifndef min
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#endif
 
 float eyeAngleDiff (float destAngle, float srcAngle) {
 	float delta = fmodf(destAngle - srcAngle, 360.0f);
@@ -28,10 +32,6 @@ float eyeAngleDiff (float destAngle, float srcAngle) {
 
 	return delta;
 }
-
-
-
-
 
 void Resolver::PreverseSafePoint (C_BasePlayer * pPlayer , int iSafeSide, float flTime ) {
 
@@ -72,6 +72,7 @@ void Resolver::PreverseSafePoint (C_BasePlayer * pPlayer , int iSafeSide, float 
 		// Right matrix
 
 	}
+	LagCompensation::Get().UpdateAnimationsData(pPlayer);
 
 	// Restore var's.
 	pPlayer->m_vecVelocity() = vecVelocity;
@@ -106,15 +107,38 @@ float GetBackwardYaw(C_BasePlayer* player) {
 float GetForwardYaw(C_BasePlayer* player) {
 	return Math::NormalizeYaw(GetBackwardYaw(player) - 180.f);
 }
+float get_max_desync_delta(C_BasePlayer* ent) {
 
+	auto animstate = ent->GetPlayerAnimState();
+	float duckamount = animstate->m_fDuckAmount;// + 0xA4;
+
+	float speedfraction = max(0, min(animstate->m_flFeetSpeedForwardsOrSideWays, 1));
+	float speedfactor = max(0, min(animstate->m_flFeetSpeedUnknownForwardOrSideways, 1));
+
+	float unk1 = ((*reinterpret_cast<float*> ((uintptr_t)animstate + 0x11C) * -0.30000001) - 0.19999999)* speedfraction;
+	float unk2 = unk1 + 1.f;
+
+	if (duckamount > 0.0)
+		unk2 += ((duckamount * speedfactor) * (0.5f - unk2));
+
+	return (*(float*)((uintptr_t)animstate + 0x334)) * unk2;
+}
 void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 
+	if (!g_Options.ragebot_resolver)
+		return;
 
 	if (!pPlayer) return;
-	auto Index		= pPlayer->EntIndex();
-	auto &rRecord	= ResolveRecord[Index];
-	float flYaw		= pPlayer->m_angEyeAngles().yaw;
-	int missedshots = 0;
+	auto	   Index			= pPlayer->EntIndex();
+	auto	   &rRecord			= ResolveRecord[Index];
+	float	   flYaw			= pPlayer->m_angEyeAngles().yaw;
+	int		   missedshots		= 0;
+	int		   last_side;
+
+	int		   resolve_value	= get_max_desync_delta(pPlayer);
+	const auto Choked			= max(0, TIME_TO_TICKS(pPlayer->m_flSimulationTime() - pPlayer->m_flOldSimulationTime()) - 1);
+	bool       backward			= !(fabsf(Math::NormalizeYaw(GetAngle(pPlayer) - GetForwardYaw(pPlayer))) < 90.f);
+	auto	   balance_adjust	= (pPlayer->GetAnimOverlays()[3].m_flWeight > 0.01f && pPlayer->GetSequenceActivity(pPlayer->GetAnimOverlays()[3].m_nSequence) == 979 && pPlayer->GetAnimOverlays()[3].m_flCycle < 1.f);
 
 
 	StoreResolveDelta(pPlayer, &rRecord);
@@ -129,7 +153,7 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 				rRecord.bWasUpdated   = true;
 			}
 		}
-		else {
+		else if ((!int(pPlayer->GetAnimOverlays()[12].m_flWeight * 1000.f))) {
 
 			float Rate  = abs (pPlayer->GetAnimOverlays()[6].m_flPlaybackRate - rRecord.ResolverLayers[0][6].m_flPlaybackRate);
 			float Rate2 = abs (pPlayer->GetAnimOverlays()[6].m_flPlaybackRate - rRecord.ResolverLayers[1][6].m_flPlaybackRate);
@@ -148,11 +172,22 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 				rRecord.bWasUpdated   = true;
 			}
 		}
-	    int		   resolve_value		= 58;
-		const auto Choked				= std::max(0, TIME_TO_TICKS(pPlayer->m_flSimulationTime() - pPlayer->m_flOldSimulationTime()) - 1);
-		bool       backward				= !(fabsf(Math::NormalizeYaw(GetAngle(pPlayer) - GetForwardYaw(pPlayer))) < 90.f);
 
-		if ( !GetAsyncKeyState(g_Options.ragebot_force_safepoint )) {
+		/* Update records :  */ {
+			if (balance_adjust) /* LBY desync mode detection */ {
+				rRecord.LastBalancedDesync = g_GlobalVars->realtime;
+			}
+			rRecord.lby_delta = Math::NormalizeYaw(pPlayer->m_flLowerBodyYawTarget() - pPlayer->m_angEyeAngles().yaw);
+			rRecord.desyncmode_balance = (fabs(g_GlobalVars->realtime - rRecord.LastBalancedDesync) < 0.6f && fabs(rRecord.lby_delta) > 0.0001f);
+			if (pPlayer->m_angEyeAngles().pitch > 84)
+				rRecord.LastPitchDown = g_GlobalVars->realtime;
+			rRecord.has_fake = (fabs(g_GlobalVars->realtime - rRecord.LastPitchDown) <  0.8f) ? true : false;
+			if (TIME_TO_TICKS(pPlayer->m_flSimulationTime() - pPlayer->m_flOldSimulationTime()) > 2 )
+				rRecord.has_fakelags = (TIME_TO_TICKS(pPlayer->m_flSimulationTime() - pPlayer->m_flOldSimulationTime()) > 2) ? true : false;
+		}
+
+		if ( (!GetAsyncKeyState(g_Options.ragebot_force_safepoint)) && rRecord.has_fake && rRecord.has_fakelags ) {
+
 
 			if (rRecord.iResolvingWay < 0) {
 
@@ -173,6 +208,12 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 					break;
 
 					case 1: {
+						flYaw += 0;
+						StoreStatusPlayer(pPlayer, resolve_value, 0, backward);
+					}
+					break;
+
+					case 0: {
 						if (backward) {
 							flYaw -= resolve_value;
 							StoreStatusPlayer(pPlayer, resolve_value, -1, backward);
@@ -181,12 +222,6 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 							flYaw += resolve_value;
 							StoreStatusPlayer(pPlayer, resolve_value, 1, backward);
 						}
-					}
-					break;
-
-					case 0: {
-						flYaw += 0;
-						StoreStatusPlayer(pPlayer, resolve_value, 0, backward);
 					}
 					break;
 
@@ -208,7 +243,6 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 				if (rRecord.iMissedShots != 0) {
 					//bruteforce player angle accordingly
 					switch (rRecord.iMissedShots % 3) {
-
 					case 2: {
 						if (backward) {
 							flYaw -= resolve_value;
@@ -220,9 +254,15 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 							StoreStatusPlayer(pPlayer, resolve_value, 1, backward);
 						}
 					}
-					break;
+						  break;
 
 					case 1: {
+						flYaw -= 0;
+						StoreStatusPlayer(pPlayer, resolve_value, 0, backward);
+					}
+						  break;
+
+					case 0: {
 						if (backward) {
 							flYaw += resolve_value;
 							StoreStatusPlayer(pPlayer, resolve_value, 1, backward);
@@ -232,24 +272,18 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 							StoreStatusPlayer(pPlayer, resolve_value, -1, backward);
 						}
 					}
-					break;
-
-					case 0: {
-						flYaw += 0;
-						StoreStatusPlayer(pPlayer, resolve_value, 0, backward);
-					}
-					break;
+						  break;
 
 					}
 				}
 				else {
 					if (backward) {
-						flYaw -= resolve_value;
-						StoreStatusPlayer(pPlayer, resolve_value, -1, backward);
-					}
-					else {
 						flYaw += resolve_value;
 						StoreStatusPlayer(pPlayer, resolve_value, 1, backward);
+					}
+					else {
+						flYaw -= resolve_value;
+						StoreStatusPlayer(pPlayer, resolve_value, -1, backward);
 					}
 				}
 			}

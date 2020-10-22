@@ -208,11 +208,12 @@ void RenderRageBotTab()
 			ImGui::CheckboxEX("Silent aim##rage", &g_Options.ragebot_silent, "Enabled silent ragebot", 4);
 			ImGui::CheckboxEX("No recoil##rage", &g_Options.ragebot_remove_recoil, "Compensate recoil", 5);
 			ImGui::SliderInt("Ragebot fov", &g_Options.ragebot_fov, 0, 180);
-
+			ImGui::CheckboxEX("Resolver", &g_Options.ragebot_resolver, "Fix enemy fake angle", 5);
 			ImGui::Text("Force safe-point  :");
 			ImGuiEX::Hotkey("##forcesp	  ", &g_Options.ragebot_force_safepoint, ImVec2(150, 20));
-			ImGui::Text("Force body  :");
-			ImGuiEX::Hotkey("forcebody	  ", &g_Options.ragebot_baim_key, ImVec2(150, 20));
+
+			ImGui::Text("Force body key   :");
+			ImGuiEX::Hotkey("##forcebodykey ", &g_Options.ragebot_baim_key, ImVec2(150, 20));
 		
 		}
 		ImGui::EndChild();
@@ -1546,9 +1547,58 @@ void RenderSkinsTab()
 	}
 	ImGui::EndChild();
 }
-void draw_lua_items() {
+void draw_lua_items(std::string tab, std::string container) {
+	for (auto i : lua::menu_items["lua"]["lua"])
+	{
+		if (!i.is_visible)
+			continue;
 
+		auto type = i.type;
+		switch (type)
+		{
+		case lua::MENUITEM_CHECKBOX:
+			if (ImGui::Checkbox(i.label.c_str(), &(GET_BOOL[i.key]))) {
+				if (i.callback != sol::nil)
+					i.callback(GET_BOOL[i.key]);
+			}
 
+			break;
+		case lua::MENUITEM_SLIDERINT:
+			if (ImGui::SliderInt(i.label.c_str(), &(GET_INT[i.key]), i.i_min, i.i_max, i.format.c_str())) {
+				if (i.callback != sol::nil)
+					i.callback(GET_INT[i.key]);
+			}
+
+			break;
+		case lua::MENUITEM_SLIDERFLOAT:
+			if (ImGui::SliderFloat(i.label.c_str(), &(GET_FLOAT[i.key]), i.f_min, i.f_max, i.format.c_str())) {
+				if (i.callback != sol::nil)
+					i.callback(GET_FLOAT[i.key]);
+			}
+
+			break;
+
+		case lua::MENUITEM_TEXT:
+			ImGui::Text(i.label.c_str());
+			break;
+
+		case lua::MENUITEM_COLORPICKER:
+			if (ImGui::ColorEdit4(i.label.c_str(), GET_COLOR[i.key])) {
+				if (i.callback != sol::nil)
+					i.callback(GET_COLOR[i.key][0] * 255, GET_COLOR[i.key][1] * 255, GET_COLOR[i.key][2] * 255, GET_COLOR[i.key][3] * 255);
+			}
+
+			break;
+		case lua::MENUITEM_BUTTON:
+			if (ImGui::Button(i.label.c_str())) {
+				if (i.callback != sol::nil)
+					i.callback();
+			}
+			break;
+		default:
+			break;
+		}
+	}
 }
 // Config helpers //
 static int config_process;
@@ -1783,7 +1833,27 @@ void RenderConfigTab()
 		}
 		ImGui::EndChild();
 
+		ImGui::SetCursorPos(ImVec2(22 + 310 + 17 + 10, 100));
 
+		ImGui::BeginChild("Settings", ImVec2(310, 360), true);
+		{
+			ImGui::Text(" ");
+
+			ImGui::SetCursorPosY(+15);
+
+			ImGuiStyle& style = ImGui::GetStyle();
+
+			int container_count = GET_INTS_MAP["lua"]["lua"];
+			if (container_count > 0) {
+				for (int i = 0; i < container_count; i++) {
+					char buffer[8] = { 0 }; _itoa(i, buffer, 10);
+					draw_lua_items("lua", buffer);
+				}
+			}
+
+
+		}
+		ImGui::EndChild();
 
 	}
 	break;

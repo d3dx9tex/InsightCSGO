@@ -22,8 +22,6 @@ namespace lua {
 		std::map<std::string, std::vector<c_lua_hook>> hooks;
 	};
 
-
-
 	enum MENUITEMTYPE {
 		MENUITEM_CHECKBOX = 0,
 		MENUITEM_SLIDERINT,

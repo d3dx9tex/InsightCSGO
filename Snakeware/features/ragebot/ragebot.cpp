@@ -5,8 +5,9 @@
 #include <random>
 
 
-int iCurGroup;
-
+int              iCurGroup;
+static const int iTotalSeeds = 255;
+static std::vector<std::tuple<float, float, float>> PreComputedSeeds = {};
 
 void UpdateConfig () {
 	C_BaseCombatWeapon* weapon = g_LocalPlayer->m_hActiveWeapon();
@@ -14,7 +15,8 @@ void UpdateConfig () {
 	if (!weapon) return;
 
 
-	if      (weapon->IsPistol()) iCurGroup = WEAPON_GROUPS::PISTOLS;
+	if      (weapon->IsPistol() && (weapon->m_Item().m_iItemDefinitionIndex() != WEAPON_REVOLVER)) iCurGroup = WEAPON_GROUPS::PISTOLS ;
+	else if (weapon->m_Item().m_iItemDefinitionIndex() == WEAPON_REVOLVER)iCurGroup = WEAPON_GROUPS::H_PISTOLS;
 	else if (weapon->IsRifle() || weapon->IsMashineGun()) iCurGroup = WEAPON_GROUPS::RIFLES;
 	else if (weapon->IsSMG()) iCurGroup = WEAPON_GROUPS::SMG;
 	else if (weapon->IsShotgun()) iCurGroup = WEAPON_GROUPS::SHOTGUNS;
@@ -22,6 +24,18 @@ void UpdateConfig () {
 	else if (weapon->m_Item().m_iItemDefinitionIndex() == WEAPON_SSG08) iCurGroup = WEAPON_GROUPS::SCOUT;
 	else if (weapon->m_Item().m_iItemDefinitionIndex() == WEAPON_AWP)  iCurGroup = WEAPON_GROUPS::AWP;
 	else    iCurGroup = WEAPON_GROUPS::UNKNOWN;
+}
+void BulidSeedTable() {
+
+	if (!PreComputedSeeds.empty()) return;
+
+	for (auto i = 0; i < iTotalSeeds; i++) {
+		RandomSeed(i + 1);
+
+		const auto pi_seed = Math::RandomFloat(0.f, M_PI * 2);
+
+		PreComputedSeeds.emplace_back(Math::RandomFloat(0.f, 1.f), sin(pi_seed), cos(pi_seed));
+	}
 }
 void AutoRevolver(CUserCmd* cmd) {
 
@@ -31,26 +45,29 @@ void AutoRevolver(CUserCmd* cmd) {
 	if (cmd->buttons & IN_ATTACK)
 		return;
 
-	cmd->buttons &= ~IN_ATTACK2;
-
+	static auto r8cock_flag = true;
 	static auto r8cock_time = 0.0f;
-	auto server_time = TICKS_TO_TIME(g_LocalPlayer->m_nTickBase() * g_GlobalVars->interval_per_tick);
 
-	if (g_LocalPlayer->m_hActiveWeapon()->CanFire())
+	r8cock_flag = true;
+
+	if (r8cock_flag && g_LocalPlayer->m_hActiveWeapon()->CanFire() && !(g_LocalPlayer->m_hActiveWeapon()->m_flPostponeFireReadyTime() >= TICKS_TO_TIME(g_LocalPlayer->m_nTickBase())))
 	{
-		if (r8cock_time <= server_time) //-V807
+		if (r8cock_time <= TICKS_TO_TIME(g_LocalPlayer->m_nTickBase()))
 		{
-			if (g_LocalPlayer->m_hActiveWeapon()->m_flNextSecondaryAttack() <= server_time)
-				r8cock_time = server_time + 0.234375f;
+			if (g_LocalPlayer->m_hActiveWeapon()->m_flNextSecondaryAttack() <= TICKS_TO_TIME(g_LocalPlayer->m_nTickBase()))
+				r8cock_time = TICKS_TO_TIME(g_LocalPlayer->m_nTickBase()) + 0.234375f;
 			else
 				cmd->buttons |= IN_ATTACK2;
 		}
 		else
 			cmd->buttons |= IN_ATTACK;
+
+		r8cock_flag = TICKS_TO_TIME(g_LocalPlayer->m_nTickBase()) > r8cock_time;
 	}
 	else
 	{
-		r8cock_time = server_time + 0.234375f;
+		r8cock_flag = false;
+		r8cock_time = TICKS_TO_TIME(g_LocalPlayer->m_nTickBase()) + 0.234375f;
 		cmd->buttons &= ~IN_ATTACK;
 	}
 }
@@ -303,10 +320,12 @@ void RageBot::ResetTarget() {
 }
 
 bool RageBot::Hitchance (QAngle Aimangle) {
-	float flChance ;
+
+	BulidSeedTable();
+
+	float flChance;
 	auto  wep = g_LocalPlayer->m_hActiveWeapon();
 	auto  wepidx = wep->m_Item().m_iItemDefinitionIndex();
-
 
 
 	if (!wep)
@@ -324,7 +343,7 @@ bool RageBot::Hitchance (QAngle Aimangle) {
 	Math::AngleVectors(Aimangle, fw, rw, uw);
 
 	int hits = 0;
-	int needed_hits = static_cast<int>(256.f * (flChance / 100.f));
+	int needed_hits = static_cast<int>(iTotalSeeds * (flChance / 100.f));
 
 	
 	float cone = wep->GetSpread();
@@ -332,7 +351,10 @@ bool RageBot::Hitchance (QAngle Aimangle) {
 
 	Vector src = g_LocalPlayer->GetEyePos();
 
-	for (int i = 0; i < 256; i++) {
+	for (int i = 0; i < iTotalSeeds; i++) {
+
+		//fSeed = &PreComputedSeeds[i];
+
 		float a = Math::RandomFloat(0.f, 1.f);
 		float b = Math::RandomFloat(0.f, M_PI * 2.f);
 		float c = Math::RandomFloat(0.f, 1.f);
@@ -374,10 +396,10 @@ bool RageBot::Hitchance (QAngle Aimangle) {
 		if (tr.hit_entity == pTarget)
 			hits++;
 
-		if (static_cast<int>((static_cast<float>(hits) / 256.f) * 100.f) >= flChance)
+		if (static_cast<int>((static_cast<float>(hits) / iTotalSeeds) * 100.f) >= flChance)
 			return true;
 
-		if ((256 - i + hits) < needed_hits)
+		if ((iTotalSeeds - i + hits) < needed_hits)
 			return false;
 	}
 
@@ -386,6 +408,7 @@ bool RageBot::Hitchance (QAngle Aimangle) {
 
 
 void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vector>& points) {
+
 	if (!g_Options.ragebot_multipoint)
 		return;
 
@@ -505,19 +528,17 @@ bool RageBot::IsAbleToShoot() {
 
 	auto time = TICKS_TO_TIME(g_LocalPlayer->m_nTickBase());
 
-	if (g_LocalPlayer->m_hActiveWeapon()->m_Item().m_iItemDefinitionIndex() == WEAPON_REVOLVER)
-		return false;
-
 	if (pCmd->weaponselect)
 		return false;
 
 	if (wep->m_iClip1() < 1)
 		return false;
 
-	if (g_LocalPlayer->m_hActiveWeapon()->m_Item().m_iItemDefinitionIndex() == WEAPON_REVOLVER)
-		return false;
-
-	if ((g_LocalPlayer->m_flNextAttack() > time) || wep->m_flNextPrimaryAttack() > time || wep->m_flNextSecondaryAttack() > time) {
+	if ((g_LocalPlayer->m_flNextAttack() > time) || wep->m_flNextPrimaryAttack() > time || wep->m_flNextSecondaryAttack() > time)
+	{
+		if (wep->m_Item().m_iItemDefinitionIndex() == WEAPON_REVOLVER)
+			return true;
+		else
 		return false;
 	}
 
@@ -585,42 +606,13 @@ bool RageBot::CheckSafePoint(Vector  pPoint) {
 
 	if (pPoint == Vector (0, 0, 0)) return false;
 
-	// Check safe-point on head
-	if (CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_HEAD, true, Resolver::Get().pMiddleMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_HEAD, true, Resolver::Get().pLeftMatrix))   
-		return true;
+	for (int iSafeBox = HITBOX_HEAD; iSafeBox < HITBOX_LEFT_THIGH; iSafeBox++) {
 
-	if (CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_HEAD, true, Resolver::Get().pMiddleMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_HEAD, true, Resolver::Get().pRightMatrix))
-		return true;
-
-	// Check safe-point on stomach (body)
-	if (CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_STOMACH, true, Resolver::Get().pMiddleMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_STOMACH, true, Resolver::Get().pLeftMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_STOMACH, true, Resolver::Get().pRightMatrix))
-		return true;
-
-	if (CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_PELVIS, true, Resolver::Get().pMiddleMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_PELVIS, true, Resolver::Get().pLeftMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_PELVIS, true, Resolver::Get().pRightMatrix))
-		return true;
-
-
-	if (CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_UPPER_CHEST, true, Resolver::Get().pMiddleMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_UPPER_CHEST, true, Resolver::Get().pLeftMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_UPPER_CHEST, true, Resolver::Get().pRightMatrix))
-		return true;
-
-	if (CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_CHEST, true, Resolver::Get().pMiddleMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_CHEST, true, Resolver::Get().pLeftMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_CHEST, true, Resolver::Get().pRightMatrix))
-		return true;
-
-
-	if (CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_LOWER_CHEST, true, Resolver::Get().pMiddleMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_LOWER_CHEST, true, Resolver::Get().pLeftMatrix) &&
-		CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, HITBOX_LOWER_CHEST, true, Resolver::Get().pRightMatrix))
-		return true;
+		if (CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, iSafeBox, true, Resolver::Get().pMiddleMatrix) &&
+			CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, iSafeBox, true, Resolver::Get().pLeftMatrix) &&
+			CanHitHitbox(g_LocalPlayer->GetShootPos(), pPoint, pTarget, iSafeBox, true, Resolver::Get().pRightMatrix))
+			return true;
+	}
 
 	return false;
 }
@@ -632,9 +624,6 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 
 	std::vector<Vector> points = {};
 
-
-	
-
 	
 	auto wep     = g_LocalPlayer->m_hActiveWeapon();
 	auto wepdmg  = wep->GetCSWeaponData()->iDamage;
@@ -643,6 +632,7 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 	auto ent     = pTarget->EntIndex();
 
 	auto force_baim = false;
+
 	if (g_Options.ragebot_baim_if_lethal) {
 		auto aw_dmg1 = AutoWall::Get().GetPointDamage(pTarget->GetHitboxPos(HITBOX_STOMACH),  pTarget);
 		auto aw_dmg2 = AutoWall::Get().GetPointDamage(pTarget->GetHitboxPos(HITBOX_PELVIS),   pTarget);
@@ -654,18 +644,12 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 	
 	if (GetAsyncKeyState(g_Options.ragebot_baim_key))
 		force_baim = true;
-	else
-		force_baim = false;
 
 	if (wepidx == WEAPON_ZEUS || wep->IsKnife())
 		force_baim = true;
-	else
-		force_baim = false;
 
 	if (g_Options.ragebot_adaptive_baim && (pTarget->m_iHealth() <= 39 || !(pTarget->m_fFlags() & FL_ONGROUND || (pTarget->m_vecVelocity().Length2D() >= 202))))
 		force_baim = true;
-	else
-		force_baim = false;
 
 	
 	pTarget->ForceBoneRebuilid ();
@@ -701,7 +685,7 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 		}
 	}
 
-	if (g_Options.ragebot_hitbox[3][iCurGroup] || force_baim) {
+	if (g_Options.ragebot_hitbox[3][iCurGroup] && force_baim) {
 		points.push_back({ pTarget->GetHitboxPos(HITBOX_STOMACH) });
 		points.push_back({ pTarget->GetHitboxPos(HITBOX_PELVIS) });
 		if (g_Options.ragebot_multipoint && !(GetAsyncKeyState(g_Options.ragebot_force_safepoint))) {
@@ -756,8 +740,15 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 
 		bool bIsSafePoint = CheckSafePoint (point);
 			
-		if ( GetAsyncKeyState (g_Options.ragebot_force_safepoint) && !bIsSafePoint ) continue;
+		if (GetAsyncKeyState(g_Options.ragebot_force_safepoint) && !bIsSafePoint) {
 
+			bSafePointBox = true;
+
+			points.emplace_back(point);
+
+			continue;
+
+		}
 
 		auto isVisible = g_LocalPlayer->PointVisible(point);
 		if (g_Options.ragebot_autowall && !isVisible) {
@@ -770,7 +761,7 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 
 					}
 					else if (WallDamage > best_damage && WallDamage) {
-						if (WallDamage > 30) {
+						if (WallDamage > 25) {
 							PredictiveAStop( (WallDamage / pTarget->m_iHealth()) );
 						}
 					}
@@ -859,15 +850,25 @@ bool RageBot::Aim(Vector point, int idx) {
 
 	auto IsValidTick = Snakeware::pLagRecords[Idx].TickCount != -1; // aye
 
+	static int last_shot;
+	static int last_pitch_up;
+
+	if (pTarget->m_angEyeAngles().pitch < 60)
+		last_pitch_up = g_GlobalVars->realtime;
+
+	bool OnShot = true;
+
+
 	if  (Hitchanced) {
 
 		if (g_Options.ragebot_autofire && shoot_state) {
-			Snakeware::OnShot = true;
 
-			if (IsValidTick)
-				pCmd->tick_count = Snakeware::pLagRecords[Idx].TickCount;
-
-			pCmd->buttons |= IN_ATTACK;
+			if (OnShot) {
+				Snakeware::OnShot = true;
+				if (IsValidTick)
+					pCmd->tick_count = Snakeware::pLagRecords[Idx].TickCount;
+				pCmd->buttons |= IN_ATTACK;
+			}
 		}
 		if (pCmd->buttons & IN_ATTACK) {
 
@@ -929,6 +930,7 @@ void RageBot::QuickStop () {
 
 }
 void RageBot::PredictiveAStop(int value) {
+
 	if (!g_Options.ragebot_autostop)
 		return;
 
@@ -951,10 +953,9 @@ void RageBot::PredictiveAStop(int value) {
 		auto negative_forward_speed = -cl_forwardspeed->GetFloat() * (value * 0.25);
 		auto negative_side_speed	= -cl_sidespeed->GetFloat() * (value * 0.25);
 
-		auto negative_forward_direction = forward * 0.8;
-		auto negative_side_direction = forward * 0.8;
+		auto negative_side_direction = Vector(g_LocalPlayer->m_vecVelocity().x * 0.6, g_LocalPlayer->m_vecVelocity().y * 0.6, g_LocalPlayer->m_vecVelocity().z * 0.6);
 
-		pCmd->forwardmove -= negative_forward_direction.x;
+		pCmd->forwardmove -= negative_side_direction.x;
 		pCmd->sidemove -= negative_side_direction.y;
 	}
 }

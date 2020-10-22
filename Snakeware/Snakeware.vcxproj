@@ -73,7 +73,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>C:\Users\Эдик\Desktop\Snakeware[csgo]\Snakeware[csgo]\lua53.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>D:\Документы\GitHub\InsightCSGO\lua53.lib;D:\Документы\GitHub\InsightCSGO\Snakeware\helpers\det0ur-hook\detours.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

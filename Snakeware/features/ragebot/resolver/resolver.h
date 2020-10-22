@@ -10,10 +10,21 @@ struct ResolveInfo {
 	ResolveInfo() {	 }
 
 	AnimationLayer          ResolverLayers[3][13];
-	int                     iResolvingWay;
-	int                     iMissedShots = 0;
-	bool                    bWasUpdated;
-	std::string			    info;
+	int                     iResolvingWay		 ;
+	int                     iMissedShots = 0	 ;
+	bool                    bWasUpdated			 ;
+	std::string			    info				 ;
+	bool					has_fake		     ;
+	bool					has_fakelags		 ;
+
+
+	/*			  lby desync mode	     		*/	
+	int						LastBalancedDesync	 ;
+	int						lby_delta			 ;
+	bool					desyncmode_balance	 ;
+
+	int						LastPitchDown		 ;
+
 };
 
 class Resolver : public Singleton < Resolver > {

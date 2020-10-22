@@ -47,7 +47,7 @@ namespace lua {
 	std::vector<bool> loaded;
 	std::vector<std::string> scripts;
 	std::vector<std::filesystem::path> pathes;
-
+	std::map<std::string, std::map<std::string, std::vector<MenuItem_t>>> menu_items;
 	int extract_owner(sol::this_state st) {
 		sol::state_view lua_state(st);
 		sol::table rs = lua_state["debug"]["getinfo"](2, "S");
@@ -714,6 +714,112 @@ namespace lua {
 		return desync;
 	}
 
+	namespace ns_ui {
+		std::string new_checkbox(sol::this_state s, std::string tab, std::string container, std::string label, std::string key, std::optional<bool> def, std::optional<sol::function> cb) {
+			MenuItem_t item;
+			item.type = MENUITEM_CHECKBOX;
+			item.script = extract_owner(s);
+			item.label = label;
+			item.key = key;
+			item.b_default = def.value_or(false);
+			item.callback = cb.value_or(sol::nil);
+
+			menu_items[tab][container].push_back(item);
+			return key;
+		}
+
+		std::string new_slider_int(sol::this_state s, std::string tab, std::string container, std::string label, std::string key, int min, int max, std::optional<std::string> format, std::optional<int> def, std::optional<sol::function> cb) {
+			MenuItem_t item;
+			item.type = MENUITEM_SLIDERINT;
+			item.script = extract_owner(s);
+			item.label = label;
+			item.key = key;
+			item.i_default = def.value_or(0);
+			item.i_min = min;
+			item.i_max = max;
+			item.format = format.value_or("%d");
+			item.callback = cb.value_or(sol::nil);
+
+			menu_items[tab][container].push_back(item);
+			return key;
+		}
+
+		std::string new_slider_float(sol::this_state s, std::string tab, std::string container, std::string label, std::string key, float min, float max, std::optional<std::string> format, std::optional<float> def, std::optional<sol::function> cb) {
+			MenuItem_t item;
+			item.type = MENUITEM_SLIDERFLOAT;
+			item.script = extract_owner(s);
+			item.label = label;
+			item.key = key;
+			item.f_default = def.value_or(0.f);
+			item.f_min = min;
+			item.f_max = max;
+			item.format = format.value_or("%.0f");
+			item.callback = cb.value_or(sol::nil);
+
+			menu_items[tab][container].push_back(item);
+			return key;
+		}
+
+		std::string new_text(sol::this_state s, std::string tab, std::string container, std::string label, std::string key) {
+			MenuItem_t item;
+			item.type = MENUITEM_TEXT;
+			item.script = extract_owner(s);
+			item.label = label;
+			item.key = key;
+
+			menu_items[tab][container].push_back(item);
+			return key;
+		}
+
+		std::string new_colorpicker(sol::this_state s, std::string tab, std::string container, std::string id, std::string key, std::optional<int> r, std::optional<int> g, std::optional<int> b, std::optional<int> a, std::optional<sol::function> cb) {
+			MenuItem_t item;
+			item.type = MENUITEM_COLORPICKER;
+			item.script = extract_owner(s);
+			item.label = id;
+			item.key = key;
+			item.c_default[0] = r.value_or(255) / 255.f;
+			item.c_default[1] = g.value_or(255) / 255.f;
+			item.c_default[2] = b.value_or(255) / 255.f;
+			item.c_default[3] = a.value_or(255) / 255.f;
+			item.callback = cb.value_or(sol::nil);
+
+			menu_items[tab][container].push_back(item);
+			return key;
+		}
+
+		std::string new_button(sol::this_state s, std::string tab, std::string container, std::string id, std::string key, std::optional<sol::function> cb) {
+			MenuItem_t item;
+			item.type = MENUITEM_BUTTON;
+			item.script = extract_owner(s);
+			item.label = id;
+			item.key = key;
+			item.callback = cb.value_or(sol::nil);
+
+			menu_items[tab][container].push_back(item);
+			return key;
+		}
+
+		void set_visibility(std::string key, bool v) {
+			for (auto t : menu_items) {
+				for (auto c : t.second) {
+					for (auto& i : c.second) {
+					}
+				}
+			}
+		}
+
+		void set_items(std::string key, std::vector<const char*> items) {
+			for (auto t : menu_items) {
+				for (auto c : t.second) {
+					for (auto& i : c.second) {
+						if (i.key == key)
+							i.items = items;
+					}
+				}
+			}
+		}
+
+	};
 	namespace cmd
 	{
 		bool Onshot()
@@ -1059,6 +1165,17 @@ namespace lua {
 		lua_state["convar"] = convar;
 
 		auto ui = lua_state.create_table();
+		ui["new_checkbox"] = ns_ui::new_checkbox;
+		ui["new_colorpicker"] = ns_ui::new_colorpicker;
+		ui["new_slider_float"] = ns_ui::new_slider_float;
+		ui["new_slider_int"] = ns_ui::new_slider_int;
+		ui["new_text"] = ns_ui::new_text;
+		ui["new_button"] = ns_ui::new_button;
+		//ui["set_callback"] = ns_ui::set_callback;
+		ui["set_items"] = ns_ui::set_items;
+		//ui["set_label"] = ns_ui::set_label;
+		ui["set_visibility"] = ns_ui::set_visibility;
+		//ui["is_bind_active"] = ns_ui::is_bind_active;
 		lua_state["ui"] = ui;
 
 		refresh_scripts();

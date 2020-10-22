@@ -91,7 +91,7 @@ void ConfigSystem::SetupVisuals()
 	//chams
 	SetupValue(g_Options.chams_player_enabled, false, ("player-chams"), ("chams_enabled"));
 	SetupValue(g_Options.chams_player_enabled_l, false, ("player-chams"), ("chams_ploverlay_enabled"));
-	SetupValue(g_Options.chams_player_type_layer, 1, ("player-chams"), ("chams_type"));
+	SetupValue(g_Options.chams_player_type_layer, 1, ("player-chams"), ("chams_type_l"));
 	SetupValue(g_Options.chams_player_type, 1, ("player-chams"), ("chams_type"));
 	SetupValue(g_Options.chams_player_ignorez, false, ("player-chams"), ("chams_ignore_wall"));
 	SetupValue(g_Options.chams_player_enemies_only, false, ("player-chams"), ("chams_ignore_team"));
@@ -103,8 +103,11 @@ void ConfigSystem::SetupVisuals()
 	SetupValue(g_Options.viewmodel_fov, 69, ("viewmodel"), ("viewmodel_type"));
 
 	SetupValue(g_Options.chams_weapons, false, ("player-weapon"), ("chams_weapons"));
-	SetupValue(g_Options.chams_arms_type, 1, ("player-weapon"), ("chams_weapon_type"));
+	SetupValue(g_Options.chams_weapons_type, 1, ("player-weapon"), ("chams_weapon_type"));
 
+	SetupValue(g_Options.chams_weapon_enabled_l, false, ("player-weapon"), ("chams_weaponsl_enabled"));
+	SetupValue(g_Options.chams_weapons_type_layer, 1, ("player-weapon"), ("chams_weapons_type_layer"));
+ 
 	SetupValue(g_Options.world_fov, 3, ("viewmodel"), ("world_fov"));
 	SetupValue(g_Options.esp_aspect_ratio, 0, ("viewmodel"), ("aspect_ratio"));
 

@@ -6,7 +6,6 @@
 #include "../hooks.hpp"
 #include "../helpers/input.hpp"
 
-
 Chams::Chams() {
 
 
