@@ -25,17 +25,23 @@ void ConfigSystem::SetupRage()
 		SetupValue(g_Options.ragebot_fov, 228,       ("ragebot"),  ("ragebot_fov"));
 		SetupValue(g_Options.ragebot_autostop, false, ("ragebot"), ("autostop"));
 		SetupValue(g_Options.ragebot_autostop_bs, false, ("ragebot"), ("autostopbs"));
+		SetupValue(g_Options.ragebot_resolver, false, ("ragebot"), ("resolver"));
 		SetupValue(g_Options.ragebot_autostop_type, 0, ("ragebot"), ("auto_stoptype"));
+		SetupValue(g_Options.ragebot_force_safepoint, 0, ("ragebot"), ("force_safepoint"));
+		SetupValue(g_Options.ragebot_multipoint, true, ("ragebot"), ("ragebot_mitlipoint"));
+		SetupValue(g_Options.ragebot_baim_key, 0, ("ragebot"), ("baim_key"));
 
 		for (int type = WEAPON_GROUPS::PISTOLS; type <= WEAPON_GROUPS::SMG; type++) {
-			SetupValue(g_Options.ragebot_mindamage[type], 0, ("ragebot"), ("ragebot_mindamage"));
-			SetupValue(g_Options.ragebot_vis_mindamage[type], 0, ("ragebot"), ("ragebot_vismindamage"));
-			SetupValue(g_Options.ragebot_hitchance[type], 0, ("ragebot"), ("ragebot_hitchance"));
-			SetupValue(g_Options.ragebot_pointscale[type], 0, ("ragebot"), ("ragebot_pointscale"));
-			SetupValue(g_Options.ragebot_bodyscale[type], 0, ("ragebot"), ("ragebot_bodyscale"));
-			SetupValue(g_Options.ragebot_otherscale[type], 0, ("ragebot"), ("ragebot_otherscale"));
-		
-
+			SetupValue(g_Options.ragebot_mindamage[type], 0, ("ragebot"), ("ragebot_mindamage" + type ));
+			SetupValue(g_Options.ragebot_vis_mindamage[type], 0, ("ragebot"), ("ragebot_vismindamage" + type));
+			SetupValue(g_Options.ragebot_hitchance[type], 0, ("ragebot"), ("ragebot_hitchance" + type));
+			SetupValue(g_Options.ragebot_pointscale[type], 0, ("ragebot"), ("ragebot_pointscale" + type));
+			SetupValue(g_Options.ragebot_bodyscale[type], 0, ("ragebot"), ("ragebot_bodyscale" + type));
+			SetupValue(g_Options.ragebot_otherscale[type], 0, ("ragebot"), ("ragebot_otherscale" + type));
+			SetupValue(g_Options.ragebot_static_pointscale[type], false, ("ragebot"), ("static_pointscale" + type));
+			SetupValue(g_Options.ragebot_adaptive_baim[type], false, ("ragebot"), ("adaptive_baim" + type));
+			SetupValue(g_Options.ragebot_baim_if_lethal[type], false, ("ragebot"), ("_baim_if_lethal" + type));
+			SetupValue(g_Options.ragebot_between_shots[type], false, ("ragebot"), ("beetweenshots" + type));
 		}
 
 
@@ -53,6 +59,9 @@ void ConfigSystem::SetupRage()
 		SetupValue(g_Options.antihit_jitter_radius, 0, ("antihit"), ("jitter_rad"));
 		SetupValue(g_Options.antihit_fake_switch_key, 0, ("antihit"), ("fake_switch"));
 		SetupValue(g_Options.antihit_fake_ammount, 58, ("antihit"), ("fake_ammount"));
+		SetupValue(g_Options.antihit_manual_left, 0, ("antihit"), ("manual_left"));
+		SetupValue(g_Options.antihit_manual_right, 0, ("antihit"), ("manual_right"));
+		SetupValue(g_Options.antihit_manual_back, 0, ("antihit"), ("manual_back"));
 
 }
 void ConfigSystem::SetupVisuals()

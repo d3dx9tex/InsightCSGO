@@ -166,7 +166,7 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 
 	StoreResolveDelta(pPlayer, &rRecord);
 
-	if (pPlayer->m_fFlags() & FL_ONGROUND) {
+	if ( pPlayer->m_fFlags() & FL_ONGROUND ) {
 
 		Vector src3D, dst3D, forward, right, up, src, dst;
 		float back_two, right_two, left_two;
@@ -289,7 +289,7 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 			rRecord.has_fake = (fabs(g_GlobalVars->realtime - rRecord.LastPitchDown) < 0.8f) ? true : false;
 		}
 
-		if ( (!GetAsyncKeyState(g_Options.ragebot_force_safepoint)) && rRecord.has_fakelags ) {
+		if ( (!GetAsyncKeyState(g_Options.ragebot_force_safepoint)) ) {
 
 			if (rRecord.iResolvingWay < 0) {
 

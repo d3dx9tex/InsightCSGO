@@ -355,11 +355,11 @@ public:
 	// COLORS
 	// 
 	float color_menu_ui[4] = { 0.1f, 0.1f, 1.f, 1.0f };
-	float color_sound_esp[4] = { 1.f, 0.1f, 1.f, 1.0f };
-	float color_esp_ally_visible[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	float color_esp_enemy_visible[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	float color_esp_ally_occluded[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	float color_esp_enemy_occluded[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	float color_sound_esp[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float color_esp_ally_visible[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float color_esp_enemy_visible[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float color_esp_ally_occluded[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float color_esp_enemy_occluded[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	float color_esp_crosshair[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	float color_esp_offscreen[4] = { 0.3f, 0.1f, 1.f, 1.0f };
 	float color_molotov[4] = { 0.3f, 0.1f, 1.f, 1.0f };
@@ -376,7 +376,7 @@ public:
 	OPTION(Color, color_glow_defuse, Color(255, 255, 255));
 	OPTION(Color, color_glow_weapons, Color(255, 128, 0));
 
-	float color_chams_player_ally_visible[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	float color_chams_player_ally_visible[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	float color_shot_hitboxes[4] = { 0.9f, 0.1f, 0.85f, 1.0f };
 	float color_head_dot[4] = { 1.f, 1.f, 1.f, 1.0f };
 	float color_player_chams_backtrack[4] = { 1.f, 1.f, 1.f, 1.0f };
@@ -385,13 +385,13 @@ public:
 	float color_chams_weapons[4] = { 0.f, 0.f, 0.9f, 1.0f };
 	float color_chams_weapons_layer[4] = { 0.f, 0.f, 0.9f, 1.0f };
 	float color_chams_fake[4] = { 0.f, 0.f, 1.f, 1.0f };
-	float color_chams_player_ally_occluded[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	float color_chams_player_enemy_visible[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	float color_chams_player_enemy_visible_l[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	float color_chams_player_enemy_occluded[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	float color_chams_arms_visible[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	float color_chams_arms_visible_layer[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	float sky_color[4] = { 1.f, 0.f, 1.f, 0.9f };
+	float color_chams_player_ally_occluded[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float color_chams_player_enemy_visible[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float color_chams_player_enemy_visible_l[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float color_chams_player_enemy_occluded[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float color_chams_arms_visible[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float color_chams_arms_visible_layer[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float sky_color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	float world_color[4] = { 1.f, 0.f, 1.f, 1.f };
 	float prop_color[4] = { 1.f, 0.f, 1.f, 0.9f };
 	int prop_material;
@@ -447,7 +447,7 @@ public:
 	OPTION(bool, ragebot_position_adj, false);
 	OPTION(bool, ragebot_limit_fov, false);
 	OPTION(bool, ragebot_multipoint, false);
-	OPTION(bool, ragebot_beetweenshots, false);
+	bool  ragebot_between_shots[9] = { false, false, false, false, false, false, false, false };
 	bool  ragebot_alternative_hitchance[9] = { false, false, false, false, false, false, false, false };
 	bool  ragebot_delayshot[9] = { false, false, false, false, false, false, false, false };
 	bool  ragebot_autoscope;

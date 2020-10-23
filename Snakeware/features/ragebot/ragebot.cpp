@@ -101,7 +101,6 @@ void RageBot::Instance (CUserCmd * Cmd) {
 
 	if (!pWeapon || pWeapon->IsKnife() || pWeapon->IsGrenade() || pWeapon->IsWeaponNonAim())          return;
 
-	scout_injump();
 	UpdateConfig();
 	AutoRevolver(pCmd);
 
@@ -320,6 +319,8 @@ void RageBot::ResetTarget() {
 	
 }
 
+int CurentHitchance;
+
 bool RageBot::Hitchance (QAngle Aimangle) {
 
 	BulidSeedTable();
@@ -399,6 +400,8 @@ bool RageBot::Hitchance (QAngle Aimangle) {
 		if (tr.hit_entity == pTarget)
 			hits++;
 
+		CurentHitchance = static_cast<int>((static_cast<float>(hits) / iTotalSeeds) * 100.f);
+
 		if (static_cast<int>((static_cast<float>(hits) / iTotalSeeds) * 100.f) >= flChance)
 			return true;
 
@@ -438,7 +441,7 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 	Vector top = Vector(0, 0, 1);
 	Vector bottom = Vector(0, 0, -1);
 
-	float adjusted_radius = GetPointScale (hbx->m_flRadius , &g_LocalPlayer->GetEyePos(), &angle, hitbox);
+	float adjusted_radius = GetPointScale ( hbx->m_flRadius , &g_LocalPlayer->GetEyePos(), &center, hitbox);
 	switch (hitbox) {
 	case HITBOX_HEAD:
 		
@@ -521,6 +524,7 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 }
 
 bool RageBot::IsAbleToShoot() {
+	auto weapon = g_LocalPlayer->m_hActiveWeapon();
 	auto wep = g_LocalPlayer->m_hActiveWeapon();
 	if (!wep)                                                 return false;
 
@@ -528,7 +532,7 @@ bool RageBot::IsAbleToShoot() {
 
 	if (wep->IsWeaponNonAim())                                return false;
 
-	auto time = TICKS_TO_TIME(g_LocalPlayer->m_nTickBase());
+	auto time = TICKS_TO_TIME(g_LocalPlayer->m_nTickBase() - Snakeware::m_nTickbaseShift);
 
 	if (pCmd->weaponselect)
 		return false;
@@ -536,12 +540,11 @@ bool RageBot::IsAbleToShoot() {
 	if (wep->m_iClip1() < 1)
 		return false;
 
-	if ((g_LocalPlayer->m_flNextAttack() > time) || wep->m_flNextPrimaryAttack() > time || wep->m_flNextSecondaryAttack() > time)
+	if (GetAsyncKeyState(g_Options.exploit_doubletap_key))
 	{
-		if (wep->m_Item().m_iItemDefinitionIndex() == WEAPON_REVOLVER)
-			return true;
-		else
-		return false;
+		if (weapon->m_flNextPrimaryAttack() > time)              return false;
+
+		if (g_LocalPlayer->m_flNextAttack() > time)              return false;
 	}
 
 	return true;
@@ -820,11 +823,6 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 						best_point = point;
 
 					}
-					else if (WallDamage > best_damage && WallDamage) {
-						if (WallDamage > 25) {
-							PredictiveAStop( (WallDamage / pTarget->m_iHealth()) );
-						}
-					}
 				}
 			
 		}
@@ -949,10 +947,10 @@ bool RageBot::Aim(Vector point, int idx) {
 	}
 	if (g_Options.ragebot_autostop) {
 		static int MinimumVelocity = 0;
-		bool shouldstop = g_Options.ragebot_beetweenshots ? true : canShoot;
+		bool shouldstop = g_Options.ragebot_between_shots[iCurGroup] ? true : canShoot;
 		MinimumVelocity = wep->GetCSWeaponData()->flMaxPlayerSpeedAlt * .34f;
 		if (g_LocalPlayer->m_vecVelocity().Length() >= MinimumVelocity && shouldstop && !GetAsyncKeyState(VK_SPACE) && !wep->IsKnife() && wep->m_Item().m_iItemDefinitionIndex() != WEAPON_ZEUS)
-			QuickStop();
+		 QuickStop();
 	}
 	return true;
 }
@@ -978,16 +976,15 @@ void RageBot::QuickStop () {
 		static auto cl_forwardspeed = g_CVar->FindVar(Xor("cl_forwardspeed"));
 		static auto cl_sidespeed = g_CVar->FindVar(Xor("cl_sidespeed"));
 
-		auto negative_forward_speed = -cl_forwardspeed->GetFloat() * 2.0;
-		auto negative_side_speed = -cl_sidespeed->GetFloat() * 2.0;
+		auto vel = g_LocalPlayer->m_vecVelocity();
+		auto negative_forward_speed = -cl_forwardspeed->GetFloat();
+		auto negative_side_speed = -cl_sidespeed->GetFloat();
 
-		auto negative_forward_direction = forward * negative_forward_speed;
-		auto negative_side_direction = forward * negative_side_speed;
-
-		pCmd->forwardmove = negative_forward_direction.x;
-		pCmd->sidemove = negative_side_direction.y;
+		auto negative_forward_direction = (forward * negative_forward_speed);
+		auto negative_side_direction = (forward * negative_side_speed);
+		pCmd->forwardmove = negative_forward_direction.y;
+		pCmd->sidemove	  = negative_side_direction.y;
 	}
-
 }
 void RageBot::PredictiveAStop(int value) {
 
@@ -1013,7 +1010,7 @@ void RageBot::PredictiveAStop(int value) {
 		auto negative_forward_speed = -cl_forwardspeed->GetFloat() * (value * 0.25);
 		auto negative_side_speed	= -cl_sidespeed->GetFloat() * (value * 0.25);
 
-		auto negative_side_direction = Vector(g_LocalPlayer->m_vecVelocity().x * 0.6, g_LocalPlayer->m_vecVelocity().y * 0.6, g_LocalPlayer->m_vecVelocity().z * 0.6);
+		auto negative_side_direction = Vector(g_LocalPlayer->m_vecVelocity().x * 1.3, g_LocalPlayer->m_vecVelocity().y * 1.3, g_LocalPlayer->m_vecVelocity().z * 1.3);
 
 		pCmd->forwardmove -= negative_side_direction.x;
 		pCmd->sidemove -= negative_side_direction.y;

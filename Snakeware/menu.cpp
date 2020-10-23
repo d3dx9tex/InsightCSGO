@@ -275,7 +275,7 @@ void RenderRageBotTab()
 			if (g_Options.ragebot_multipoint) {
 
 
-				ImGui::CheckboxEX("Static-pointscale", &g_Options.ragebot_static_pointscale[curGroup], "Multipoint hitboxes etc", 6);
+				ImGui::CheckboxEX("Static-pointscale", &g_Options.ragebot_static_pointscale[curGroup], "Multipoint hitboxes etc", 63);
 
 				if (g_Options.ragebot_static_pointscale[curGroup]) {
 					ImGui::SliderFloat("Head scale", &g_Options.ragebot_pointscale[curGroup], 0, 100);
@@ -287,9 +287,10 @@ void RenderRageBotTab()
 				}
 			}
 			ImGui::CheckboxEX("Smart body-aim", &g_Options.ragebot_adaptive_baim[curGroup], "Smart baim", 7);
-			ImGui::CheckboxEX("Body-aim if lethal", &g_Options.ragebot_baim_if_lethal[curGroup], "Smart baim", 7);
+			ImGui::CheckboxEX("Body-aim if lethal", &g_Options.ragebot_baim_if_lethal[curGroup], "Smart baim", 78);
 			ImGui::CheckboxEX("Auto-scope", &g_Options.ragebot_autoscope, "Automaticaly scope", 8);
 			ImGui::CheckboxEX("Auto-stop", &g_Options.ragebot_autostop, "Automaticaly stop", 9);
+			if (g_Options.ragebot_autostop) ImGui::CheckboxEX("Between shots", &g_Options.ragebot_between_shots[curGroup], "Automaticaly stop mode 2", 91);
 			const char* hitboxes[] = { "Head", "Neck", "Chest", "Body", "Arms", "Legs" };
 			static std::string prevValue = "Select";
 			if (ImGui::BeginCombo("Hitscan", "Select", 0))
