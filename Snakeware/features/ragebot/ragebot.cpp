@@ -435,10 +435,10 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 	Vector top = Vector(0, 0, 1);
 	Vector bottom = Vector(0, 0, -1);
 
-	float adjusted_radius = 0.f;
+	float adjusted_radius = GetPointScale (hbx->m_flRadius , &g_LocalPlayer->GetEyePos(), &angle, hitbox);
 	switch (hitbox) {
 	case HITBOX_HEAD:
-		adjusted_radius = hbx->m_flRadius * float(g_Options.ragebot_pointscale[iCurGroup] / 100.f);
+		
 
 		if (adjusted_radius > 0.f) {
 			points.push_back({ center + top * adjusted_radius });
@@ -448,7 +448,7 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 		break;
 
 	case HITBOX_NECK:
-		adjusted_radius = hbx->m_flRadius * float(0.f / 100.f);
+		
 
 		if (adjusted_radius > 0.f) {
 			points.push_back({ center + right * adjusted_radius });
@@ -457,7 +457,7 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 		break;
 
 	case HITBOX_CHEST:
-		adjusted_radius = hbx->m_flRadius * float(g_Options.ragebot_bodyscale[iCurGroup] / 100.f);
+	
 
 		if (adjusted_radius > 0.f) {
 			points.push_back({ center + right * adjusted_radius });
@@ -467,7 +467,7 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 		break;
 
 	case HITBOX_UPPER_CHEST:
-		adjusted_radius = hbx->m_flRadius * float(g_Options.ragebot_bodyscale[iCurGroup] / 100.f);
+	
 
 		if (adjusted_radius > 0.f) {
 			points.push_back({ center + top * adjusted_radius });
@@ -477,7 +477,7 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 		break;
 
 	case HITBOX_STOMACH:
-		adjusted_radius = hbx->m_flRadius * float(g_Options.ragebot_bodyscale[iCurGroup] / 100.f);
+		
 
 		if (adjusted_radius > 0.f) {
 			points.push_back({ center + top * adjusted_radius });
@@ -487,7 +487,7 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 		break;
 
 	case HITBOX_PELVIS:
-		adjusted_radius = hbx->m_flRadius * float(g_Options.ragebot_bodyscale[iCurGroup] / 100.f);
+		
 
 		if (adjusted_radius > 0.f) {
 			points.push_back({ center + right * adjusted_radius });
@@ -498,7 +498,7 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 
 	case HITBOX_LEFT_FOREARM:
 	case HITBOX_RIGHT_FOREARM:
-		adjusted_radius = hbx->m_flRadius * float(g_Options.ragebot_otherscale[iCurGroup] / 100.f);
+		
 
 		if (adjusted_radius > 0.f) {
 			points.push_back({ center + top * adjusted_radius });
@@ -508,8 +508,7 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 
 	case HITBOX_LEFT_CALF:
 	case HITBOX_RIGHT_CALF:
-		adjusted_radius = hbx->m_flRadius * float(g_Options.ragebot_otherscale[iCurGroup] / 100.f);
-
+	
 		if (adjusted_radius > 0.f) {
 			points.push_back({ center + top * adjusted_radius });
 			points.push_back({ center + bottom * adjusted_radius });
@@ -636,8 +635,8 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 	auto enemyhp = pTarget->m_iHealth();
 	auto ent     = pTarget->EntIndex();
 
-	pTarget->ForceBoneRebuilid();
-	pTarget->SetupBonesFixed(bones, BONE_USED_BY_ANYTHING); // rebulid time
+	pTarget->ForceBoneRebuilid ();
+	pTarget->SetupBonesFixed   (bones, BONE_USED_BY_ANYTHING); // rebulid time
 
 	if (bones == nullptr)
 		return Vector(0, 0, 0);
@@ -992,4 +991,69 @@ void RageBot::PredictiveAStop(int value) {
 	}
 }
 
+
+float  RageBot::GetPointScale (float flHitboxRadius, Vector *vecPoint, Vector *vecPos, int iHitbox) {
+
+	// Onetapv4 
+	// credit's : Snake,Sharhlaser1,llama.
+
+	auto pWeapon = g_LocalPlayer->m_hActiveWeapon(); // xmm0_2
+
+	float flPointScale;
+	float flScale;
+	float flEndScale;
+	float flScaleState; // [esp+4h] [ebp-Ch]
+	float ScaleState;
+
+	float  v6; // ST0C_4
+	float  v7; // xmm0_4
+	float  v11; // xmm1_4
+	double dCone; // xmm0_8
+	double dEndCone; // xmm0_8
+	float  pDist; // xmm0_8
+	Vector RadSpread; // xmm0_8
+
+	float g_flSpread = pWeapon->GetSpread();
+	float g_flInaccurarcy = pWeapon->GetInaccuracy();
+	flScaleState = flHitboxRadius;
+
+	if (!pWeapon) return 0.f;
+
+	if (iHitbox == HITBOX_HEAD)
+		flScale = g_Options.ragebot_pointscale[iCurGroup];
+	else if (iHitbox == HITBOX_CHEST || iHitbox == HITBOX_STOMACH || iHitbox == HITBOX_PELVIS || iHitbox == HITBOX_UPPER_CHEST)
+		flScale = g_Options.ragebot_bodyscale[iCurGroup];
+	else
+		flScale = g_Options.ragebot_otherscale[iCurGroup];
+
+	flPointScale = (((flScale / 100.0) * 0.69999999) + 0.2) * flHitboxRadius;
+
+	if (g_Options.ragebot_multipoint) {
+		// Staitc multi-point
+		flEndScale = flPointScale;
+	}
+	else {
+
+		v7 = vecPoint->z - vecPos->z;   // eax
+		v6 = g_flSpread + g_flInaccurarcy; // Onetap vip calculate
+		pDist = Math::VectorDistance(*vecPoint, *vecPos);
+		RadSpread = ((90.0 - (v6 * 57.29578) * 0.017453292));
+		RadSpread.x = sinf(RadSpread.x);
+		v11 = pDist / RadSpread.x; // eax
+		dCone = v6;
+		ScaleState = v11;
+		dCone = sinf(float(v6));
+		flHitboxRadius = flScaleState;
+		dEndCone = dCone;
+
+		if (flScaleState <= (ScaleState * dEndCone))
+			flEndScale = 0.0;
+		else
+			flEndScale = ScaleState - (ScaleState * dEndCone);
+		// [esp+Ch] [ebp-4h]
+	}
+
+	return std::fminf(flHitboxRadius * 0.9f, flEndScale);
+
+}
 

@@ -41,8 +41,10 @@ public:
 
 	bool   Aim               (Vector point, int idx);
 
-	void QuickStop();
-	void PredictiveAStop(int value);
+	void QuickStop           ();
+	void PredictiveAStop     (int value);
+
+	float GetPointScale      (float flHitboxRadius, Vector * vecPoint, Vector * vecEyePos, int iHitbox);
 
 
 	bool IsValid (C_BasePlayer * Player);

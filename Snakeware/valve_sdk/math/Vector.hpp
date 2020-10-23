@@ -127,6 +127,10 @@ public:
         return (src.x != x) || (src.y != y) || (src.z != z);
     }
 
+	double operator= (double value) {
+		return x = y = z = value;
+	}
+
     Vector& operator+=(const Vector& v)
     {
         x += v.x; y += v.y; z += v.z;
