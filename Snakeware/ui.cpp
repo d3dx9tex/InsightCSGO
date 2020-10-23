@@ -419,7 +419,7 @@ bool ImGuiEX::Hotkey(const char * label, int * k, const ImVec2 & size_arg)
 	const bool focus_requested_by_tab = focus_requested && !focus_requested_by_code;
 
 	const bool hovered = ImGui::ItemHoverable(frame_bb, id);
-
+	bool opened_popup;
 	if (hovered)
 	{
 		ImGui::SetHoveredID(id);
@@ -427,20 +427,24 @@ bool ImGuiEX::Hotkey(const char * label, int * k, const ImVec2 & size_arg)
 	}
 
 	const bool user_clicked = hovered && io.MouseClicked[0];
+	if (GetAsyncKeyState(VK_RBUTTON)) {
 
-	if (focus_requested || user_clicked)
-	{
-		if (g.ActiveId != id) {
-			memset(io.MouseDown, 0, sizeof(io.MouseDown));
-			memset(io.KeysDown, 0, sizeof(io.KeysDown));
-			*k = 0;
-		}
-		ImGui::SetActiveID(id, window);
-		ImGui::FocusWindow(window);
 	}
-	else if (io.MouseClicked[0]) {
-		if (g.ActiveId == id)
-			ImGui::ClearActiveID();
+	else {
+		if (focus_requested || user_clicked)
+		{
+			if (g.ActiveId != id) {
+				memset(io.MouseDown, 0, sizeof(io.MouseDown));
+				memset(io.KeysDown, 0, sizeof(io.KeysDown));
+				*k = 0;
+			}
+			ImGui::SetActiveID(id, window);
+			ImGui::FocusWindow(window);
+		}
+		else if (io.MouseClicked[0]) {
+			if (g.ActiveId == id)
+				ImGui::ClearActiveID();
+		}
 	}
 
 	bool value_changed = false;

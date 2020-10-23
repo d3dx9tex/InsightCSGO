@@ -101,6 +101,7 @@ void RageBot::Instance (CUserCmd * Cmd) {
 
 	if (!pWeapon || pWeapon->IsKnife() || pWeapon->IsGrenade() || pWeapon->IsWeaponNonAim())          return;
 
+	scout_injump();
 	UpdateConfig();
 	AutoRevolver(pCmd);
 
@@ -335,7 +336,9 @@ bool RageBot::Hitchance (QAngle Aimangle) {
 
 	if (wepidx == WEAPON_ZEUS)
 		flChance = 80.f;
-	else 
+	else if (force_hitchance != -1)
+		flChance = force_hitchance;
+	else
 		flChance = g_Options.ragebot_hitchance[iCurGroup];
 
 
@@ -627,7 +630,10 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 	enum hitscan_ {
 		FROM_CONFIG,
 		ONLY_HS,
-		ONLY_BODY
+		ONLY_BODY,
+		SAFE,
+		PRIORABLE_HS,
+		PROIRABLE_BODY
 	};
 	static int hitscan_mode;
 	auto wep     = g_LocalPlayer->m_hActiveWeapon();
@@ -664,6 +670,9 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 	}
 	else if ( ( g_Options.ragebot_hitbox[0][iCurGroup] ) && (g_LocalPlayer->m_iHealth() < 3) && (pTarget->m_iHealth() >= 80) && (wepidx != WEAPON_AWP) && (wepidx != WEAPON_REVOLVER ) && ( g_LocalPlayer->m_hActiveWeapon()->GetCSWeaponData()->iDamage < 150 )) {
 		hitscan_mode = hitscan_::ONLY_HS;
+	}
+	else if ( GetAsyncKeyState(g_Options.ragebot_force_safepoint) ) {
+		hitscan_mode = hitscan_::SAFE;
 	}
 	else {
 		hitscan_mode = hitscan_::FROM_CONFIG;
@@ -748,6 +757,26 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 			}
 
 		}break;
+		case hitscan_::SAFE		  : {
+
+			if (g_Options.ragebot_hitbox[0][iCurGroup]) {
+
+				points.push_back({ pTarget->GetHitboxPos(HITBOX_HEAD) });
+
+				if (g_Options.ragebot_multipoint) {
+					Multipoints(HITBOX_HEAD, bones, points);
+				}
+			}
+			if (g_Options.ragebot_hitbox[3][iCurGroup]) {
+				points.push_back({ pTarget->GetHitboxPos(HITBOX_STOMACH) });
+				points.push_back({ pTarget->GetHitboxPos(HITBOX_PELVIS) });
+				if (g_Options.ragebot_multipoint) {
+					Multipoints(HITBOX_STOMACH, bones, points);
+					Multipoints(HITBOX_PELVIS, bones, points);
+				}
+			}
+
+		}break;
 	}
 
 	auto BackupMins  = pTarget->GetCollideable()->OBBMins();
@@ -769,7 +798,7 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 		if   (WallDamage <= 0) continue;
 
 		CurentAimVector = point;
-
+		/*
 		bool bIsSafePoint = CheckSafePoint (point);
 			
 		if (GetAsyncKeyState(g_Options.ragebot_force_safepoint) && !bIsSafePoint) {
@@ -781,7 +810,7 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 			continue;
 
 		}
-
+		*/
 		auto isVisible = g_LocalPlayer->PointVisible(point);
 		if (g_Options.ragebot_autowall && !isVisible) {
 				

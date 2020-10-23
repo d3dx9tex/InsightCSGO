@@ -1,2 +1,12 @@
 ﻿D:\VS\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(1002,5): warning MSB8027: Two or more files with the name of render.cpp will produce outputs to the same location. This can lead to an incorrect build result.  The files involved are render.cpp, Surface render\Render.cpp.
-LINK : fatal error LNK1168: не удается открыть D:\Документы\GitHub\InsightCSGO\bin\Debug\snakeware.dll для записи
+  ui.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\ui.cpp(99,32): warning C4305: =: усечение из "double" в "float"
+D:\Документы\GitHub\InsightCSGO\Snakeware\ui.cpp(106,32): warning C4305: =: усечение из "double" в "float"
+D:\Документы\GitHub\InsightCSGO\Snakeware\ui.cpp(159,32): warning C4305: =: усечение из "double" в "float"
+D:\Документы\GitHub\InsightCSGO\Snakeware\ui.cpp(166,32): warning C4305: =: усечение из "double" в "float"
+D:\Документы\GitHub\InsightCSGO\Snakeware\ui.cpp(504,1): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+D:\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(133): message : см. объявление "strcpy"
+D:\Документы\GitHub\InsightCSGO\Snakeware\ui.cpp(507,1): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+D:\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(133): message : см. объявление "strcpy"
+D:\Документы\GitHub\InsightCSGO\Snakeware\ui.cpp(422,7): warning C4101: opened_popup: неиспользованная локальная переменная
+  Snakeware.vcxproj -> D:\Документы\GitHub\InsightCSGO\bin\Debug\snakeware.dll

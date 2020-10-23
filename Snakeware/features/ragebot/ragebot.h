@@ -24,6 +24,8 @@ public:
 
 	void ResetTarget();
 
+	int force_hitchance;
+
 	bool Hitchance (QAngle Aimangle);
 
 	void Multipoints(int hitbox, matrix3x4_t bones[128], std::vector<Vector>& points);
