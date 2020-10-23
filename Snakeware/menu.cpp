@@ -1547,34 +1547,22 @@ void RenderSkinsTab()
 	}
 	ImGui::EndChild();
 }
-void draw_lua_items(std::string tab, std::string container) {
-	for (auto i : lua::menu_items["lua"]["lua"])
+void draw_lua_items() {
+	for (size_t i_ = 0; i_ < 15; i_++)
 	{
-		if (!i.is_visible)
-			continue;
-
+		auto i = lua::lua_m[i_];
 		auto type = i.type;
 		switch (type)
 		{
 		case lua::MENUITEM_CHECKBOX:
-			if (ImGui::Checkbox(i.label.c_str(), &(GET_BOOL[i.key]))) {
-				if (i.callback != sol::nil)
-					i.callback(GET_BOOL[i.key]);
-			}
-
 			break;
+
 		case lua::MENUITEM_SLIDERINT:
-			if (ImGui::SliderInt(i.label.c_str(), &(GET_INT[i.key]), i.i_min, i.i_max, i.format.c_str())) {
-				if (i.callback != sol::nil)
-					i.callback(GET_INT[i.key]);
-			}
+			ImGui::SliderInt(i.label.c_str(), &i.var_int, i.i_min, i.i_max, i.format.c_str());
 
 			break;
 		case lua::MENUITEM_SLIDERFLOAT:
-			if (ImGui::SliderFloat(i.label.c_str(), &(GET_FLOAT[i.key]), i.f_min, i.f_max, i.format.c_str())) {
-				if (i.callback != sol::nil)
-					i.callback(GET_FLOAT[i.key]);
-			}
+			ImGui::SliderFloat(i.label.c_str(), &i.var_float, i.f_min, i.f_max, i.format.c_str());
 
 			break;
 
@@ -1582,19 +1570,6 @@ void draw_lua_items(std::string tab, std::string container) {
 			ImGui::Text(i.label.c_str());
 			break;
 
-		case lua::MENUITEM_COLORPICKER:
-			if (ImGui::ColorEdit4(i.label.c_str(), GET_COLOR[i.key])) {
-				if (i.callback != sol::nil)
-					i.callback(GET_COLOR[i.key][0] * 255, GET_COLOR[i.key][1] * 255, GET_COLOR[i.key][2] * 255, GET_COLOR[i.key][3] * 255);
-			}
-
-			break;
-		case lua::MENUITEM_BUTTON:
-			if (ImGui::Button(i.label.c_str())) {
-				if (i.callback != sol::nil)
-					i.callback();
-			}
-			break;
 		default:
 			break;
 		}
@@ -1843,13 +1818,7 @@ void RenderConfigTab()
 
 			ImGuiStyle& style = ImGui::GetStyle();
 
-			int container_count = GET_INTS_MAP["lua"]["lua"];
-			if (container_count > 0) {
-				for (int i = 0; i < container_count; i++) {
-					char buffer[8] = { 0 }; _itoa(i, buffer, 10);
-					draw_lua_items("lua", buffer);
-				}
-			}
+			draw_lua_items();
 
 
 		}

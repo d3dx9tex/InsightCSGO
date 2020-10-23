@@ -624,98 +624,130 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 
 	std::vector<Vector> points = {};
 
-	
+	enum hitscan_ {
+		FROM_CONFIG,
+		ONLY_HS,
+		ONLY_BODY
+	};
+	static int hitscan_mode;
 	auto wep     = g_LocalPlayer->m_hActiveWeapon();
 	auto wepdmg  = wep->GetCSWeaponData()->iDamage;
 	auto wepidx  = wep->m_Item().m_iItemDefinitionIndex();
 	auto enemyhp = pTarget->m_iHealth();
 	auto ent     = pTarget->EntIndex();
 
-	auto force_baim = false;
+	pTarget->ForceBoneRebuilid();
+	pTarget->SetupBonesFixed(bones, BONE_USED_BY_ANYTHING); // rebulid time
 
-	if (g_Options.ragebot_baim_if_lethal) {
+	if (bones == nullptr)
+		return Vector(0, 0, 0);
+
+	if (g_Options.ragebot_baim_if_lethal[iCurGroup] && ( g_Options.ragebot_hitbox[2][iCurGroup] || g_Options.ragebot_hitbox[3][iCurGroup] )) {
 		auto aw_dmg1 = AutoWall::Get().GetPointDamage(pTarget->GetHitboxPos(HITBOX_STOMACH),  pTarget);
 		auto aw_dmg2 = AutoWall::Get().GetPointDamage(pTarget->GetHitboxPos(HITBOX_PELVIS),   pTarget);
 		auto aw_dmg3 = AutoWall::Get().GetPointDamage(pTarget->GetHitboxPos(HITBOX_CHEST),    pTarget);
 		if ((aw_dmg1 > enemyhp) || (aw_dmg2 > enemyhp) || (aw_dmg3 > enemyhp)) {
-			force_baim = true;
+			hitscan_mode = hitscan_::ONLY_BODY;
 		}
 	}
-	
-	if (GetAsyncKeyState(g_Options.ragebot_baim_key))
-		force_baim = true;
-
-	if (wepidx == WEAPON_ZEUS || wep->IsKnife())
-		force_baim = true;
-
-	if (g_Options.ragebot_adaptive_baim && (pTarget->m_iHealth() <= 39 || !(pTarget->m_fFlags() & FL_ONGROUND || (pTarget->m_vecVelocity().Length2D() >= 202))))
-		force_baim = true;
-
-	
-	pTarget->ForceBoneRebuilid ();
-	pTarget->SetupBonesFixed(bones, BONE_USED_BY_ANYTHING); // rebulid time
-
-	if (bones == nullptr)
-		return Vector(0, 0 ,0);
-	
-
-	if (g_Options.ragebot_hitbox[0][iCurGroup] && !force_baim) {
-
-		points.push_back({ pTarget->GetHitboxPos(HITBOX_HEAD) });
-
-		if (g_Options.ragebot_multipoint ) {
-			Multipoints(HITBOX_HEAD, bones, points);
-		}
+	else if (GetAsyncKeyState(g_Options.ragebot_baim_key && (g_Options.ragebot_hitbox[2][iCurGroup] || g_Options.ragebot_hitbox[3][iCurGroup]))) {
+		hitscan_mode = hitscan_::ONLY_BODY;
+	}
+	else if ((wepidx == WEAPON_ZEUS || wep->IsKnife()) && (g_Options.ragebot_hitbox[2][iCurGroup] || g_Options.ragebot_hitbox[3][iCurGroup])) {
+		hitscan_mode = hitscan_::ONLY_BODY;
+	}
+	else if ((g_Options.ragebot_adaptive_baim[iCurGroup] && (pTarget->m_iHealth() <= 39) && (g_Options.ragebot_hitbox[2][iCurGroup] || g_Options.ragebot_hitbox[3][iCurGroup]))) {
+		hitscan_mode = hitscan_::ONLY_BODY;
+	}
+	else if ( wepidx == WEAPON_SSG08 && g_LocalPlayer->m_vecVelocity().Length2D() > 170 && pTarget->m_iHealth() > 50 ) {
+		hitscan_mode = hitscan_::ONLY_HS;
+	}
+	else if ( ( g_Options.ragebot_hitbox[0][iCurGroup] ) && (g_LocalPlayer->m_iHealth() < 3) && (pTarget->m_iHealth() >= 80) && (wepidx != WEAPON_AWP) && (wepidx != WEAPON_REVOLVER ) && ( g_LocalPlayer->m_hActiveWeapon()->GetCSWeaponData()->iDamage < 150 )) {
+		hitscan_mode = hitscan_::ONLY_HS;
+	}
+	else {
+		hitscan_mode = hitscan_::FROM_CONFIG;
 	}
 
-	if (g_Options.ragebot_hitbox[1][iCurGroup] && !force_baim) {
-		points.push_back({ pTarget->GetHitboxPos(HITBOX_NECK) });
-		if (g_Options.ragebot_multipoint) {
-			Multipoints(HITBOX_NECK, bones, points);
-		}
-	}
-
-	if (g_Options.ragebot_hitbox[2][iCurGroup] && !force_baim) {
-		points.push_back({ pTarget->GetHitboxPos(HITBOX_CHEST) });
-		points.push_back({ pTarget->GetHitboxPos(HITBOX_LOWER_CHEST) });
-		points.push_back({ pTarget->GetHitboxPos(HITBOX_UPPER_CHEST) });
-		if (g_Options.ragebot_multipoint && !(GetAsyncKeyState(g_Options.ragebot_force_safepoint))) {
-			Multipoints(HITBOX_CHEST, bones, points);
-			Multipoints(HITBOX_UPPER_CHEST, bones, points);
-		}
-	}
-
-	if (g_Options.ragebot_hitbox[3][iCurGroup] && force_baim) {
-		points.push_back({ pTarget->GetHitboxPos(HITBOX_STOMACH) });
-		points.push_back({ pTarget->GetHitboxPos(HITBOX_PELVIS) });
-		if (g_Options.ragebot_multipoint && !(GetAsyncKeyState(g_Options.ragebot_force_safepoint))) {
-			Multipoints           (HITBOX_STOMACH, bones, points);
-			Multipoints           (HITBOX_PELVIS, bones, points);
-		}
-	}
-	if (pTarget->m_vecVelocity().Length2D() <= 0.15f) {
-
-		if (g_Options.ragebot_hitbox[4][iCurGroup] && !force_baim) {
-			points.push_back({ pTarget->GetHitboxPos(HITBOX_LEFT_FOREARM) });
-			points.push_back({ pTarget->GetHitboxPos(HITBOX_RIGHT_FOREARM) });
-			if (g_Options.ragebot_multipoint) {
-				Multipoints(HITBOX_LEFT_FOREARM, bones, points);
-				Multipoints(HITBOX_RIGHT_FOREARM, bones, points);
+	switch (hitscan_mode) {
+		case hitscan_::ONLY_BODY: {
+			points.push_back({ pTarget->GetHitboxPos(HITBOX_STOMACH) });
+			points.push_back({ pTarget->GetHitboxPos(HITBOX_PELVIS) });
+			points.push_back({ pTarget->GetHitboxPos(HITBOX_CHEST) });
+			points.push_back({ pTarget->GetHitboxPos(HITBOX_LOWER_CHEST) });
+			points.push_back({ pTarget->GetHitboxPos(HITBOX_UPPER_CHEST) });
+			if ( g_Options.ragebot_multipoint ) {
+				Multipoints(HITBOX_STOMACH, bones, points);
+				Multipoints(HITBOX_PELVIS, bones, points);
+				Multipoints(HITBOX_CHEST, bones, points);
+				Multipoints(HITBOX_UPPER_CHEST, bones, points);
 			}
-		}
-
-		if (g_Options.ragebot_hitbox[5][iCurGroup] && !force_baim) {
-			points.push_back({ pTarget->GetHitboxPos(HITBOX_LEFT_CALF) });
-			points.push_back({ pTarget->GetHitboxPos(HITBOX_RIGHT_CALF) });
-			points.push_back({ pTarget->GetHitboxPos(HITBOX_LEFT_THIGH) });
-			points.push_back({ pTarget->GetHitboxPos(HITBOX_RIGHT_THIGH) });
+		}break;
+		case hitscan_::ONLY_HS: {
+			points.push_back({ pTarget->GetHitboxPos(HITBOX_HEAD) });
 			if (g_Options.ragebot_multipoint) {
-				Multipoints(HITBOX_LEFT_CALF, bones, points);
-				Multipoints(HITBOX_RIGHT_CALF, bones, points);
-				Multipoints(HITBOX_LEFT_THIGH, bones, points);
-				Multipoints(HITBOX_RIGHT_THIGH, bones, points);
+				Multipoints(HITBOX_HEAD, bones, points);
 			}
-		}
+		}break;
+		case hitscan_::FROM_CONFIG: {
+
+			if (g_Options.ragebot_hitbox[0][iCurGroup] ) {
+
+				points.push_back({ pTarget->GetHitboxPos(HITBOX_HEAD) });
+
+				if (g_Options.ragebot_multipoint) {
+					Multipoints(HITBOX_HEAD, bones, points);
+				}
+			}
+			if (g_Options.ragebot_hitbox[1][iCurGroup] ) {
+				points.push_back({ pTarget->GetHitboxPos(HITBOX_NECK) });
+				if (g_Options.ragebot_multipoint) {
+					Multipoints(HITBOX_NECK, bones, points);
+				}
+			}
+			if (g_Options.ragebot_hitbox[2][iCurGroup] ) {
+				points.push_back({ pTarget->GetHitboxPos(HITBOX_CHEST) });
+				points.push_back({ pTarget->GetHitboxPos(HITBOX_LOWER_CHEST) });
+				points.push_back({ pTarget->GetHitboxPos(HITBOX_UPPER_CHEST) });
+				if (g_Options.ragebot_multipoint) {
+					Multipoints(HITBOX_CHEST, bones, points);
+					Multipoints(HITBOX_UPPER_CHEST, bones, points);
+				}
+			}
+			if (g_Options.ragebot_hitbox[3][iCurGroup]) {
+				points.push_back({ pTarget->GetHitboxPos(HITBOX_STOMACH) });
+				points.push_back({ pTarget->GetHitboxPos(HITBOX_PELVIS) });
+				if (g_Options.ragebot_multipoint) {
+					Multipoints(HITBOX_STOMACH, bones, points);
+					Multipoints(HITBOX_PELVIS, bones, points);
+				}
+			}
+			if (pTarget->m_vecVelocity().Length2D() <= 0.15f) {
+
+				if (g_Options.ragebot_hitbox[4][iCurGroup]) {
+					points.push_back({ pTarget->GetHitboxPos(HITBOX_LEFT_FOREARM) });
+					points.push_back({ pTarget->GetHitboxPos(HITBOX_RIGHT_FOREARM) });
+					if (g_Options.ragebot_multipoint) {
+						Multipoints(HITBOX_LEFT_FOREARM, bones, points);
+						Multipoints(HITBOX_RIGHT_FOREARM, bones, points);
+					}
+				}
+
+				if (g_Options.ragebot_hitbox[5][iCurGroup]) {
+					points.push_back({ pTarget->GetHitboxPos(HITBOX_LEFT_CALF) });
+					points.push_back({ pTarget->GetHitboxPos(HITBOX_RIGHT_CALF) });
+					points.push_back({ pTarget->GetHitboxPos(HITBOX_LEFT_THIGH) });
+					points.push_back({ pTarget->GetHitboxPos(HITBOX_RIGHT_THIGH) });
+					if (g_Options.ragebot_multipoint) {
+						Multipoints(HITBOX_LEFT_CALF, bones, points);
+						Multipoints(HITBOX_RIGHT_CALF, bones, points);
+						Multipoints(HITBOX_LEFT_THIGH, bones, points);
+						Multipoints(HITBOX_RIGHT_THIGH, bones, points);
+					}
+				}
+			}
+
+		}break;
 	}
 
 	auto BackupMins  = pTarget->GetCollideable()->OBBMins();
@@ -918,8 +950,8 @@ void RageBot::QuickStop () {
 		static auto cl_forwardspeed = g_CVar->FindVar(Xor("cl_forwardspeed"));
 		static auto cl_sidespeed = g_CVar->FindVar(Xor("cl_sidespeed"));
 
-		auto negative_forward_speed = -cl_forwardspeed->GetFloat() * 1.3;
-		auto negative_side_speed = -cl_sidespeed->GetFloat() * 1.3;
+		auto negative_forward_speed = -cl_forwardspeed->GetFloat() * 2.0;
+		auto negative_side_speed = -cl_sidespeed->GetFloat() * 2.0;
 
 		auto negative_forward_direction = forward * negative_forward_speed;
 		auto negative_side_direction = forward * negative_side_speed;

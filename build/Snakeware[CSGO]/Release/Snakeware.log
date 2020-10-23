@@ -1,53 +1,5 @@
 ﻿D:\VS\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(1002,5): warning MSB8027: Two or more files with the name of render.cpp will produce outputs to the same location. This can lead to an incorrect build result.  The files involved are render.cpp, Surface render\Render.cpp.
 cl : командная строка warning D9025: переопределение "/sdl-" на "/GS-"
-  config-system.cpp
-  engine-prediction.cpp
-  3drender.cpp
-  bhop.cpp
-  bullet-event.cpp
-  chams.cpp
-  event-logger.cpp
-  fakelag.cpp
-  glow.cpp
-  legit-autowall.cpp
-  legit-backtrack.cpp
-  legitbot.cpp
-  miscellaneous.cpp
-  night-mode.cpp
-  player-hurt.cpp
-  animation-system.cpp
-  antihit.cpp
-  ragebot-autowall.cpp
-  lag-compensation.cpp
-  netvar-comp.cpp
-  Создание кода...
-  Компиляция...
-  player-log.cpp
-  ragebot.cpp
-  resolver.cpp
-  tickbase-exploits.cpp
-  visuals.cpp
-  grenade-prediction.cpp
-  hooked_doextraboneproccessing.cpp
-  hooked_setupbones.cpp
-  hooked_standartblendingrules.cpp
-  hooked_updateclientsideanimations.cpp
-  detour_hook.cpp
-  utils.cpp
-  hooks.cpp
-  imgui.cpp
-  imgui_widgets.cpp
-  API.cpp
-  main.cpp
   menu.cpp
-  options.cpp
-  render.cpp
-  Создание кода...
-  Компиляция...
-  item_definitions.cpp
-  skin-changer.cpp
-  csgostructs.cpp
-  BoneSetup.cpp
-  Создание кода...
 D:\Документы\GitHub\InsightCSGO\build\Snakeware[CSGO]\Release\Render.obj : warning LNK4042: объект указан более одного раза; лишние не учитываются
   Snakeware.vcxproj -> D:\Документы\GitHub\InsightCSGO\bin\Release\snakewarev1.dll
