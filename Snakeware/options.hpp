@@ -456,6 +456,7 @@ public:
 	bool   ragebot_silent;
 	int   ragebot_autostop_type;
 	bool  ragebot_autostop_if[9] = { false, false, false, false, false, false, false, false };
+	bool  ragebot_static_pointscale[9] = { false, false, false, false, false, false, false, false };
 	bool  ragebot_autocrouch[9] = { false, false, false, false, false, false, false, false };
 	bool  ragebot_baim_in_air[9] = { false, false, false, false, false, false, false, false };
 	bool  ragebot_baim_in_move[9] = { false, false, false, false, false, false, false, false };

@@ -273,9 +273,18 @@ void RenderRageBotTab()
 			ImGui::SetCursorPosY(+15);
 			ImGui::CheckboxEX("Multipoint hitboxes", &g_Options.ragebot_multipoint, "Multipoint hitboxes etc", 6);
 			if (g_Options.ragebot_multipoint) {
-				ImGui::SliderFloat("Head scale", &g_Options.ragebot_pointscale[curGroup], 0, 100);
-				ImGui::SliderFloat("Body scale", &g_Options.ragebot_bodyscale[curGroup], 0, 100);
-				ImGui::SliderFloat("Other scale", &g_Options.ragebot_otherscale[curGroup], 0, 100);
+
+
+				ImGui::CheckboxEX("Static-pointscale", &g_Options.ragebot_static_pointscale[curGroup], "Multipoint hitboxes etc", 6);
+
+				if (g_Options.ragebot_static_pointscale[curGroup]) {
+					ImGui::SliderFloat("Head scale", &g_Options.ragebot_pointscale[curGroup], 0, 100);
+					ImGui::SliderFloat("Body scale", &g_Options.ragebot_bodyscale[curGroup], 0, 100);
+					ImGui::SliderFloat("Other scale", &g_Options.ragebot_otherscale[curGroup], 0, 100);
+				}
+				else {
+					ImGui::Text("Dynamic-pointscale : enabled");
+				}
 			}
 			ImGui::CheckboxEX("Smart body-aim", &g_Options.ragebot_adaptive_baim[curGroup], "Smart baim", 7);
 			ImGui::CheckboxEX("Body-aim if lethal", &g_Options.ragebot_baim_if_lethal[curGroup], "Smart baim", 7);
