@@ -229,11 +229,9 @@ void RenderRageBotTab()
 		{
 
 
-
 			ImGui::Text(" ");
 
 			ImGui::SetCursorPosY(+15);
-
 		
 			ImGui::PushFont(g_pCSGO_icons);
 			{
@@ -289,6 +287,10 @@ void RenderRageBotTab()
 			ImGui::CheckboxEX("Smart body-aim", &g_Options.ragebot_adaptive_baim[curGroup], "Smart baim", 7);
 			ImGui::CheckboxEX("Body-aim if lethal", &g_Options.ragebot_baim_if_lethal[curGroup], "Smart baim", 78);
 			ImGui::CheckboxEX("Auto-scope", &g_Options.ragebot_autoscope, "Automaticaly scope", 8);
+			const char* selection[] = { "Default","Slowwalk", "Maximum" };
+			ImGui::Combo("Autostop type ", &g_Options.ragebot_autostop_type, selection, IM_ARRAYSIZE(selection));
+			const char* selection2[] = { "Disable if low speed","Always if can hit", "Always" };
+			ImGui::Combo("Autostop conditions", &g_Options.ragebot_autostop_conditions[curGroup], selection2, IM_ARRAYSIZE(selection2));
 			ImGui::CheckboxEX("Auto-stop", &g_Options.ragebot_autostop, "Automaticaly stop", 9);
 			if (g_Options.ragebot_autostop) ImGui::CheckboxEX("Between shots", &g_Options.ragebot_between_shots[curGroup], "Automaticaly stop mode 2", 91);
 			const char* hitboxes[] = { "Head", "Neck", "Chest", "Body", "Arms", "Legs" };

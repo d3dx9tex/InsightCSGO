@@ -448,6 +448,7 @@ public:
 	OPTION(bool, ragebot_limit_fov, false);
 	OPTION(bool, ragebot_multipoint, false);
 	bool  ragebot_between_shots[9] = { false, false, false, false, false, false, false, false };
+	int  ragebot_autostop_conditions[9] = { false, false, false, false, false, false, false, false };
 	bool  ragebot_alternative_hitchance[9] = { false, false, false, false, false, false, false, false };
 	bool  ragebot_delayshot[9] = { false, false, false, false, false, false, false, false };
 	bool  ragebot_autoscope;

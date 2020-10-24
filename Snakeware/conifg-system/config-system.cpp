@@ -33,6 +33,9 @@ void ConfigSystem::SetupRage()
 
 		for (int type = WEAPON_GROUPS::PISTOLS; type <= WEAPON_GROUPS::SMG; type++) {
 			SetupValue(g_Options.ragebot_mindamage[type], 0, ("ragebot"), ("ragebot_mindamage" + type ));
+			for (int i = 0; i < 8; i++) {
+				SetupValue(g_Options.ragebot_hitbox[i][type], 0, ("ragebot"), ("ragebot_hitbox" + i + type));
+			}
 			SetupValue(g_Options.ragebot_vis_mindamage[type], 0, ("ragebot"), ("ragebot_vismindamage" + type));
 			SetupValue(g_Options.ragebot_hitchance[type], 0, ("ragebot"), ("ragebot_hitchance" + type));
 			SetupValue(g_Options.ragebot_pointscale[type], 0, ("ragebot"), ("ragebot_pointscale" + type));
@@ -42,12 +45,9 @@ void ConfigSystem::SetupRage()
 			SetupValue(g_Options.ragebot_adaptive_baim[type], false, ("ragebot"), ("adaptive_baim" + type));
 			SetupValue(g_Options.ragebot_baim_if_lethal[type], false, ("ragebot"), ("_baim_if_lethal" + type));
 			SetupValue(g_Options.ragebot_between_shots[type], false, ("ragebot"), ("beetweenshots" + type));
+			SetupValue(g_Options.ragebot_autostop_conditions[type], 1, ("ragebot"), ("conditions_" + type));
+			
 		}
-
-
-
-
-
 		// antiaim :
 		SetupValue(g_Options.antihit_enabled, false, ("antihit"), ("enabledaa"));
 		SetupValue(g_Options.antihit_stabilize_lby, false, ("antihit"), ("stabilizelby"));

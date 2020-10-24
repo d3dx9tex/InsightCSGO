@@ -711,8 +711,6 @@ namespace Hooks {
 	}
 	//--------------------------------------------------------------------------------
 
-
-
 	//-------------------------------------------------------------------------------
 	void __fastcall hkPaintTraverse(void* _this, int edx, vgui::VPANEL panel, bool forceRepaint, bool allowForce)
 	{

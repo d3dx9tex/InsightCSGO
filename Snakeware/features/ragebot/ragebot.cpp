@@ -52,7 +52,7 @@ void AutoRevolver(CUserCmd* cmd) {
 
 	if (r8cock_flag && g_LocalPlayer->m_hActiveWeapon()->CanFire() && !(g_LocalPlayer->m_hActiveWeapon()->m_flPostponeFireReadyTime() >= TICKS_TO_TIME(g_LocalPlayer->m_nTickBase())))
 	{
-		if (r8cock_time <= TICKS_TO_TIME(g_LocalPlayer->m_nTickBase()))
+		if (r8cock_time <= TICKS_TO_TIME(g_LocalPlayer->m_nTickBase() - Snakeware::m_nTickbaseShift))
 		{
 			if (g_LocalPlayer->m_hActiveWeapon()->m_flNextSecondaryAttack() <= TICKS_TO_TIME(g_LocalPlayer->m_nTickBase()))
 				r8cock_time = TICKS_TO_TIME(g_LocalPlayer->m_nTickBase()) + 0.234375f;
@@ -530,7 +530,7 @@ bool RageBot::IsAbleToShoot() {
 
 	if (wep->IsWeaponNonAim())                                return false;
 
-	auto time = TICKS_TO_TIME(g_LocalPlayer->m_nTickBase() - Snakeware::m_nTickbaseShift);
+	auto time = TICKS_TO_TIME( g_LocalPlayer->m_nTickBase() - Snakeware::m_nTickbaseShift );
 
 	if (pCmd->weaponselect)
 		return false;
@@ -947,8 +947,26 @@ bool RageBot::Aim(Vector point, int idx) {
 		static int MinimumVelocity = 0;
 		bool shouldstop = g_Options.ragebot_between_shots[iCurGroup] ? true : canShoot;
 		MinimumVelocity = wep->GetCSWeaponData()->flMaxPlayerSpeedAlt * .34f;
-		if (g_LocalPlayer->m_vecVelocity().Length() >= MinimumVelocity && shouldstop && !GetAsyncKeyState(VK_SPACE) && !wep->IsKnife() && wep->m_Item().m_iItemDefinitionIndex() != WEAPON_ZEUS)
-		 QuickStop();
+
+		switch ( g_Options.ragebot_autostop_conditions[iCurGroup] ) {
+
+			case 0: {
+				if (g_LocalPlayer->m_vecVelocity().Length() >= MinimumVelocity && shouldstop && !GetAsyncKeyState(VK_SPACE) && !wep->IsKnife() && wep->m_Item().m_iItemDefinitionIndex() != WEAPON_ZEUS)
+					QuickStop();
+			}
+			break;
+
+			case 1: {
+				if (shouldstop && !wep->IsKnife() && wep->m_Item().m_iItemDefinitionIndex() != WEAPON_ZEUS)
+					QuickStop();
+			}
+			break;
+
+			case 2: {
+					QuickStop();
+			}
+			break;
+		}
 	}
 	return true;
 }
@@ -958,30 +976,58 @@ void RageBot::QuickStop () {
 	if (!g_Options.ragebot_autostop)
 		return;
 
-	/* Default autostop method */ {
+	switch (g_Options.ragebot_autostop_type) {
+		case 0: /* Default autostop method  */ {
 
-		QAngle direction;
-		QAngle real_view;
+			QAngle direction;
+			QAngle real_view;
 
-		Math::VectorAngles(g_LocalPlayer->m_vecVelocity(), direction);
-		g_EngineClient->GetViewAngles(&real_view);
+			Math::VectorAngles(g_LocalPlayer->m_vecVelocity(), direction);
+			g_EngineClient->GetViewAngles(&real_view);
 
-		direction.yaw = real_view.yaw - direction.yaw;
+			direction.yaw = real_view.yaw - direction.yaw;
 
-		Vector forward;
-		Math::AngleVectors(direction, forward);
+			Vector forward;
+			Math::AngleVectors(direction, forward);
 
-		static auto cl_forwardspeed = g_CVar->FindVar(Xor("cl_forwardspeed"));
-		static auto cl_sidespeed = g_CVar->FindVar(Xor("cl_sidespeed"));
+			static auto cl_forwardspeed = g_CVar->FindVar(Xor("cl_forwardspeed"));
+			static auto cl_sidespeed = g_CVar->FindVar(Xor("cl_sidespeed"));
 
-		auto negative_forward_speed = -cl_forwardspeed->GetFloat();
-		auto negative_side_speed = -cl_sidespeed->GetFloat() ;
+			auto negative_forward_speed = -cl_forwardspeed->GetFloat();
+			auto negative_side_speed = -cl_sidespeed->GetFloat();
 
-		auto negative_forward_direction = forward * negative_forward_speed;
-		auto negative_side_direction = forward * negative_side_speed;
+			auto negative_forward_direction = forward * negative_forward_speed;
+			auto negative_side_direction = forward * negative_side_speed;
 
-		pCmd->forwardmove = negative_forward_direction.x;
-		pCmd->sidemove = negative_side_direction.y;
+			pCmd->forwardmove = negative_forward_direction.x;
+			pCmd->sidemove = negative_side_direction.y;
+		}
+		break;
+		case 1: /* Slowwalk autostop method */ {
+
+			auto speed = 1;
+
+			float min_speed = (float)(Math::FASTSQRT((pCmd->forwardmove) * (pCmd->forwardmove) + (pCmd->sidemove) * (pCmd->sidemove) + (pCmd->upmove) * (pCmd->upmove)));
+			if (min_speed <= 3.f) return;
+
+			if (pCmd->buttons & IN_DUCK)
+				speed *= 2.94117647f;
+
+			if (min_speed <= speed) return;
+
+			float finalSpeed = (speed / min_speed);
+
+			pCmd->forwardmove *= finalSpeed;
+			pCmd->sidemove	  *= finalSpeed;
+			pCmd->upmove	  *= finalSpeed;
+		}
+		break;
+		case 2: /* Maximum autostop method  */ {
+			pCmd->forwardmove = 0;
+			pCmd->sidemove	  = 0;
+			pCmd->upmove	  = 0;
+		}
+		break;
 	}
 }
 void RageBot::PredictiveAStop(int value) {
