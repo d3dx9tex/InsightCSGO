@@ -253,7 +253,6 @@ bool C_BasePlayer::IsTeam()
 	return !this->InDangerzone() && this != g_LocalPlayer && this->m_iTeamNum() == g_LocalPlayer->m_iTeamNum();
 }
 
-
 AnimationLayer *C_BasePlayer::GetAnimOverlays()
 {
 	return *(AnimationLayer**)((DWORD)this + 0x2980);

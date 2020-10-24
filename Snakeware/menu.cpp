@@ -336,7 +336,7 @@ void RenderRageBotTab()
 
 			ImGui::CheckboxEX("Enabled##aa", &g_Options.antihit_enabled, "Changing ur angles to be anhitable", 9);
 			ImGui::CheckboxEX("Stabilize lby", &g_Options.antihit_stabilize_lby, "Lower body yaw stab", 10);
-			const char* pitch[] = { "Down","Up","Zero","Ideal" };
+			const char* pitch[] = {  "Down","Emotion","Zero","Up","Fake up", "Fake down" };
 			const char* yaw[] = { "Backward's","Manual's" };
 			const char* fake[] = { "Static","Lagsync" };
 			const char* jitter[] = { "Default","Switch" };

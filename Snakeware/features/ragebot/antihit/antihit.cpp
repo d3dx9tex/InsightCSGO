@@ -57,9 +57,9 @@ void AntiHit::createMove (CUserCmd * pcmd) {
 
 
 	// Func call.
-	pitch ();
-	fake  ();
-	lby   ();
+	Pitch ();
+	Fake  ();
+	Lby   ();
 
 }
 
@@ -87,7 +87,7 @@ float AntiHit::manualYaw() {
 	return flReturnValue;
 }
 
-float AntiHit::yaw () {
+float AntiHit::Yaw () {
 	
 	 float returnYaw = 0.f;
 
@@ -104,27 +104,38 @@ float AntiHit::yaw () {
 	return returnYaw; // Return nullptr.
 }
 
-float AntiHit::idealPitch () {
+float AntiHit::EmotionPitch () {
 
 	// Simple pitch calculate like valve.
-	return userpcmd->viewangles.pitch = std::clamp (88.9f, -89.9f, 89.9f);
+	// Emotion like onetap (but use flMinPitch in animstate (by@Snake).
+	// But is realy meme and wrong..
+
+	auto   pState = g_LocalPlayer->GetPlayerAnimState ( );
+
+	return pState->m_flMinPitch();
+	// return userpcmd->viewangles.pitch = std::clamp (90.0f, -90.1f, 90.1f); Old variant
 }
 
-void AntiHit::pitch () {
+void AntiHit::Pitch() {
 
-	switch (pitchType)
-	{
-	case 0: // Down (emoti0n).
-		userpcmd->viewangles.pitch = 89.f;
+	switch (pitchType) 	{
+	case 0: // Down .
+		userpcmd->viewangles.pitch = 88.9f;
 		break;
-	case 1: // Up.
-		userpcmd->viewangles.pitch = -89.f ;
+	case 1: // Emotion.
+		userpcmd->viewangles.pitch = EmotionPitch();
 		break;
 	case 2: // Zero pitch.
 		userpcmd->viewangles.pitch =  0.f;
 		break;
-	case 3: // Zero pitch.
-		userpcmd->viewangles.pitch = idealPitch();
+	case 3: // Up pitch.
+		userpcmd->viewangles.pitch = -88.9f;
+		break;
+	case 4: // Fake up
+		userpcmd->viewangles.pitch = g_Options.misc_anti_untrusted ? -89.f : -540.f;
+		break;
+	case 5: // Fake down
+		userpcmd->viewangles.pitch = g_Options.misc_anti_untrusted ? 89.f  :  540.f;
 		break;
 	}
 
@@ -258,7 +269,7 @@ void AntiHit::lowdeltaLby() {
 }
 
 
-void AntiHit::lby() {
+void AntiHit::Lby() {
 	static bool flip = false;
 	            flip = !flip;
 	float sideMove    = 2.28f;  // Side-move value
@@ -269,23 +280,35 @@ void AntiHit::lby() {
 
 	switch (lbyType) {
 	case 0: // Micr0 move's.
-		if (g_LocalPlayer->m_fFlags() & FL_ONGROUND && userpcmd->sidemove < 3.2 && userpcmd->sidemove > -3.2) {
-			static bool switch_ = false;
-			if (switch_)
+
+		if (g_LocalPlayer->m_fFlags() & FL_ONGROUND && userpcmd->sidemove < 3.28 && userpcmd->sidemove > -3.28
+			&& g_LocalPlayer->m_vecVelocity().Length2D() < 0.15) {
+			static bool Switch_ = false;
+
+			if (userpcmd->buttons & IN_DUCK)
+				sideMove *= 3;
+
+			if (userpcmd->tick_count % 2)
+				Switch_ =  !Switch_;
+
+			
+			if (Switch_)
 				userpcmd->sidemove = sideMove;
 			else
 				userpcmd->sidemove = -sideMove;
-			switch_ = !switch_;
+
+			// Switch_ = !Switch;
 		}
+
 		break;
 	case 1: // Opposite lby.
-		oppositeLby();
+		oppositeLby ();
 		break;
 	case 2:
-		swayLby();
+		swayLby ();
 		break;
 	case 3:
-		lowdeltaLby();
+		lowdeltaLby ();
 		break;
 	}
 	
@@ -293,27 +316,27 @@ void AntiHit::lby() {
 }
 
 
-void AntiHit::fake () {
+void AntiHit::Fake () {
 
-	float       realYaw     = yaw ();
+	float       realYaw     = Yaw ();
 	float       customFake  = std::clamp<float> (g_Options.antihit_fake_ammount, -65.f, 65.f); // Nan0 tech by @snake.
 	float       nOlikDesync = switchSide ? -customFake : customFake;
 	static bool Switch      = true;
 
 	// Desynchronize animation's.
-	if (Snakeware::bSendPacket)
-	{
+	if (Snakeware::bSendPacket) {
+
 		// Real angle.
 		userpcmd->viewangles.yaw += realYaw;
 		userpcmd->viewangles.yaw += switchSide ? g_Options.antihit_body_lean * 3.6f : g_Options.antihit_invert_body_lean * 3.6f; //Body lean
 	}
-	else
-	{
+	else {
 		// Fake angle.
 		if (g_Options.antihit_fake < 1) // Static desync.
 			userpcmd->viewangles.yaw += realYaw + nOlikDesync;
-		else // LagSync desync.
-		{
+		else {
+			// LagSync desync. 
+
 			Switch = !Switch; 
 			userpcmd->viewangles.yaw += Switch ? realYaw - nOlikDesync : realYaw + nOlikDesync;
 		}

@@ -3,6 +3,7 @@
 #include "sdk.hpp"
 #include <array>
 #include "../helpers/utils.hpp"
+#include "../helpers/math.hpp"
 #include <chrono>
 #include <mutex>
 #include <algorithm>
@@ -42,6 +43,10 @@
 	Assert(_offset); \
 	return reinterpret_cast<type*>(uintptr_t(this) + _offset); \
 }
+
+
+#define PPOFFSET(func, type, offset) __forceinline type& func { return **reinterpret_cast<type**>(reinterpret_cast<uintptr_t>(this) + offset); }
+
 /////////////////////////////////////////////////////////////////////////////////////
 #define APOFFSET(funcname, type, num, offset) std::array<type, num>& funcname() \
 { \
@@ -50,12 +55,17 @@
 	return **reinterpret_cast<std::array<type, num>**>(uintptr_t(this) + _offset); \
 }
 /////////////////////////////////////////////////////////////////////////////////////
+
+
 struct datamap_t;
 class AnimationLayer;
 class CBasePlayerAnimState;
 class CCSGOPlayerAnimState;
 class C_BaseEntity;
 
+using PoseParams = std::array<float, 24u>;
+using AnimLayers = std::array<AnimationLayer, 13u>;
+using BoneArray = std::array<matrix3x4_t, 128u>; // wtf
 
 enum CSWeaponType
 {
@@ -71,6 +81,40 @@ enum CSWeaponType
 	WEAPONTYPE_GRENADE,
 	WEAPONTYPE_UNKNOWN
 };
+
+
+template <typename T>
+struct BitFlag {
+	BitFlag() = default;
+	BitFlag(const T& value) { m_value = value; }
+
+	__forceinline bool Has(const T& value) const { return m_value & value; }
+
+	__forceinline void Add(const T& value) { m_value |= value; }
+
+	__forceinline void Remove(const T& value) { m_value &= ~value; }
+
+	__forceinline void Clear() { m_value = {}; }
+
+	__forceinline bool Empty() const { return m_value == std::numeric_limits<T>::quiet_NaN(); }
+
+	__forceinline operator T() const { return m_value; }
+
+	__forceinline BitFlag<T>& operator=(const BitFlag<T>& value) {
+		m_value = value.m_value;
+
+		return *this;
+	}
+
+	__forceinline T& operator=(const T& value) {
+		m_value = value;
+
+		return m_value;
+	}
+
+	T m_value = {};
+};
+
 
 // Created with ReClass.NET by KN4CK3R
 class CHudTexture
@@ -253,8 +297,18 @@ public:
 	NETVAR(float_t, m_fLastShotTime, "DT_BaseCombatWeapon", "m_fLastShotTime");
 	NETVAR(CHandle<C_BaseWeaponWorldModel>, m_hWeaponWorldModel, "DT_BaseCombatWeapon", "m_hWeaponWorldModel");
 	NETVAR(int32_t, m_zoomLevel, "CWeaponCSBaseGun", "m_zoomLevel");
-
 	CCSWeaponInfo* GetCSWeaponData();
+
+	__forceinline float GetMaxSpeed() {
+		const auto weapon_data = GetCSWeaponData();
+		if (!weapon_data)
+			return 260.f;
+
+		return m_zoomLevel() ? weapon_data->flMaxPlayerSpeed : weapon_data->flMaxPlayerSpeedAlt;
+	}
+
+
+
 	bool HasBullets();
 	bool IsWeaponNonAim();
 	bool CanFire();
@@ -313,6 +367,7 @@ public:
 	__forceinline t Ass() {
 		return (t)this;
 	}
+	PPOFFSET(GetGayLayers(), AnimLayers, 0x2980)
 	NETVAR(bool, m_bHasDefuser, "DT_CSPlayer", "m_bHasDefuser");
 	NETVAR(bool, m_bGunGameImmunity, "DT_CSPlayer", "m_bGunGameImmunity");
 	NETVAR(int32_t, m_iShotsFired, "DT_CSPlayer", "m_iShotsFired");
@@ -326,6 +381,7 @@ public:
 	NETVAR(int32_t, m_iHealth, "DT_BasePlayer", "m_iHealth");
 	NETVAR(int32_t, m_lifeState, "DT_BasePlayer", "m_lifeState");
 	NETVAR(int32_t, m_fFlags, "DT_BasePlayer", "m_fFlags");
+	NETVAR(BitFlag<uint32_t>, m_fGayFlags, "DT_BasePlayer", "m_fFlags");
 	NETVAR(int32_t, m_vphysicsCollisionState, "DT_BasePlayer", "m_vphysicsCollisionState");
 	NETVAR(int32_t, m_nTickBase, "DT_BasePlayer", "m_nTickBase");
 	NETVAR(Vector, m_vecViewOffset, "DT_BasePlayer", "m_vecViewOffset[0]");
@@ -367,6 +423,7 @@ public:
 		static int _m_flPoseParameter = NetvarSys::Get().GetOffset("DT_BaseAnimating", "m_flPoseParameter");
 		return *(std::array<float, 24>*)((uintptr_t)this + _m_flPoseParameter);
 	}
+	
 
 	PNETVAR(CHandle<C_BaseCombatWeapon>, m_hMyWeapons, "DT_BaseCombatCharacter", "m_hMyWeapons");
 	PNETVAR(CHandle<C_BaseAttributableItem>, m_hMyWearables, "DT_BaseCombatCharacter", "m_hMyWearables");
@@ -443,6 +500,7 @@ public:
 	QAngle& VisualAngles();
 	int GetNumAnimOverlays();
 	bool IsTeam();
+	
 	AnimationLayer* GetAnimOverlays();
 	AnimationLayer* GetAnimOverlay(int i);
 	int GetSequenceActivity(int sequence);
@@ -717,6 +775,9 @@ public:
 	float& m_flTimeSinceInAir() {
 		return *(float*)((uintptr_t)this + 0x110);
 	}
+	float& m_flMinPitch() {
+		return *(float*)((uintptr_t)this + 0x033C);
+	}
 }; //Size=0x344
 
 class DT_CSPlayerResource
@@ -733,4 +794,130 @@ public:
 	PNETVAR(int32_t, m_iPlayerVIP, "DT_CSPlayerResource", "m_iPlayerVIP");
 	PNETVAR(int32_t, m_iMVPs, "DT_CSPlayerResource", "m_iMVPs");
 	PNETVAR(int32_t, m_iScore, "DT_CSPlayerResource", "m_iScore");
+};
+
+
+enum ResolverState {
+	RESOLVER_STATE_NONE,
+	RESOLVER_STATE_LEFT,
+	RESOLVER_STATE_RIGHT
+};
+
+struct PlayerRecord {
+	PlayerRecord () = default;
+	PlayerRecord (C_BasePlayer* pPlayer, PlayerRecord* Previous, bool bDormant);
+
+	void BulidBones (C_BasePlayer* pPlayer, ResolverState rState);
+
+	bool bDormant;
+	int  iSimTicks, iTotalCommands;
+	float flSimTime, flAnimTime, flLastShotTime;
+
+	QAngle eyeAngles;
+	Vector vecOrigin, vecVelocity;
+	BitFlag<uint32_t> mFlags;
+
+	AnimLayers ServerLayers;
+
+	struct {
+		std::array<float, RESOLVER_STATE_RIGHT> flAbsYaw;
+		std::array<PoseParams, RESOLVER_STATE_RIGHT> flPoses;
+		std::array<AnimLayers, RESOLVER_STATE_RIGHT + 1u> AnimLayers;
+	} mResolver;
+
+	std::array<BoneArray, RESOLVER_STATE_RIGHT + 1u> mBones;
+};
+
+
+// by LNK1181 aka Platina 300
+struct PlayerLog {
+
+	PlayerLog() = default;
+
+	__forceinline void Reset() {
+		flSpawnTime = -1.f;
+
+		mRecords.clear();
+	}
+
+	__forceinline PlayerRecord* GetLatestRecord() {
+		if (mRecords.empty())
+			return nullptr;
+
+		return &mRecords.front();
+	}
+
+	C_BasePlayer* m_pPlayer = nullptr;
+
+	float flSpawnTime = -1.f;
+
+	struct Interpolated {
+		Interpolated () = default;
+		Interpolated (float sim_time, const Vector& origin, const Vector& velocity, bool on_ground) {
+			flSimTime = sim_time;
+
+			vecOrigin = origin;
+			vecVelocity = velocity;
+
+			bOnGround = on_ground;
+		}
+
+		__forceinline void Restore(C_BasePlayer* player) const {
+			player->m_vecOrigin()  = player->m_angAbsOrigin() = vecOrigin;
+			player->m_vecVelocity() = player->m_vecAbsVelocity() = vecVelocity;
+
+			if (bOnGround)
+				return player->m_fGayFlags().Add ( FL_ONGROUND );
+
+			player->m_fGayFlags().Remove(FL_ONGROUND);
+		}
+		 
+		float  flSimTime;
+		bool   bOnGround;
+		Vector vecOrigin, vecVelocity;
+	};
+
+	__forceinline void interpolate(PlayerRecord* record, PlayerRecord* previous) {
+		mInterpolated.clear();
+
+		if (record->iTotalCommands <= 1) {
+			mInterpolated.emplace_back(
+				record->flAnimTime,
+				record->vecOrigin,
+				record->vecVelocity,
+				record->mFlags.Has(FL_ONGROUND)
+			);
+			return;
+		}
+
+		const auto land_sim_time = record->flSimTime - record->ServerLayers.at(4).m_flPlaybackRate * record->ServerLayers.at(4).m_flCycle;
+		auto will_land_in_this_cycle = land_sim_time >= previous->flSimTime && record->ServerLayers.at(4).m_flCycle < 0.5f && (!record->mFlags.Has(FL_ONGROUND) || !previous->mFlags.Has(FL_ONGROUND));
+
+		for (auto i = 1; i <= record->iTotalCommands; i++) {
+			const auto lerp = i / static_cast<float>(record->iTotalCommands);
+
+			auto interpolated = Interpolated(
+				record->flAnimTime + TICKS_TO_TIME(i - 1),
+				Math::Interpolate(previous->vecOrigin, record->vecOrigin, lerp),
+				Math::Interpolate(previous->vecVelocity, record->vecVelocity, lerp),
+				record->mFlags.Has(FL_ONGROUND)
+			);
+
+			if (will_land_in_this_cycle) {
+				if (land_sim_time <= interpolated.flSimTime) {
+					will_land_in_this_cycle = false;
+
+					interpolated.bOnGround = true;
+				}
+				else {
+					interpolated.bOnGround = previous->mFlags.Has(FL_ONGROUND);
+				}
+			}
+
+			mInterpolated.push_back(std::move(interpolated));
+		}
+	}
+
+	std::deque<PlayerRecord>  mRecords;
+	std::vector<Interpolated> mInterpolated;
 };
