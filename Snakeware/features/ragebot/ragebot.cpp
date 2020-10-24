@@ -337,8 +337,6 @@ bool RageBot::Hitchance (QAngle Aimangle) {
 
 	if (wepidx == WEAPON_ZEUS)
 		flChance = 80.f;
-	else if (force_hitchance != -1)
-		flChance = force_hitchance;
 	else
 		flChance = g_Options.ragebot_hitchance[iCurGroup];
 
@@ -540,11 +538,11 @@ bool RageBot::IsAbleToShoot() {
 	if (wep->m_iClip1() < 1)
 		return false;
 
-	if (GetAsyncKeyState(g_Options.exploit_doubletap_key))
-	{
-		if (weapon->m_flNextPrimaryAttack() > time)              return false;
-
-		if (g_LocalPlayer->m_flNextAttack() > time)              return false;
+	if ((g_LocalPlayer->m_flNextAttack() > time) || wep->m_flNextPrimaryAttack() > time || wep->m_flNextSecondaryAttack() > time) {
+		if (wep->m_Item().m_iItemDefinitionIndex() == WEAPON_REVOLVER)
+			return true;
+		else
+		return false;
 	}
 
 	return true;
@@ -976,14 +974,14 @@ void RageBot::QuickStop () {
 		static auto cl_forwardspeed = g_CVar->FindVar(Xor("cl_forwardspeed"));
 		static auto cl_sidespeed = g_CVar->FindVar(Xor("cl_sidespeed"));
 
-		auto vel = g_LocalPlayer->m_vecVelocity();
 		auto negative_forward_speed = -cl_forwardspeed->GetFloat();
-		auto negative_side_speed = -cl_sidespeed->GetFloat();
+		auto negative_side_speed = -cl_sidespeed->GetFloat() ;
 
-		auto negative_forward_direction = (forward * negative_forward_speed);
-		auto negative_side_direction = (forward * negative_side_speed);
-		pCmd->forwardmove = negative_forward_direction.y;
-		pCmd->sidemove	  = negative_side_direction.y;
+		auto negative_forward_direction = forward * negative_forward_speed;
+		auto negative_side_direction = forward * negative_side_speed;
+
+		pCmd->forwardmove = negative_forward_direction.x;
+		pCmd->sidemove = negative_side_direction.y;
 	}
 }
 void RageBot::PredictiveAStop(int value) {

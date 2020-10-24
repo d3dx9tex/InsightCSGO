@@ -289,7 +289,7 @@ void Resolver::DetectFakeSide (C_BasePlayer * pPlayer) {
 			rRecord.has_fake = (fabs(g_GlobalVars->realtime - rRecord.LastPitchDown) < 0.8f) ? true : false;
 		}
 
-		if ( (!GetAsyncKeyState(g_Options.ragebot_force_safepoint)) ) {
+		if ( (!GetAsyncKeyState(g_Options.ragebot_force_safepoint)) && g_Options.ragebot_resolver) {
 
 			if (rRecord.iResolvingWay < 0) {
 

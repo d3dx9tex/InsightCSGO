@@ -1,12 +1,422 @@
 ﻿D:\VS\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(1002,5): warning MSB8027: Two or more files with the name of render.cpp will produce outputs to the same location. This can lead to an incorrect build result.  The files involved are render.cpp, Surface render\Render.cpp.
-  ui.cpp
-D:\Документы\GitHub\InsightCSGO\Snakeware\ui.cpp(99,32): warning C4305: =: усечение из "double" в "float"
-D:\Документы\GitHub\InsightCSGO\Snakeware\ui.cpp(106,32): warning C4305: =: усечение из "double" в "float"
-D:\Документы\GitHub\InsightCSGO\Snakeware\ui.cpp(159,32): warning C4305: =: усечение из "double" в "float"
-D:\Документы\GitHub\InsightCSGO\Snakeware\ui.cpp(166,32): warning C4305: =: усечение из "double" в "float"
-D:\Документы\GitHub\InsightCSGO\Snakeware\ui.cpp(504,1): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-D:\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(133): message : см. объявление "strcpy"
-D:\Документы\GitHub\InsightCSGO\Snakeware\ui.cpp(507,1): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-D:\Windows Kits\10\Include\10.0.18362.0\ucrt\string.h(133): message : см. объявление "strcpy"
-D:\Документы\GitHub\InsightCSGO\Snakeware\ui.cpp(422,7): warning C4101: opened_popup: неиспользованная локальная переменная
+  API.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  config-system.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  engine-prediction.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  3drender.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\render.hpp(101,49): warning C4244: аргумент: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=LONG
+          ]
+D:\Документы\GitHub\InsightCSGO\Snakeware\render.hpp(104): message : выполняется компиляция ссылки на экземпляр шаблон функции "void Render::RenderBox<LONG>(T,T,T,T,Color,float,float)"
+          with
+          [
+              T=LONG
+          ]
+D:\Документы\GitHub\InsightCSGO\Snakeware\render.hpp(101,45): warning C4244: аргумент: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=LONG
+          ]
+D:\Документы\GitHub\InsightCSGO\Snakeware\render.hpp(101,33): warning C4244: аргумент: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=LONG
+          ]
+D:\Документы\GitHub\InsightCSGO\Snakeware\render.hpp(101,29): warning C4244: аргумент: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=LONG
+          ]
+  bhop.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  bullet-event.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  chams.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  event-logger.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  fakelag.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  glow.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  legit-autowall.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  legit-backtrack.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  legitbot.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  miscellaneous.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\features\miscellaneous\miscellaneous.cpp(762,23): warning C4018: <: несоответствие типов со знаком и без знака
+  night-mode.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  player-hurt.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  animation-system.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\features\ragebot\animation-system\animation-system.cpp(94,13): warning C4551: в вызове функции отсутствует список аргументов
+  antihit.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\features\ragebot\antihit\antihit.cpp(210,5): warning C4390: ";": обнаружен пустой контролируемый оператор; это правильно?
+  ragebot-autowall.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  lag-compensation.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\features\ragebot\lagcompensation\lag-compensation.cpp(333,45): warning C4018: >: несоответствие типов со знаком и без знака
+D:\Документы\GitHub\InsightCSGO\Snakeware\features\ragebot\lagcompensation\lag-compensation.cpp(427,29): warning C4018: <: несоответствие типов со знаком и без знака
+D:\Документы\GitHub\InsightCSGO\Snakeware\features\ragebot\lagcompensation\lag-compensation.cpp(428,17): warning C4018: >: несоответствие типов со знаком и без знака
+  Создание кода...
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\csgostructs.hpp(426): warning C4172: возвращение адреса локальной или временной переменной
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\csgostructs.hpp(426): warning C4172: возвращение адреса локальной или временной переменной
+D:\Документы\GitHub\InsightCSGO\Snakeware\features\ragebot\antihit\antihit.cpp(76): warning C4715: AntiHit::jitterRange: значение возвращается не при всех путях выполнения
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\csgostructs.hpp(426): warning C4172: возвращение адреса локальной или временной переменной
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\csgostructs.hpp(426): warning C4172: возвращение адреса локальной или временной переменной
+D:\Документы\GitHub\InsightCSGO\Snakeware\Lua\API.cpp(621): warning C4715: lua::ns_surface::font_create: значение возвращается не при всех путях выполнения
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\csgostructs.hpp(426): warning C4172: возвращение адреса локальной или временной переменной
+  Компиляция...
+  netvar-comp.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  player-log.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  ragebot.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  resolver.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\features\ragebot\resolver\resolver.cpp(153,9): warning C4101: last_side: неиспользованная локальная переменная
+  tickbase-exploits.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  visuals.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\features\visuals.cpp(138,1): warning C4804: >: небезопасное использование типа "bool" в операции
+D:\Документы\GitHub\InsightCSGO\Snakeware\render.hpp(101,49): warning C4244: аргумент: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=LONG
+          ]
+D:\Документы\GitHub\InsightCSGO\Snakeware\render.hpp(104): message : выполняется компиляция ссылки на экземпляр шаблон функции "void Render::RenderBox<LONG>(T,T,T,T,Color,float,float)"
+          with
+          [
+              T=LONG
+          ]
+D:\Документы\GitHub\InsightCSGO\Snakeware\render.hpp(101,45): warning C4244: аргумент: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=LONG
+          ]
+D:\Документы\GitHub\InsightCSGO\Snakeware\render.hpp(101,33): warning C4244: аргумент: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=LONG
+          ]
+D:\Документы\GitHub\InsightCSGO\Snakeware\render.hpp(101,29): warning C4244: аргумент: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=LONG
+          ]
+  grenade-prediction.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  hooked_doextraboneproccessing.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  hooked_setupbones.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  hooked_standartblendingrules.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  hooked_updateclientsideanimations.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  detour_hook.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  input.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  math.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  utils.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  hooks.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\hooks.cpp(389): warning C4405: in: идентификатор является зарезервированным словом
+D:\Документы\GitHub\InsightCSGO\Snakeware\hooks.cpp(390): warning C4405: out: идентификатор является зарезервированным словом
+  imgui.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\imgui\imgui.cpp(5464,50): warning C4018: <: несоответствие типов со знаком и без знака
+  imgui_widgets.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  main.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  menu.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\menu.cpp(1706,50): warning C4390: ";": обнаружен пустой контролируемый оператор; это правильно?
+  Создание кода...
+D:\Документы\GitHub\InsightCSGO\Snakeware\menu.cpp(1627): warning C4715: RenderWarningSystem: значение возвращается не при всех путях выполнения
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\csgostructs.hpp(426): warning C4172: возвращение адреса локальной или временной переменной
+D:\Документы\GitHub\InsightCSGO\Snakeware\helpers\utils.cpp(85): warning C4715: Utils::ServerTime: значение возвращается не при всех путях выполнения
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\csgostructs.hpp(426): warning C4172: возвращение адреса локальной или временной переменной
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\csgostructs.hpp(461): warning C4715: C_BasePlayer::GetCollisionState: значение возвращается не при всех путях выполнения
+  Компиляция...
+  options.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  render.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\render.hpp(101,49): warning C4244: аргумент: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=LONG
+          ]
+D:\Документы\GitHub\InsightCSGO\Snakeware\render.hpp(104): message : выполняется компиляция ссылки на экземпляр шаблон функции "void Render::RenderBox<LONG>(T,T,T,T,Color,float,float)"
+          with
+          [
+              T=LONG
+          ]
+D:\Документы\GitHub\InsightCSGO\Snakeware\render.hpp(101,45): warning C4244: аргумент: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=LONG
+          ]
+D:\Документы\GitHub\InsightCSGO\Snakeware\render.hpp(101,33): warning C4244: аргумент: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=LONG
+          ]
+D:\Документы\GitHub\InsightCSGO\Snakeware\render.hpp(101,29): warning C4244: аргумент: преобразование "T" в "float", возможна потеря данных
+          with
+          [
+              T=LONG
+          ]
+  item_definitions.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  kit_parser.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  skin-changer.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  csgostructs.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  BoneSetup.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  IEngineTrace.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  VMatrix.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  Convar.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+  UtlBuffer.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+  netvars.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  sdk.cpp
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\Vector.hpp(131,22): warning C4244: =: преобразование "double" в "float", возможна потеря данных
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,9): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,30): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(105,50): warning C4553: "==": результат выражения не используется; вы хотели использовать "="?
+D:\Документы\GitHub\InsightCSGO\Snakeware\valve_sdk\Math\QAngle.hpp(183,21): warning C4244: return: преобразование "double" в "float", возможна потеря данных
+  Создание кода...
+D:\─юъєьхэЄ√\GitHub\InsightCSGO\build\Snakeware[CSGO]\Debug\Render.obj : warning LNK4042: юс·хъЄ єърчрэ сюыхх юфэюую Ёрчр; ыш°эшх эх єўшЄ√тр■Єё
+LINK : warning LNK4098: сшсышюЄхър яю єьюыўрэш■ "LIBCMT" ъюэЇышъЄєхЄ ё шёяюы№чютрэшхь фЁєушї сшсышюЄхъ; шёяюы№чєщЄх /NODEFAULTLIB:library
+detours.lib(detours.obj) : warning LNK4099: "detours.pdb" PDB эх эрщфхэ ё "detours.lib(detours.obj)" шыш эр "D:\─юъєьхэЄ√\GitHub\InsightCSGO\bin\Debug\detours.pdb"; ъюьяюэютър юс·хъЄр т√яюыэ хЄё  ъръ яЁш юЄёєЄёЄтшш юЄырфюўэ√ї фрээ√ї
+detours.lib(disasm.obj) : warning LNK4099: "detours.pdb" PDB эх эрщфхэ ё "detours.lib(disasm.obj)" шыш эр "D:\─юъєьхэЄ√\GitHub\InsightCSGO\bin\Debug\detours.pdb"; ъюьяюэютър юс·хъЄр т√яюыэ хЄё  ъръ яЁш юЄёєЄёЄтшш юЄырфюўэ√ї фрээ√ї
   Snakeware.vcxproj -> D:\Документы\GitHub\InsightCSGO\bin\Debug\snakeware.dll
