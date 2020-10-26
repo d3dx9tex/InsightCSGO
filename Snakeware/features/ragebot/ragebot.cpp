@@ -410,116 +410,183 @@ bool RageBot::Hitchance (QAngle Aimangle) {
 	return false;
 }
 
+bool RageBot::Multipoints (PlayerRecord *pRecord, matrix3x4_t Bones[], int iIndex, std::vector< Vector > &pPoints) {
 
-void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vector>& points) {
+	pPoints.clear();
 
-	if (!g_Options.ragebot_multipoint)
-		return;
+	const model_t *model = pTarget->GetModel ();
+	if (!model) return false;
 
-	
-	auto mdl = g_MdlInfo->GetStudioModel(pTarget->GetModel());
-	auto set = mdl->GetHitboxSet        (pTarget->m_nHitboxSet());
-	auto hbx = set->GetHitbox(hitbox);
+	studiohdr_t *hdr    = g_MdlInfo->GetStudioModel (model);
+	if (!hdr) return false;
 
-	if (!hbx)
-		return;
+	mstudiohitboxset_t *set = hdr->GetHitboxSet(pTarget->m_nHitboxSet());
+	if (!set) return false;
 
-	Vector mins, maxs;
-	Math::VectorTransform(hbx->bbmin, bones[hbx->bone], mins);
-	Math::VectorTransform(hbx->bbmax, bones[hbx->bone], maxs);
+	mstudiobbox_t *bbox = set->GetHitbox(iIndex);
+	if (!bbox) return false;
 
-	Vector center = (mins + maxs) * 0.5f;
-	Vector angle  = Math::CalcAngle2(center, g_LocalPlayer->GetEyePos());
 
-	Vector forward;
-	Math::AngleVectors2(angle, forward);
 
-	Vector right = forward.Cross(Vector(0, 0, 1));
-	Vector left = Vector(-right.x, -right.y, right.z);
-	Vector top = Vector(0, 0, 1);
-	Vector bottom = Vector(0, 0, -1);
+	matrix3x4_t rot_matrix;
 
-	float adjusted_radius = GetPointScale (hbx->m_flRadius , &center , &g_LocalPlayer->GetEyePos(), hitbox);
-	switch (hitbox) {
-	case HITBOX_HEAD:
+
+	Math::AngleMatrix(QAngle(bbox->rotation.x, bbox->rotation.y, bbox->rotation.z), rot_matrix);
+
+	matrix3x4_t matrix;
+
+	Math::ConcatTransforms(Bones[bbox->bone], rot_matrix, matrix);
+
+	Vector origin = matrix.GetOrigin();
+
+	Vector center = (bbox->bbmin + bbox->bbmax) / 2.f;
+
+	// get hitbox scales.
+	float flScale = GetPointScale(bbox->m_flRadius, &g_LocalPlayer->GetEyePos() , &center, iIndex);
+
+	// big inair fix.
+	if (!(pRecord->mFlags) & FL_ONGROUND)
+		flScale = 0.7f;
+
+
+
+	// these indexes represent boxes.
+	if (bbox->m_flRadius <= 0.f) {
 		
-
-		if (adjusted_radius > 0.f) {
-			points.push_back({ center + top * adjusted_radius });
-			points.push_back({ center + right * adjusted_radius });
-			points.push_back({ center + left * adjusted_radius });
-		}
-		break;
-
-	case HITBOX_NECK:
-		
-
-		if (adjusted_radius > 0.f) {
-			points.push_back({ center + right * adjusted_radius });
-			points.push_back({ center + left * adjusted_radius });
-		}
-		break;
-
-	case HITBOX_CHEST:
 	
 
-		if (adjusted_radius > 0.f) {
-			points.push_back({ center + right * adjusted_radius });
-			points.push_back({ center + left * adjusted_radius });
-			points.push_back({ center + bottom * adjusted_radius });
-		}
-		break;
 
-	case HITBOX_UPPER_CHEST:
+		if (iIndex == HITBOX_RIGHT_FOOT || iIndex == HITBOX_LEFT_FOOT) {
+			float d1 = (bbox->bbmin.z - center.z) * 0.875f;
+
+			// invert.
+			if (iIndex == HITBOX_LEFT_FOOT)
+				d1 *= -1.f;
+
+			
+			pPoints.push_back({ center.x, center.y, center.z + d1 });
+
+			{
+
+				float d2 = (bbox->bbmin.x - center.x) * flScale;
+				float d3 = (bbox->bbmax.x - center.x) * flScale;
+
+				// heel.
+				pPoints.push_back({ center.x + d2, center.y, center.z });
+
+				// toe.
+				pPoints.push_back({ center.x + d3, center.y, center.z });
+			}
+		}
+
+		// nothing to do here we are done.
+		if (pPoints.empty())
+			return false;
+
 	
+		for (auto &p : pPoints) {
+			
+			p = { p.Dot(matrix[0]), p.Dot(matrix[1]), p.Dot(matrix[2]) };
 
-		if (adjusted_radius > 0.f) {
-			points.push_back({ center + top * adjusted_radius });
-			points.push_back({ center + right * adjusted_radius });
-			points.push_back({ center + left * adjusted_radius });
+			// transform point to world space.
+			p += origin;
 		}
-		break;
-
-	case HITBOX_STOMACH:
-		
-
-		if (adjusted_radius > 0.f) {
-			points.push_back({ center + top * adjusted_radius });
-			points.push_back({ center + right * adjusted_radius });
-			points.push_back({ center + left * adjusted_radius });
-		}
-		break;
-
-	case HITBOX_PELVIS:
-		
-
-		if (adjusted_radius > 0.f) {
-			points.push_back({ center + right * adjusted_radius });
-			points.push_back({ center + left * adjusted_radius });
-			points.push_back({ center + bottom * adjusted_radius });
-		}
-		break;
-
-	case HITBOX_LEFT_FOREARM:
-	case HITBOX_RIGHT_FOREARM:
-		
-
-		if (adjusted_radius > 0.f) {
-			points.push_back({ center + top * adjusted_radius });
-			points.push_back({ center + bottom * adjusted_radius });
-		}
-		break;
-
-	case HITBOX_LEFT_CALF:
-	case HITBOX_RIGHT_CALF:
-	
-		if (adjusted_radius > 0.f) {
-			points.push_back({ center + top * adjusted_radius });
-			points.push_back({ center + bottom * adjusted_radius });
-		}
-		break;
 	}
+
+	// these hitboxes are capsules.
+	else {
+		// factor in the pointscale.
+		float r = bbox->m_flRadius * flScale;
+		float br = bbox->m_flRadius * flScale;
+
+		// compute raw center point.
+		Vector center = (bbox->bbmin + bbox->bbmax) / 2.f;
+
+		// head has 5 points.
+		if (iIndex == HITBOX_HEAD) {
+			// add center.
+			pPoints.push_back(center);
+
+
+			constexpr float rotation = 0.70710678f;
+
+			pPoints.push_back({ bbox->bbmax.x + (rotation * r), bbox->bbmax.y + (-rotation * r), bbox->bbmax.z });
+
+			// right.
+			pPoints.push_back({ bbox->bbmax.x, bbox->bbmax.y, bbox->bbmax.z + r });
+
+			// left.
+			pPoints.push_back({ bbox->bbmax.x, bbox->bbmax.y, bbox->bbmax.z - r });
+
+			// back.
+			pPoints.push_back({ bbox->bbmax.x, bbox->bbmax.y - r, bbox->bbmax.z });
+
+			// get animstate ptr.
+			CCSGOPlayerAnimState *state = pTarget->GetPlayerAnimState();
+
+			
+			if (state && pRecord->vecVelocity.Length() <= 0.1f && pRecord->eyeAngles.pitch <= state->m_flMinPitch) {
+
+				// bottom point.
+				pPoints.push_back({ bbox->bbmax.x - r, bbox->bbmax.y, bbox->bbmax.z });
+			}
+
+		}
+
+		// body has 5 points.
+		else if (iIndex == HITBOX_STOMACH) {
+			// center.
+			pPoints.push_back(center);
+
+			pPoints.push_back({ center.x, bbox->bbmax.y - br, center.z });
+		}
+
+		else if (iIndex == HITBOX_PELVIS || iIndex == HITBOX_UPPER_CHEST) {
+			// back.
+			pPoints.push_back({ center.x, bbox->bbmax.y - r, center.z });
+		}
+
+		// other stomach/chest hitboxes have 2 points.
+		else if (iIndex == HITBOX_LOWER_CHEST || iIndex == HITBOX_CHEST) {
+			// add center.
+			pPoints.push_back(center);
+
+		
+			pPoints.push_back({ center.x, bbox->bbmax.y - r, center.z });
+		}
+
+		else if (iIndex == HITBOX_RIGHT_CALF || iIndex == HITBOX_LEFT_CALF) {
+			// add center.
+			pPoints.push_back(center);
+
+		
+			pPoints.push_back({ bbox->bbmax.x - (bbox->m_flRadius / 2.f), bbox->bbmax.y, bbox->bbmax.z });
+		}
+
+		else if (iIndex == HITBOX_RIGHT_THIGH || iIndex == HITBOX_LEFT_THIGH) {
+			// add center.
+			pPoints.push_back(center);
+		}
+
+		// arms get only one point.
+		else if (iIndex == HITBOX_RIGHT_UPPER_ARM || iIndex == HITBOX_LEFT_UPPER_ARM) {
+			// elbow.
+			pPoints.push_back({ bbox->bbmax.x + bbox->m_flRadius, center.y, center.z });
+		}
+
+		// nothing left to do here.
+		if (pPoints.empty())
+			return false;
+
+		// transform capsule points.
+		for (auto &p : pPoints)
+			Math::VectorTransform(p, bones[bbox->bone], p);
+	}
+
+	return true;
 }
+
+
 
 bool RageBot::IsAbleToShoot() {
 	auto wep = g_LocalPlayer->m_hActiveWeapon();
@@ -638,6 +705,7 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 	auto wepidx  = wep->m_Item().m_iItemDefinitionIndex();
 	auto enemyhp = pTarget->m_iHealth();
 	auto ent     = pTarget->EntIndex();
+	PlayerRecord *Front = &LagCompensation::Get().GetLog(ent)->mRecords.front();
 
 	pTarget->ForceBoneRebuilid ();
 	pTarget->SetupBonesFixed   (bones, BONE_USED_BY_ANYTHING); // rebulid time
@@ -679,18 +747,13 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 			points.push_back({ pTarget->GetHitboxPos(HITBOX_CHEST) });
 			points.push_back({ pTarget->GetHitboxPos(HITBOX_LOWER_CHEST) });
 			points.push_back({ pTarget->GetHitboxPos(HITBOX_UPPER_CHEST) });
-			if ( g_Options.ragebot_multipoint ) {
-				Multipoints(HITBOX_STOMACH, bones, points);
-				Multipoints(HITBOX_PELVIS, bones, points);
-				Multipoints(HITBOX_CHEST, bones, points);
-				Multipoints(HITBOX_UPPER_CHEST, bones, points);
-			}
+
+	
+			
 		}break;
 		case hitscan_::ONLY_HS: {
 			points.push_back({ pTarget->GetHitboxPos(HITBOX_HEAD) });
-			if (g_Options.ragebot_multipoint) {
-				Multipoints(HITBOX_HEAD, bones, points);
-			}
+			
 		}break;
 		case hitscan_::FROM_CONFIG: {
 
@@ -698,42 +761,29 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 
 				points.push_back({ pTarget->GetHitboxPos(HITBOX_HEAD) });
 
-				if (g_Options.ragebot_multipoint) {
-					Multipoints(HITBOX_HEAD, bones, points);
-				}
+			
 			}
 			if (g_Options.ragebot_hitbox[1][iCurGroup] ) {
 				points.push_back({ pTarget->GetHitboxPos(HITBOX_NECK) });
-				if (g_Options.ragebot_multipoint) {
-					Multipoints(HITBOX_NECK, bones, points);
-				}
+				
 			}
 			if (g_Options.ragebot_hitbox[2][iCurGroup] ) {
 				points.push_back({ pTarget->GetHitboxPos(HITBOX_CHEST) });
 				points.push_back({ pTarget->GetHitboxPos(HITBOX_LOWER_CHEST) });
 				points.push_back({ pTarget->GetHitboxPos(HITBOX_UPPER_CHEST) });
-				if (g_Options.ragebot_multipoint) {
-					Multipoints(HITBOX_CHEST, bones, points);
-					Multipoints(HITBOX_UPPER_CHEST, bones, points);
-				}
+			
 			}
 			if (g_Options.ragebot_hitbox[3][iCurGroup]) {
 				points.push_back({ pTarget->GetHitboxPos(HITBOX_STOMACH) });
 				points.push_back({ pTarget->GetHitboxPos(HITBOX_PELVIS) });
-				if (g_Options.ragebot_multipoint) {
-					Multipoints(HITBOX_STOMACH, bones, points);
-					Multipoints(HITBOX_PELVIS, bones, points);
-				}
+				
 			}
 			if (pTarget->m_vecVelocity().Length2D() <= 0.15f) {
 
 				if (g_Options.ragebot_hitbox[4][iCurGroup]) {
 					points.push_back({ pTarget->GetHitboxPos(HITBOX_LEFT_FOREARM) });
 					points.push_back({ pTarget->GetHitboxPos(HITBOX_RIGHT_FOREARM) });
-					if (g_Options.ragebot_multipoint) {
-						Multipoints(HITBOX_LEFT_FOREARM, bones, points);
-						Multipoints(HITBOX_RIGHT_FOREARM, bones, points);
-					}
+					
 				}
 
 				if (g_Options.ragebot_hitbox[5][iCurGroup]) {
@@ -741,12 +791,7 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 					points.push_back({ pTarget->GetHitboxPos(HITBOX_RIGHT_CALF) });
 					points.push_back({ pTarget->GetHitboxPos(HITBOX_LEFT_THIGH) });
 					points.push_back({ pTarget->GetHitboxPos(HITBOX_RIGHT_THIGH) });
-					if (g_Options.ragebot_multipoint) {
-						Multipoints(HITBOX_LEFT_CALF, bones, points);
-						Multipoints(HITBOX_RIGHT_CALF, bones, points);
-						Multipoints(HITBOX_LEFT_THIGH, bones, points);
-						Multipoints(HITBOX_RIGHT_THIGH, bones, points);
-					}
+					
 				}
 			}
 
@@ -766,6 +811,8 @@ Vector RageBot::Scan(int  *iHitbox ,int* estimated_damage) {
 	Vector best_point = Vector (0, 0, 0);
 
 	for (auto point : points) {
+
+		if (!Multipoints(Front, bones, ent, points)) continue;
 
 		auto  WallDamage = AutoWall::Get().GetPointDamage(point, pTarget);
 
@@ -996,7 +1043,7 @@ void RageBot::PredictiveAStop(int value) {
 }
 
 
-float  RageBot::GetPointScale (float flHitboxRadius, Vector *vecPoint, Vector *vecPos, int iHitbox) {
+float  RageBot::GetPointScale (float flHitboxRadius, Vector *vecPos, Vector *veñPoint, int iHitbox) {
 
 	// Onetapv4 
 	// credit's : Snake,Sharhlaser1,llama.
@@ -1008,14 +1055,11 @@ float  RageBot::GetPointScale (float flHitboxRadius, Vector *vecPoint, Vector *v
 	float flEndScale;
 	float flScaleState; // [esp+4h] [ebp-Ch]
 	float ScaleState;
+	float pDist = 0.f;
 
 	float  v6; // ST0C_4
 	float  v7; // xmm0_4
-	float  v11; // xmm1_4
-	double dCone; // xmm0_8
-	double dEndCone; // xmm0_8
-	float  pDist; // xmm0_8
-	Vector RadSpread; // xmm0_8
+	
 
 	float g_flSpread = pWeapon->GetSpread();
 	float g_flInaccurarcy = pWeapon->GetInaccuracy();
@@ -1033,28 +1077,13 @@ float  RageBot::GetPointScale (float flHitboxRadius, Vector *vecPoint, Vector *v
 	flPointScale = (((flScale / 100.0) * 0.69999999) + 0.2) * flHitboxRadius;
 
 	if (g_Options.ragebot_multipoint) {
-		// Staitc multi-point
 		flEndScale = flPointScale;
 	}
 	else {
-
-		v7 = vecPoint->z - vecPos->z;   // eax
-		v6 = g_flSpread + g_flInaccurarcy; // Onetap vip calculate
-		pDist = Math::VectorDistance(*vecPoint, *vecPos);
-		RadSpread = ((90.0 - (v6 * 57.29578) * 0.017453292));
-		RadSpread.x = sinf(RadSpread.x);
-		v11 = pDist / RadSpread.x; // eax
-		dCone = v6;
-		ScaleState = v11;
-		dCone = sinf(float(v6));
-		flHitboxRadius = flScaleState;
-		dEndCone = dCone;
-
-		if (flScaleState <= (ScaleState * dEndCone))
-			flEndScale = 0.0;
-		else
-			flEndScale = ScaleState - (ScaleState * dEndCone);
-		// [esp+Ch] [ebp-4h]
+		
+		v7         = g_flSpread + g_flInaccurarcy;
+		pDist      = veñPoint->DistTo(*vecPos) / std::sin(Math::Deg2Rad(90.f - Math::Rad2Deg(v7)));
+		flEndScale = Math::Clamp(flHitboxRadius - pDist * v7, 0.f, flHitboxRadius * 0.9f);
 	}
 
 	return std::fminf(flHitboxRadius * 0.9f, flEndScale);

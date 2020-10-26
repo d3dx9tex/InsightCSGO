@@ -26,7 +26,8 @@ public:
 
 	bool Hitchance (QAngle Aimangle);
 
-	void Multipoints(int hitbox, matrix3x4_t bones[128], std::vector<Vector>& points);
+	bool Multipoints (PlayerRecord * pRecord, matrix3x4_t  Bones[MAXSTUDIOBONES], int iIndex, std::vector<Vector>& pPoints);
+
 
 	bool IsAbleToShoot ();
 

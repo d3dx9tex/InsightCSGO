@@ -30,6 +30,7 @@ namespace Math
 		i >>= 1;
 		return *(float*)&i;
 	}
+	double Deg2Rad(double degrees);
 	float Rad2Deg(float val);
 	float NormalizePitch(float pitch);
 	Vector VectorRotate(Vector& in1, Vector& in2);

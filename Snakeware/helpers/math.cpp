@@ -5,6 +5,9 @@ namespace Math
 	 float Rad2Deg (float val) {
 		return val * (180.f / pi);
 	}
+	 double Deg2Rad(double degrees) {
+		 return degrees * 4.0 * atan(1.0) / 180.0;
+	 }
 
 	float Magnitude(Vector a)
 	{
