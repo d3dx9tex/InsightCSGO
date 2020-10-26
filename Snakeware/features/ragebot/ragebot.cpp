@@ -1052,7 +1052,7 @@ float  RageBot::GetPointScale (float flHitboxRadius, Vector *vecPos, Vector *veñ
 
 	float flPointScale;
 	float flScale;
-	float flEndScale;
+	float flEndScale = 0.f;
 	float flScaleState; // [esp+4h] [ebp-Ch]
 	float ScaleState;
 	float pDist = 0.f;
@@ -1077,16 +1077,19 @@ float  RageBot::GetPointScale (float flHitboxRadius, Vector *vecPos, Vector *veñ
 	flPointScale = (((flScale / 100.0) * 0.69999999) + 0.2) * flHitboxRadius;
 
 	if (g_Options.ragebot_multipoint) {
-		flEndScale = flPointScale;
+
+		return std::fminf (flHitboxRadius * 0.9f, flScale);
+
 	}
 	else {
 		
 		v7         = g_flSpread + g_flInaccurarcy;
 		pDist      = veñPoint->DistTo(*vecPos) / std::sin(Math::Deg2Rad(90.f - Math::Rad2Deg(v7)));
-		flEndScale = Math::Clamp(flHitboxRadius - pDist * v7, 0.f, flHitboxRadius * 0.9f);
+
+		return  Math::Clamp(flHitboxRadius - pDist * v7, 0.f, flHitboxRadius * 0.9f);
 	}
 
-	return std::fminf(flHitboxRadius * 0.9f, flEndScale);
+	
 
 }
 
