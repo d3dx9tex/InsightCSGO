@@ -60,10 +60,13 @@ namespace Snakeware
 	extern int m_nBaseTick;
 	extern int SkipTicks;
 	extern bool bBoneSetup;
+	extern matrix3x4_t mOnShotMatrix[MAXSTUDIOBONES];
 	extern matrix3x4_t FakeMatrix[128];
 	extern matrix3x4_t FakeLagMatrix[128];
 	extern bool bVisualAimbotting;
+	extern bool bShotFound;
 	extern QAngle vecVisualAimbotAngs;
+
 
 	extern std::string EyeDelta;
 	extern std::string Delta;
@@ -71,7 +74,7 @@ namespace Snakeware
 	extern std::string Delta3;
 	extern std::string Delta4;
 
-	extern cPlayerRecord pLagRecords[64];
+	
 
 }
 class Cmd {
@@ -185,6 +188,7 @@ public:
 	OPTION(bool, esp_enabled, false);
 	OPTION(bool, shot_hitboxes, false);
 	OPTION(float, shot_hitboxes_duration, 1.f);
+	OPTION(int, shot_hitboxes_type, 0);
 	OPTION(bool, sound_esp, false);
 	OPTION(int, sound_esp_type, 0);
 	OPTION(float, sound_esp_radius, 12.0f);
@@ -281,6 +285,7 @@ public:
 
 	OPTION(bool, chams_weapons, false);
 	OPTION(int, chams_weapons_type, 0);
+	OPTION(int, onshot_chams_type, 0);
 	OPTION(int, chams_weapons_type_layer, 0);
 	//
 	// MISC
@@ -355,11 +360,11 @@ public:
 	// COLORS
 	// 
 	float color_menu_ui[4] = { 0.1f, 0.1f, 1.f, 1.0f };
-	float color_sound_esp[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float color_esp_ally_visible[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float color_esp_enemy_visible[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float color_esp_ally_occluded[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float color_esp_enemy_occluded[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float color_sound_esp[4] = { 1.f, 0.1f, 1.f, 1.0f };
+	float color_esp_ally_visible[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	float color_esp_enemy_visible[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	float color_esp_ally_occluded[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	float color_esp_enemy_occluded[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	float color_esp_crosshair[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	float color_esp_offscreen[4] = { 0.3f, 0.1f, 1.f, 1.0f };
 	float color_molotov[4] = { 0.3f, 0.1f, 1.f, 1.0f };
@@ -376,7 +381,7 @@ public:
 	OPTION(Color, color_glow_defuse, Color(255, 255, 255));
 	OPTION(Color, color_glow_weapons, Color(255, 128, 0));
 
-	float color_chams_player_ally_visible[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float color_chams_player_ally_visible[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	float color_shot_hitboxes[4] = { 0.9f, 0.1f, 0.85f, 1.0f };
 	float color_head_dot[4] = { 1.f, 1.f, 1.f, 1.0f };
 	float color_player_chams_backtrack[4] = { 1.f, 1.f, 1.f, 1.0f };
@@ -385,18 +390,19 @@ public:
 	float color_chams_weapons[4] = { 0.f, 0.f, 0.9f, 1.0f };
 	float color_chams_weapons_layer[4] = { 0.f, 0.f, 0.9f, 1.0f };
 	float color_chams_fake[4] = { 0.f, 0.f, 1.f, 1.0f };
-	float color_chams_player_ally_occluded[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float color_chams_player_enemy_visible[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float color_chams_player_enemy_visible_l[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float color_chams_player_enemy_occluded[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float color_chams_arms_visible[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float color_chams_arms_visible_layer[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	float sky_color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	float color_chams_player_ally_occluded[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	float color_chams_player_enemy_visible[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	float color_chams_player_enemy_visible_l[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	float color_chams_player_enemy_occluded[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	float color_chams_arms_visible[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	float color_chams_arms_visible_layer[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
+	float sky_color[4] = { 1.f, 0.f, 1.f, 0.9f };
 	float world_color[4] = { 1.f, 0.f, 1.f, 1.f };
 	float prop_color[4] = { 1.f, 0.f, 1.f, 0.9f };
 	int prop_material;
 
 	float menu_color[4] = { 1.f, 0.f, 1.f, 1.0f };
+	int   menu_scale = 10;
 
 	OPTION(Color, color_chams_arms_occluded, Color(0, 128, 255));
 	OPTION(Color, color_watermark, Color(0, 128, 255)); // no menu config cuz its useless
@@ -447,8 +453,7 @@ public:
 	OPTION(bool, ragebot_position_adj, false);
 	OPTION(bool, ragebot_limit_fov, false);
 	OPTION(bool, ragebot_multipoint, false);
-	bool  ragebot_between_shots[9] = { false, false, false, false, false, false, false, false };
-	int  ragebot_autostop_conditions[9] = { false, false, false, false, false, false, false, false };
+	OPTION(bool, ragebot_beetweenshots, false);
 	bool  ragebot_alternative_hitchance[9] = { false, false, false, false, false, false, false, false };
 	bool  ragebot_delayshot[9] = { false, false, false, false, false, false, false, false };
 	bool  ragebot_autoscope;
@@ -486,7 +491,7 @@ public:
 	int cheatmode;
 
 
-
+	bool loaded_lua[100];
 
 	struct {
 		std::map<int, item_setting> m_items;

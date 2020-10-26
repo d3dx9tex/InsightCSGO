@@ -55,6 +55,8 @@ void PlayerHurtEvent::FireGameEvent(IGameEvent *event)
 	if (!g_LocalPlayer || !event)
 		return;
 	
+	Snakeware::bShotFound = false;
+
 	if (g_Options.misc_hitmarker)
 	{
 		if (g_EngineClient->GetPlayerForUserID(event->GetInt("attacker")) == g_EngineClient->GetLocalPlayer() && g_EngineClient->GetPlayerForUserID(event->GetInt("userid")) != g_EngineClient->GetLocalPlayer())
@@ -85,14 +87,28 @@ void PlayerHurtEvent::FireGameEvent(IGameEvent *event)
 		if (g_EngineClient->GetPlayerForUserID(event->GetInt("attacker")) == g_EngineClient->GetLocalPlayer() && g_EngineClient->GetPlayerForUserID(event->GetInt("userid")) != g_EngineClient->GetLocalPlayer())
 		g_LocalPlayer->m_flHealthShotBoostExpirationTime() = g_GlobalVars->curtime + g_Options.misc_hiteffect_duration;
 	}
+
+
 	if (g_Options.shot_hitboxes)
 	{
 		int32_t attacker = g_EngineClient->GetPlayerForUserID(event->GetInt("attacker"));
 		int32_t userid = g_EngineClient->GetPlayerForUserID(event->GetInt("userid"));
 		auto Player = static_cast<C_BasePlayer *>(g_EntityList->GetClientEntity(userid));
 		Color Hitbox = Color(g_Options.color_shot_hitboxes);
-		if (attacker == g_EngineClient->GetLocalPlayer() && userid != g_EngineClient->GetLocalPlayer())
-			DrawHitbox(Player,Hitbox, g_Options.shot_hitboxes_duration);
+
+		if (attacker == g_EngineClient->GetLocalPlayer() && userid != g_EngineClient->GetLocalPlayer()) {
+			// Nano-tech by Snake <3
+			// Selfcoded who?
+			Snakeware::bShotFound = true;
+			if (g_Options.shot_hitboxes_type < 1)
+			DrawHitbox(Player, Hitbox, g_Options.shot_hitboxes_duration);
+			else {
+
+				Player->InvalidateBoneCache(); // Invalidate.
+				Player->SetupBones(Snakeware::mOnShotMatrix, 128, 256, 0); // 0 Что-бы матрица никак не обновлялась.
+			}
+
+		}
 	}
 
 	event_ex = event;

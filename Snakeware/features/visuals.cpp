@@ -300,8 +300,7 @@ void Visuals::Player::RenderFlags()
 	if (g_Options.esp_flags_flash && ctx.pl->IsFlashed())
 		AddFlag("flashed", Color(255, 255, 255, 155));
 
-	AddFlag(Resolver::Get().ResolveRecord[ctx.pl->EntIndex()].info, Color(255, 255, 255, 155));
-
+	//pPlayer->GetAnimOverlays()[3].
 
 }
 //--------------------------------------------------------------------------------
@@ -323,17 +322,16 @@ void Visuals::Player::RenderHealth()
 	//float off = (box_h / 6.f) + 5;
 	float off = 8;
 
-	if ( animation_val[ctx.pl->EntIndex()] != hp ) {
+	int height = (box_h * hp) / 100;
 
-		if (animation_val[ctx.pl->EntIndex()] > hp )
-			animation_val[ctx.pl->EntIndex()] -= (animation_val[ctx.pl->EntIndex()] - hp) / 5;
+	if (animation_val[ctx.pl->EntIndex()] != height) {
 
-		if (animation_val[ctx.pl->EntIndex()] < hp )
-			animation_val[ctx.pl->EntIndex()] += (hp - animation_val[ctx.pl->EntIndex()]) / 5;
+		if (animation_val[ctx.pl->EntIndex()] > height)
+			animation_val[ctx.pl->EntIndex()] -= (animation_val[ctx.pl->EntIndex()] - height ) / 5;
+
+		if (animation_val[ctx.pl->EntIndex()] < height)
+			animation_val[ctx.pl->EntIndex()] += (height - animation_val[ctx.pl->EntIndex()]) / 5;
 	}
-	
-	int height = (box_h * animation_val[ctx.pl->EntIndex()]) / 100;
-
 
 	int green = int(hp * 2.55f);
 	int red = 255 - green;
@@ -345,7 +343,7 @@ void Visuals::Player::RenderHealth()
 	
 
 	Render::Get().RenderBoxFilled(x, y, x + w, y + h, Color(0,0,0,120), 1.f, 0);
-	Render::Get().RenderBox(x + 1, y + 1, x + w - 1, y + height - 1, Color(red, green, 0, 255),1.f, true);
+	Render::Get().RenderBox(x + 1, y + 1, x + w - 1, y + animation_val[ctx.pl->EntIndex()] - 2, Color(red, green, 0, 255),1.f, true);
 
 	
 }
@@ -1012,9 +1010,9 @@ void Visuals::DrawScopeLines()
 
 
 
-		Render::Get().RenderLine(screenX / 2 - value, 0 , screenX / 2 - value, screenY / 2 - value / 2, Color(0, 0, 0, 100));
-		Render::Get().RenderLine(screenX / 2 - value, screenY , screenX / 2 - value, screenY / 2 - value / 2, Color(0, 0, 0, 100));
-		Render::Get().RenderLine(0 , screenY / 2 - value, screenX / 2 - value / 2, screenY / 2 - value, Color(0, 0, 0, 100));
+		Render::Get().RenderLine(screenX / 2 - value, 0, screenX / 2 - value, screenY / 2 - value / 2, Color(0, 0, 0, 100));
+		Render::Get().RenderLine(screenX / 2 - value, screenY, screenX / 2 - value, screenY / 2 - value / 2, Color(0, 0, 0, 100));
+		Render::Get().RenderLine(0, screenY / 2 - value, screenX / 2 - value / 2, screenY / 2 - value, Color(0, 0, 0, 100));
 		Render::Get().RenderLine(screenX, screenY / 2 - value, screenX / 2 - value / 2, screenY / 2 - value, Color(0, 0, 0, 100));
 
 
@@ -1028,8 +1026,7 @@ void Visuals::DrawScopeLines()
 
 		RENDER_3D_GUI::Get().AutowallCrosshair();
 
-		
-
+	
 	}
 
 }

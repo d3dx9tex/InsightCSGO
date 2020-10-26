@@ -301,10 +301,9 @@ bool AutoWall::Trace2Exit(trace_t * enter_trace, Vector & start, Vector & dir, t
 
 
 AutoWallInfo AutoWall::Start (Vector start, Vector end, C_BasePlayer *from, C_BasePlayer *to) {
-
 	AutoWallInfo rt{};
-	AutoWallBullet bullet;
 
+	AutoWallBullet bullet;
 	bullet.vecStart = start;
 	bullet.vecEnd = end;
 	bullet.vecPos = start;

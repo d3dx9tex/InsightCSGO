@@ -16,21 +16,24 @@ struct ResolveInfo {
 	std::string			    info				 ;
 	bool					has_fake		     ;
 	bool					has_fakelags		 ;
+<<<<<<< HEAD
 	int						fl					 ;
 	int						antifreestand_side	 ;
+	bool					m_extending			 ;
+
 	bool					IsJitter			 ;
 	int					    JitterSide			 ;
 	bool				    TracerDisabling		 ;
+=======
+>>>>>>> 7adaaad4db049e00eb92b488d02dda2e70997d8f
 
 
 	/*			  lby desync mode	     		*/	
 	int						LastBalancedDesync	 ;
 	int						lby_delta			 ;
 	bool					desyncmode_balance	 ;
-	int						lastalive			 ;
-	int						LastPitchDown		 ;
 
-	int					    last_ticks			 ;
+	int						LastPitchDown		 ;
 
 };
 

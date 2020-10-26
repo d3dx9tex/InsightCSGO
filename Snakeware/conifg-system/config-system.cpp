@@ -1,8 +1,12 @@
 #include "config-system.h"
 #include "../options.hpp"
+#include "../Lua/API.h"
+#include "../options.hpp"
 
 #include <fstream>
 #include <filesystem> // hack
+#include <lua.h>
+#include <lua.hpp>
 
 void ConfigSystem::SetupValue(int& value, int def, std::string category, std::string name) { value = def; ints.push_back(new ConfigValue< int >(category, name, &value, def)); }
 void ConfigSystem::SetupValue(char* value, char* def, std::string category, std::string name) { value = def; chars.push_back(new ConfigValue< char >(category, name, value, *def)); }
@@ -25,29 +29,23 @@ void ConfigSystem::SetupRage()
 		SetupValue(g_Options.ragebot_fov, 228,       ("ragebot"),  ("ragebot_fov"));
 		SetupValue(g_Options.ragebot_autostop, false, ("ragebot"), ("autostop"));
 		SetupValue(g_Options.ragebot_autostop_bs, false, ("ragebot"), ("autostopbs"));
-		SetupValue(g_Options.ragebot_resolver, false, ("ragebot"), ("resolver"));
 		SetupValue(g_Options.ragebot_autostop_type, 0, ("ragebot"), ("auto_stoptype"));
-		SetupValue(g_Options.ragebot_force_safepoint, 0, ("ragebot"), ("force_safepoint"));
-		SetupValue(g_Options.ragebot_multipoint, true, ("ragebot"), ("ragebot_mitlipoint"));
-		SetupValue(g_Options.ragebot_baim_key, 0, ("ragebot"), ("baim_key"));
 
 		for (int type = WEAPON_GROUPS::PISTOLS; type <= WEAPON_GROUPS::SMG; type++) {
-			SetupValue(g_Options.ragebot_mindamage[type], 0, ("ragebot"), ("ragebot_mindamage" + type ));
-			for (int i = 0; i < 8; i++) {
-				SetupValue(g_Options.ragebot_hitbox[i][type], 0, ("ragebot"), ("ragebot_hitbox" + i + type));
-			}
-			SetupValue(g_Options.ragebot_vis_mindamage[type], 0, ("ragebot"), ("ragebot_vismindamage" + type));
-			SetupValue(g_Options.ragebot_hitchance[type], 0, ("ragebot"), ("ragebot_hitchance" + type));
-			SetupValue(g_Options.ragebot_pointscale[type], 0, ("ragebot"), ("ragebot_pointscale" + type));
-			SetupValue(g_Options.ragebot_bodyscale[type], 0, ("ragebot"), ("ragebot_bodyscale" + type));
-			SetupValue(g_Options.ragebot_otherscale[type], 0, ("ragebot"), ("ragebot_otherscale" + type));
-			SetupValue(g_Options.ragebot_static_pointscale[type], false, ("ragebot"), ("static_pointscale" + type));
-			SetupValue(g_Options.ragebot_adaptive_baim[type], false, ("ragebot"), ("adaptive_baim" + type));
-			SetupValue(g_Options.ragebot_baim_if_lethal[type], false, ("ragebot"), ("_baim_if_lethal" + type));
-			SetupValue(g_Options.ragebot_between_shots[type], false, ("ragebot"), ("beetweenshots" + type));
-			SetupValue(g_Options.ragebot_autostop_conditions[type], 1, ("ragebot"), ("conditions_" + type));
-			
+			SetupValue(g_Options.ragebot_mindamage[type], 0, ("ragebot"), ("ragebot_mindamage"));
+			SetupValue(g_Options.ragebot_vis_mindamage[type], 0, ("ragebot"), ("ragebot_vismindamage"));
+			SetupValue(g_Options.ragebot_hitchance[type], 0, ("ragebot"), ("ragebot_hitchance"));
+			SetupValue(g_Options.ragebot_pointscale[type], 0, ("ragebot"), ("ragebot_pointscale"));
+			SetupValue(g_Options.ragebot_bodyscale[type], 0, ("ragebot"), ("ragebot_bodyscale"));
+			SetupValue(g_Options.ragebot_otherscale[type], 0, ("ragebot"), ("ragebot_otherscale"));
+		
+
 		}
+
+
+
+
+
 		// antiaim :
 		SetupValue(g_Options.antihit_enabled, false, ("antihit"), ("enabledaa"));
 		SetupValue(g_Options.antihit_stabilize_lby, false, ("antihit"), ("stabilizelby"));
@@ -59,9 +57,6 @@ void ConfigSystem::SetupRage()
 		SetupValue(g_Options.antihit_jitter_radius, 0, ("antihit"), ("jitter_rad"));
 		SetupValue(g_Options.antihit_fake_switch_key, 0, ("antihit"), ("fake_switch"));
 		SetupValue(g_Options.antihit_fake_ammount, 58, ("antihit"), ("fake_ammount"));
-		SetupValue(g_Options.antihit_manual_left, 0, ("antihit"), ("manual_left"));
-		SetupValue(g_Options.antihit_manual_right, 0, ("antihit"), ("manual_right"));
-		SetupValue(g_Options.antihit_manual_back, 0, ("antihit"), ("manual_back"));
 
 }
 void ConfigSystem::SetupVisuals()
@@ -351,6 +346,11 @@ void ConfigSystem::SetupColors()
 	SetupColor(g_Options.color_esp_offscreen, "esp_offscreen");
 }
 void ConfigSystem::Setup() {
+
+	for (int i = 1; i < 30; i++) {
+		SetupValue(g_Options.loaded_lua[i], false, "lua_saves", "lua_active" + i);
+	}
+
 	ConfigSystem::SetupRage();
 	ConfigSystem::SetupVisuals();
 	ConfigSystem::SetupMisc();
@@ -389,6 +389,8 @@ void ConfigSystem::Save(const std::string& name) {
 
 	for (auto value : floats) WritePrivateProfileStringA(value->category.c_str(), value->name.c_str(), std::to_string(*value->value).c_str(), file.c_str());
 	for (auto value : bools) WritePrivateProfileStringA(value->category.c_str(), value->name.c_str(), *value->value ? "true" : "false", file.c_str());
+
+
 }
 
 void ConfigSystem::Load(const std::string& name) {

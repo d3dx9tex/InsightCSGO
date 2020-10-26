@@ -229,9 +229,11 @@ void RenderRageBotTab()
 		{
 
 
+
 			ImGui::Text(" ");
 
 			ImGui::SetCursorPosY(+15);
+
 		
 			ImGui::PushFont(g_pCSGO_icons);
 			{
@@ -273,7 +275,7 @@ void RenderRageBotTab()
 			if (g_Options.ragebot_multipoint) {
 
 
-				ImGui::CheckboxEX("Static-pointscale", &g_Options.ragebot_static_pointscale[curGroup], "Multipoint hitboxes etc", 63);
+				ImGui::CheckboxEX("Static-pointscale", &g_Options.ragebot_static_pointscale[curGroup], "Multipoint hitboxes etc", 6);
 
 				if (g_Options.ragebot_static_pointscale[curGroup]) {
 					ImGui::SliderFloat("Head scale", &g_Options.ragebot_pointscale[curGroup], 0, 100);
@@ -285,14 +287,9 @@ void RenderRageBotTab()
 				}
 			}
 			ImGui::CheckboxEX("Smart body-aim", &g_Options.ragebot_adaptive_baim[curGroup], "Smart baim", 7);
-			ImGui::CheckboxEX("Body-aim if lethal", &g_Options.ragebot_baim_if_lethal[curGroup], "Smart baim", 78);
+			ImGui::CheckboxEX("Body-aim if lethal", &g_Options.ragebot_baim_if_lethal[curGroup], "Smart baim", 7);
 			ImGui::CheckboxEX("Auto-scope", &g_Options.ragebot_autoscope, "Automaticaly scope", 8);
-			const char* selection[] = { "Default","Slowwalk", "Maximum" };
-			ImGui::Combo("Autostop type ", &g_Options.ragebot_autostop_type, selection, IM_ARRAYSIZE(selection));
-			const char* selection2[] = { "Disable if low speed","Always if can hit", "Always" };
-			ImGui::Combo("Autostop conditions", &g_Options.ragebot_autostop_conditions[curGroup], selection2, IM_ARRAYSIZE(selection2));
 			ImGui::CheckboxEX("Auto-stop", &g_Options.ragebot_autostop, "Automaticaly stop", 9);
-			if (g_Options.ragebot_autostop) ImGui::CheckboxEX("Between shots", &g_Options.ragebot_between_shots[curGroup], "Automaticaly stop mode 2", 91);
 			const char* hitboxes[] = { "Head", "Neck", "Chest", "Body", "Arms", "Legs" };
 			static std::string prevValue = "Select";
 			if (ImGui::BeginCombo("Hitscan", "Select", 0))
@@ -339,7 +336,7 @@ void RenderRageBotTab()
 
 			ImGui::CheckboxEX("Enabled##aa", &g_Options.antihit_enabled, "Changing ur angles to be anhitable", 9);
 			ImGui::CheckboxEX("Stabilize lby", &g_Options.antihit_stabilize_lby, "Lower body yaw stab", 10);
-			const char* pitch[] = { "Down","Up","Zero","Ideal" };
+			const char* pitch[] = {  "Down","Emotion","Zero","Up","Fake up", "Fake down" };
 			const char* yaw[] = { "Backward's","Manual's" };
 			const char* fake[] = { "Static","Lagsync" };
 			const char* jitter[] = { "Default","Switch" };
@@ -1118,7 +1115,8 @@ void RenderMiscTab()
 			ImGui::SetCursorPosY(+15);
 
 			ImGui::ColorEdit4("Menu color", g_Options.menu_color, ImGuiColorEditFlags_NoInputs, 20);
-
+			ImGui::SliderInt("MenuScale", &g_Options.menu_scale, 1, 50);
+		
 			ImGui::CheckboxEX("Anti-Untrusted", &g_Options.misc_anti_untrusted, "Remove untrusted angles", 74);
 			ImGui::CheckboxEX("Infinity duck", &g_Options.misc_infinity_duck, "Nolimit for duck", 75);
 			ImGui::CheckboxEX("Anti-obs", &g_Options.misc_anti_screenshot, "No ESP on OBS and screenshot", 76);
@@ -1632,6 +1630,7 @@ bool RenderWarningSystem(const char* warning_text)
 void RenderConfigTab()
 {
 	static int SubTabs;
+	std::stringstream config_lua;
 
 	ImGuiEX::SubTabButton("Configs", &SubTabs, 0, 2);
 	ImGuiEX::SubTabButton("Scripts", &SubTabs, 1, 2);
@@ -1712,13 +1711,30 @@ void RenderConfigTab()
 				ShellExecuteA(0, "open", "C:/snakeware", NULL, NULL, SW_NORMAL);
 			if (!current_config.empty()) {
 
+
+				config_lua << "autorun" << current_config.c_str() << ".lua";
 				if (ImGui::Button("Load", ImVec2(290, 25))) {
 					Config->Load(current_config);
-					//Process last load
-					config_process = LOADING;
+					lua::load_script(lua::get_script_id(config_lua.str()));
+					
 				}	
 				if (ImGui::Button("Save", ImVec2(290, 25)))
 				{
+					CreateDirectoryA(u8"C:\\snakeware\\", NULL);
+					std::string file_name = config_lua.str();
+					std::string file = u8"C:\\snakeware\\lua\\" + config_lua.str();
+					std::ofstream out(file);
+
+					out << "client.RegisterFunction(" << "\"" << "on_paint" <<"\"" << ", function()";
+					for (auto& lua : lua::scripts) {
+						if (lua::loaded.at(lua::get_script_id(lua.c_str() ))) {
+							out << std::endl;
+							out << "	client.RunScript(" << "\"" << lua.c_str() << "\"" << ")";
+						}
+					}
+					out << std::endl;
+					out << "end)";
+					
 					Config->Save(current_config);
 					//Process last save
 					config_process = SAVING;
@@ -1749,12 +1765,8 @@ void RenderConfigTab()
 		ImGui::BeginChild("Colors", ImVec2(310, 360), true);
 		{
 			ImGui::Text(" ");
-
 			ImGui::SetCursorPosY(+15);
-
 			ImGuiStyle& style = ImGui::GetStyle();
-
-
 
 		}
 		ImGui::EndChild();
@@ -1787,6 +1799,7 @@ void RenderConfigTab()
 						if (ImGui::Selectable(lua.c_str(), lua == current_config)) {
 							current_config = lua;
 						}
+						
 					}
 
 					ImGui::EndCombo();
@@ -1850,6 +1863,31 @@ void RenderConfigTab()
 
 
 }
+void dpi_resize(float scale_factor, ImGuiStyle& style) //-V688
+{
+	ImGuiStyle& styles = ImGui::GetStyle();
+
+	style.WindowPadding = (styles.WindowPadding * scale_factor);
+	style.WindowRounding = (styles.WindowRounding * scale_factor);
+	style.WindowMinSize = (styles.WindowMinSize * scale_factor);
+	style.ChildRounding = (styles.ChildRounding * scale_factor);
+	style.PopupRounding = (styles.PopupRounding * scale_factor);
+	style.FramePadding = (styles.FramePadding * scale_factor);
+	style.FrameRounding = (styles.FrameRounding * scale_factor);
+	style.ItemSpacing = (styles.ItemSpacing * scale_factor);
+	style.ItemInnerSpacing = (styles.ItemInnerSpacing * scale_factor);
+	style.TouchExtraPadding = (styles.TouchExtraPadding * scale_factor);
+	style.IndentSpacing = (styles.IndentSpacing * scale_factor);
+	style.ColumnsMinSpacing = (styles.ColumnsMinSpacing * scale_factor);
+	style.ScrollbarSize = (styles.ScrollbarSize * scale_factor);
+	style.ScrollbarRounding = (styles.ScrollbarRounding * scale_factor);
+	style.GrabMinSize = (styles.GrabMinSize * scale_factor);
+	style.GrabRounding = (styles.GrabRounding * scale_factor);
+	style.TabRounding = (styles.TabRounding * scale_factor);
+	style.DisplayWindowPadding = (styles.DisplayWindowPadding * scale_factor);
+	style.DisplaySafeAreaPadding = (styles.DisplaySafeAreaPadding * scale_factor);
+	style.MouseCursorScale = (styles.MouseCursorScale * scale_factor);
+}
 
 void Menu::Initialize()
 {
@@ -1889,8 +1927,8 @@ void Menu::Render()
 
 
 
-
-	ImGui::SetNextWindowSizeConstraints(ImVec2(691, 520), ImVec2(691, 520));
+	auto dpi_scale = g_Options.menu_scale / 10;
+	ImGui::SetNextWindowSizeConstraints(ImVec2(691 * dpi_scale, 520 * dpi_scale), ImVec2(691 * dpi_scale, 520 * dpi_scale));
 
 
 	if (ImGui::Begin("coded by snake | ba1m0v", &_visible, ImGuiWindowFlags_NoTitleBar || ImGuiWindowFlags_NoScrollbar || ImGuiWindowFlags_BackForce)) {

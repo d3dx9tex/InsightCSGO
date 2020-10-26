@@ -2,7 +2,154 @@
 #include "../../../options.hpp"
 #include "../resolver/resolver.h"
 #include "../player-log/player-log.h"
+#include "../lagcompensation/lag-compensation.h"
 
+void Animations::OnPlayerLog(PlayerLog* log, PlayerRecord* record, PlayerRecord* previous) {
+	const auto state = log->m_pPlayer->GetPlayerAnimState();
+
+	const auto movement_backup = MovementBackup(log->m_pPlayer);
+
+	log->interpolate(record, previous);
+
+	if (log->m_pPlayer->IsEnemy()
+		&& !log->m_pPlayer->GetPlayerInfo().fakeplayer) {
+		const auto animation_backup = AnimationBackup(log->m_pPlayer);
+
+		for (auto i = 1u; i <= 2u; i++) {
+
+			Update(log, record, previous, static_cast<ResolverState>(i));
+
+			record->mResolver.AnimLayers.at(i) = log->m_pPlayer->GetGayLayers();
+			record->mResolver.flAbsYaw.at(i - 1u) = state->m_flGoalFeetYaw;
+			record->mResolver.flPoses.at(i - 1u) = log->m_pPlayer->m_flPoseParameter();
+
+			log->m_pPlayer->GetGayLayers() = record->ServerLayers;
+
+			record->BulidBones(log->m_pPlayer, static_cast<ResolverState>(i));
+
+			animation_backup.Restore(log->m_pPlayer);
+		}
+
+	/*	if (Math::angle_diff(record->m_eye_angles.y, record->m_resolver.m_abs_yaw.at(RESOLVER_STATE_RIGHT - 1u)) < 0.f) {
+			std::swap(record->m_bones.at(RESOLVER_STATE_LEFT), record->m_bones.at(RESOLVER_STATE_RIGHT));
+
+			std::swap(record->m_resolver.m_layers.at(RESOLVER_STATE_LEFT), record->m_resolver.m_layers.at(RESOLVER_STATE_RIGHT));
+			std::swap(record->m_resolver.m_poses.at(RESOLVER_STATE_LEFT - 1u), record->m_resolver.m_poses.at(RESOLVER_STATE_RIGHT - 1u));
+			std::swap(record->m_resolver.m_abs_yaw.at(RESOLVER_STATE_LEFT - 1u), record->m_resolver.m_abs_yaw.at(RESOLVER_STATE_RIGHT - 1u));
+		}*/
+	}
+
+	Update(log, record, previous, RESOLVER_STATE_NONE);
+
+	record->mResolver.AnimLayers.at(RESOLVER_STATE_NONE) = log->m_pPlayer->GetGayLayers();
+
+	log->m_pPlayer->GetGayLayers() = record->ServerLayers;
+
+	record->BulidBones(log->m_pPlayer, RESOLVER_STATE_NONE);
+
+	movement_backup.Restore(log->m_pPlayer);
+}
+
+void Animations::Update(PlayerLog* log, PlayerRecord* record, PlayerRecord* previous, ResolverState r_state) {
+
+	const auto state = log->m_pPlayer->GetPlayerAnimState();
+
+	const auto interpolated_backup = InterPolatedBackup(log->m_pPlayer, state);
+
+	if (previous) {
+		log->m_pPlayer->GetGayLayers() = previous->ServerLayers;
+
+		//state->m_acceleration_weight = previous->m_server_layers.at(ANIMATION_LAYER_LEAN).m_weight;
+
+		state->m_flFeetCycle   = previous->ServerLayers.at(6).m_flCycle;
+		state->m_flFeetYawRate = previous->ServerLayers.at(6).m_flWeight;
+	}
+	else {
+		log->m_pPlayer->GetGayLayers() = record->ServerLayers;
+
+		if (record->mFlags.Has(FL_ONGROUND)) {
+			state->m_bOnGround             = true;
+			state->m_bInHitGroundAnimation = false;
+		}
+
+		state->m_flLastClientSideAnimationUpdateTime = record->flAnimTime - g_GlobalVars->interval_per_tick;
+	}
+
+	if (record->iTotalCommands <= 1) {
+		log->mInterpolated.front().Restore(log->m_pPlayer);
+
+		if (r_state != RESOLVER_STATE_NONE) {
+//			state->m_flGoalFeetYaw = Math::NormalizeYaw(record->eyeAngles.y + (r_state == RESOLVER_STATE_LEFT ? -60.f : 60.f));
+		}
+
+		UpdateClientSideAnimations(log->m_pPlayer, record->flAnimTime);
+	}
+	else {
+		const auto shot_in_this_cycle = record->flLastShotTime >= record->flAnimTime && record->flLastShotTime <= record->flSimTime;
+		const auto ticks_to_final_eye_angles = shot_in_this_cycle ? TIME_TO_TICKS(record->flLastShotTime - record->flAnimTime) + 1 : record->iTotalCommands;
+
+		for (auto i = 1; i <= record->iTotalCommands; i++) {
+			auto& interpolated = log->mInterpolated.at(i - 1u);
+
+			interpolated.Restore(log->m_pPlayer);
+
+			if (r_state != RESOLVER_STATE_NONE
+				&& i < ticks_to_final_eye_angles) {
+			//	state->m_goal_feet_yaw = math::normalize(record->m_eye_angles.y + (r_state == RESOLVER_STATE_LEFT ? -60.f : 60.f));
+			}
+
+			UpdateClientSideAnimations(log->m_pPlayer, interpolated.flSimTime);
+		}
+	}
+
+	interpolated_backup.Restore(log->m_pPlayer, state);
+
+	log->m_pPlayer->InvalidatePhysics(C_BaseEntity::animation_changed);
+}
+
+
+void Animations::UpdateClientSideAnimations (C_BasePlayer * pPlayer, float Time) {
+
+	auto BackupRealtime     = g_GlobalVars->curtime;
+	auto BackupCurtime      = g_GlobalVars->curtime;
+	auto BackupFrametime    = g_GlobalVars->frametime;
+	auto BackupAbsFrametime = g_GlobalVars->absoluteframetime;
+	auto BackupFramecount   = g_GlobalVars->framecount;
+	auto BackupTickcount    = g_GlobalVars->tickcount;
+
+
+	
+
+	g_GlobalVars->realtime          = Time;
+	g_GlobalVars->curtime           = Time;
+	g_GlobalVars->frametime         = g_GlobalVars->interval_per_tick;
+	g_GlobalVars->absoluteframetime = g_GlobalVars->interval_per_tick;
+	g_GlobalVars->framecount        = TIME_TO_TICKS(Time);
+	g_GlobalVars->tickcount         = TIME_TO_TICKS(Time);
+
+
+	pPlayer->m_iEFlags() &= ~C_BaseEntity::E_FL_DIRTYABSVELOCITY; // Nano tech.
+
+	pPlayer->GetPlayerAnimState()->m_iLastClientSideAnimationUpdateFramecount = g_GlobalVars->framecount - 1;
+
+	pPlayer->m_bClientSideAnimation() = true;
+	
+	Snakeware::UpdateAnims = true;
+
+	pPlayer->UpdateClientSideAnimation();
+
+	Snakeware::UpdateAnims = false;
+
+	pPlayer->m_bClientSideAnimation() = false;
+
+	g_GlobalVars->curtime           = BackupCurtime;
+	g_GlobalVars->realtime          = BackupRealtime;
+	g_GlobalVars->frametime         = BackupFrametime;
+	g_GlobalVars->absoluteframetime = BackupAbsFrametime;
+	g_GlobalVars->framecount        = BackupFramecount;
+	g_GlobalVars->tickcount         = BackupTickcount;
+
+}
 
 void Animations::FakeAnimation()
 {

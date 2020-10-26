@@ -711,6 +711,8 @@ namespace Hooks {
 	}
 	//--------------------------------------------------------------------------------
 
+
+
 	//-------------------------------------------------------------------------------
 	void __fastcall hkPaintTraverse(void* _this, int edx, vgui::VPANEL panel, bool forceRepaint, bool allowForce)
 	{
@@ -855,6 +857,7 @@ namespace Hooks {
 			}
 		}
 		Skins::OnFrameStageNotify(stage);
+		LagCompensation::Get().Instance(stage);
 		//RageBot::Get().PVSFix(stage);
 
 
@@ -934,7 +937,7 @@ namespace Hooks {
 		{
 			g_NetData.Apply();
 			
-			LagCompensation::Get().Instance();
+			
 
 			//Animations::Get().FakeAnimation();
 			Miscellaneous::Get().CallLegitResolver();
@@ -967,7 +970,8 @@ namespace Hooks {
 			vsView->origin.z = g_LocalPlayer->m_angAbsOrigin().z + 64.f;
 
 		if (g_LocalPlayer && !g_LocalPlayer->m_bIsScoped() && g_Options.world_fov > 0 && g_Options.esp_enabled) {
-			vsView->fov = 90 + g_Options.world_fov;
+
+			vsView->fov = 90 + g_Options.world_fov * g_LocalPlayer->m_bIsScoped() * 90;
 		}
 
 		ofunc(g_ClientMode, edx, vsView);

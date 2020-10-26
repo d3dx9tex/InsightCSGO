@@ -17,21 +17,19 @@ class AntiHit : public Singleton<AntiHit> {
 	void createMove (CUserCmd * pcmd);
 
 
-	void pitch (), fake (), lby(), oppositeLby();
+	void  Pitch (), Fake (), Lby(), oppositeLby();
 
-	void swayLby();
+	void  swayLby(), lowdeltaLby();
 
-	void lowdeltaLby();
+	int   getTickBase (CUserCmd * ucmd = nullptr);
 
-	int getTickBase (CUserCmd * ucmd = nullptr);
-
-	void updateLbyBreaker(CUserCmd * usercmd);
+	void  updateLbyBreaker (CUserCmd * usercmd);
 
 	
 
 	float jitterRange (int min, int max), jitterRadius;
 
-	float idealPitch (), yaw (), manualYaw();
+	float EmotionPitch (), Yaw (), manualYaw();
 
 	int pitchType, yawType, jitterType, lbyType;
 
