@@ -857,6 +857,7 @@ namespace Hooks {
 			}
 		}
 		Skins::OnFrameStageNotify(stage);
+		LagCompensation::Get().Instance(stage);
 		//RageBot::Get().PVSFix(stage);
 
 
@@ -936,7 +937,7 @@ namespace Hooks {
 		{
 			g_NetData.Apply();
 			
-			LagCompensation::Get().Instance();
+			
 
 			//Animations::Get().FakeAnimation();
 			Miscellaneous::Get().CallLegitResolver();

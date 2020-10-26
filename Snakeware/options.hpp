@@ -60,10 +60,13 @@ namespace Snakeware
 	extern int m_nBaseTick;
 	extern int SkipTicks;
 	extern bool bBoneSetup;
+	extern matrix3x4_t mOnShotMatrix[MAXSTUDIOBONES];
 	extern matrix3x4_t FakeMatrix[128];
 	extern matrix3x4_t FakeLagMatrix[128];
 	extern bool bVisualAimbotting;
+	extern bool bShotFound;
 	extern QAngle vecVisualAimbotAngs;
+
 
 	extern std::string EyeDelta;
 	extern std::string Delta;
@@ -71,7 +74,7 @@ namespace Snakeware
 	extern std::string Delta3;
 	extern std::string Delta4;
 
-	extern cPlayerRecord pLagRecords[64];
+	
 
 }
 class Cmd {
@@ -185,6 +188,7 @@ public:
 	OPTION(bool, esp_enabled, false);
 	OPTION(bool, shot_hitboxes, false);
 	OPTION(float, shot_hitboxes_duration, 1.f);
+	OPTION(int, shot_hitboxes_type, 0);
 	OPTION(bool, sound_esp, false);
 	OPTION(int, sound_esp_type, 0);
 	OPTION(float, sound_esp_radius, 12.0f);
@@ -281,6 +285,7 @@ public:
 
 	OPTION(bool, chams_weapons, false);
 	OPTION(int, chams_weapons_type, 0);
+	OPTION(int, onshot_chams_type, 0);
 	OPTION(int, chams_weapons_type_layer, 0);
 	//
 	// MISC

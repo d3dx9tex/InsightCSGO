@@ -7,7 +7,9 @@
 #include <chrono>
 #include <mutex>
 #include <algorithm>
-
+#include <deque>
+#include <xmemory0>
+#include <limits>
 #include "../helpers/x0r-protection/xor.h"
 
 #define Assert( _exp ) ((void)0)
@@ -65,7 +67,7 @@ class C_BaseEntity;
 
 using PoseParams = std::array<float, 24u>;
 using AnimLayers = std::array<AnimationLayer, 13u>;
-using BoneArray = std::array<matrix3x4_t, 128u>; // wtf
+using BoneArrayS = std::array<matrix3x4_t, 128u>; // wtf
 
 enum CSWeaponType
 {
@@ -804,8 +806,10 @@ enum ResolverState {
 };
 
 struct PlayerRecord {
+
 	PlayerRecord () = default;
 	PlayerRecord (C_BasePlayer* pPlayer, PlayerRecord* Previous, bool bDormant);
+	
 
 	void BulidBones (C_BasePlayer* pPlayer, ResolverState rState);
 
@@ -825,7 +829,7 @@ struct PlayerRecord {
 		std::array<AnimLayers, RESOLVER_STATE_RIGHT + 1u> AnimLayers;
 	} mResolver;
 
-	std::array<BoneArray, RESOLVER_STATE_RIGHT + 1u> mBones;
+	std::array<BoneArrayS, RESOLVER_STATE_RIGHT + 1u> mBones;
 };
 
 
@@ -918,6 +922,6 @@ struct PlayerLog {
 		}
 	}
 
-	std::deque<PlayerRecord>  mRecords;
+	std::deque < PlayerRecord >  mRecords;
 	std::vector<Interpolated> mInterpolated;
 };

@@ -151,6 +151,9 @@ void Chams::OnDrawModelExecute(IMatRenderContext* ctx, const DrawModelState_t& s
 		break;
 	}
 
+
+
+
 	switch (g_Options.chams_weapons_type_layer)
 	{
 	case 0:
@@ -173,6 +176,7 @@ void Chams::OnDrawModelExecute(IMatRenderContext* ctx, const DrawModelState_t& s
 	//bool is_weapon = strstr(mdl->szName, "weapons/v_")  != nullptr;
 	if (is_player)
 	{
+
 		if (g_LocalPlayer && entity && entity->IsAlive() && !entity->IsDormant())
 		{
 			if (entity->IsEnemy() && g_Options.chams_player_enabled)
@@ -208,6 +212,12 @@ void Chams::OnDrawModelExecute(IMatRenderContext* ctx, const DrawModelState_t& s
 
 
 			}
+
+			if (Snakeware::bShotFound) {
+				// Chams
+			}
+
+
 
 		}
 	}

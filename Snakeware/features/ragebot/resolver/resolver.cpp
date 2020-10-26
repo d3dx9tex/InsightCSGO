@@ -72,7 +72,7 @@ void Resolver::PreverseSafePoint (C_BasePlayer * pPlayer , int iSafeSide, float 
 		// Right matrix
 
 	}
-	LagCompensation::Get().UpdateAnimationsData(pPlayer);
+	//LagCompensation::Get().UpdateAnimationsData(pPlayer);
 
 	// Restore var's.
 	pPlayer->m_vecVelocity() = vecVelocity;

@@ -37,6 +37,8 @@ void BulidSeedTable() {
 		PreComputedSeeds.emplace_back(Math::RandomFloat(0.f, 1.f), sin(pi_seed), cos(pi_seed));
 	}
 }
+
+
 void AutoRevolver(CUserCmd* cmd) {
 
 	if (g_LocalPlayer->m_hActiveWeapon()->m_Item().m_iItemDefinitionIndex() != WEAPON_REVOLVER)
@@ -71,6 +73,8 @@ void AutoRevolver(CUserCmd* cmd) {
 		cmd->buttons &= ~IN_ATTACK;
 	}
 }
+
+
 bool RageBot::IsValid (C_BasePlayer * Player) {
 
 	if (!Player || Player == nullptr)						  return false;
@@ -109,7 +113,7 @@ void RageBot::Instance (CUserCmd * Cmd) {
 	int  iBestHealth    = 101;
 
 	
-	LagCompensation::Get().StartPositionAdjustment();
+	//LagCompensation::Get().StartPositionAdjustment();
 	if (bFindNewTarget) {
 
 		
@@ -143,7 +147,7 @@ void RageBot::Instance (CUserCmd * Cmd) {
 		}
 	}
 
-	LagCompensation::Get().FinishPositionAdjustment();
+	//LagCompensation::Get().FinishPositionAdjustment();
 
 	if (!IsValid(pTarget)) {
 		LagCompensation::Get().Reset();
@@ -435,7 +439,7 @@ void RageBot::Multipoints (int hitbox, matrix3x4_t bones[128], std::vector<Vecto
 	Vector top = Vector(0, 0, 1);
 	Vector bottom = Vector(0, 0, -1);
 
-	float adjusted_radius = GetPointScale (hbx->m_flRadius , &g_LocalPlayer->GetEyePos(), &angle, hitbox);
+	float adjusted_radius = GetPointScale (hbx->m_flRadius , &center , &g_LocalPlayer->GetEyePos(), hitbox);
 	switch (hitbox) {
 	case HITBOX_HEAD:
 		
@@ -879,7 +883,7 @@ bool RageBot::Aim(Vector point, int idx) {
 	auto TickRecord = -1;
 	Snakeware::OnShot = false;
 
-	auto IsValidTick = Snakeware::pLagRecords[Idx].TickCount != -1; // aye
+	//auto IsValidTick = Snakeware::pLagRecords[Idx].TickCount != -1; // aye
 
 	static int last_shot;
 	static int last_pitch_up;
@@ -896,8 +900,8 @@ bool RageBot::Aim(Vector point, int idx) {
 
 			if (OnShot) {
 				Snakeware::OnShot = true;
-				if (IsValidTick)
-					pCmd->tick_count = Snakeware::pLagRecords[Idx].TickCount;
+				/*if (IsValidTick)
+					pCmd->tick_count = Snakeware::pLagRecords[Idx].TickCount;*/
 				pCmd->buttons |= IN_ATTACK;
 			}
 		}
