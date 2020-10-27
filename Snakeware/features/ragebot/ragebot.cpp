@@ -441,16 +441,16 @@ bool RageBot::Multipoints (PlayerRecord *pRecord, matrix3x4_t Bones[], int iInde
 
 	Vector center = (bbox->bbmin + bbox->bbmax) / 2.f;
 
-	// get hitbox scales.
+	// Get hitbox scales.
 	float flScale = GetPointScale(bbox->m_flRadius, &g_LocalPlayer->GetEyePos() , &center, iIndex);
 
-	// big inair fix.
+	// Big inair fix.
 	if (!(pRecord->mFlags) & FL_ONGROUND)
 		flScale = 0.7f;
 
 
 
-	// these indexes represent boxes.
+	// These indexes represent boxes.
 	if (bbox->m_flRadius <= 0.f) {
 		
 	
@@ -459,7 +459,7 @@ bool RageBot::Multipoints (PlayerRecord *pRecord, matrix3x4_t Bones[], int iInde
 		if (iIndex == HITBOX_RIGHT_FOOT || iIndex == HITBOX_LEFT_FOOT) {
 			float d1 = (bbox->bbmin.z - center.z) * 0.875f;
 
-			// invert.
+			// Invert.
 			if (iIndex == HITBOX_LEFT_FOOT)
 				d1 *= -1.f;
 
@@ -471,15 +471,15 @@ bool RageBot::Multipoints (PlayerRecord *pRecord, matrix3x4_t Bones[], int iInde
 				float d2 = (bbox->bbmin.x - center.x) * flScale;
 				float d3 = (bbox->bbmax.x - center.x) * flScale;
 
-				// heel.
+				// Heel.
 				pPoints.push_back({ center.x + d2, center.y, center.z });
 
-				// toe.
+				// Toe.
 				pPoints.push_back({ center.x + d3, center.y, center.z });
 			}
 		}
 
-		// nothing to do here we are done.
+		// Nothing to do here we are done.
 		if (pPoints.empty())
 			return false;
 
@@ -488,23 +488,23 @@ bool RageBot::Multipoints (PlayerRecord *pRecord, matrix3x4_t Bones[], int iInde
 			
 			p = { p.Dot(matrix[0]), p.Dot(matrix[1]), p.Dot(matrix[2]) };
 
-			// transform point to world space.
+			// Transform point to world space.
 			p += origin;
 		}
 	}
 
-	// these hitboxes are capsules.
+	// These hitboxes are capsules.
 	else {
-		// factor in the pointscale.
-		float r = bbox->m_flRadius * flScale;
+		// Factor in the pointscale.
+		float r  = bbox->m_flRadius * flScale;
 		float br = bbox->m_flRadius * flScale;
 
 		// compute raw center point.
 		Vector center = (bbox->bbmin + bbox->bbmax) / 2.f;
 
-		// head has 5 points.
+		// Head has 5 points.
 		if (iIndex == HITBOX_HEAD) {
-			// add center.
+			// Add center.
 			pPoints.push_back(center);
 
 
@@ -512,16 +512,16 @@ bool RageBot::Multipoints (PlayerRecord *pRecord, matrix3x4_t Bones[], int iInde
 
 			pPoints.push_back({ bbox->bbmax.x + (rotation * r), bbox->bbmax.y + (-rotation * r), bbox->bbmax.z });
 
-			// right.
+			// Right.
 			pPoints.push_back({ bbox->bbmax.x, bbox->bbmax.y, bbox->bbmax.z + r });
 
-			// left.
+			// Left.
 			pPoints.push_back({ bbox->bbmax.x, bbox->bbmax.y, bbox->bbmax.z - r });
 
-			// back.
+			// Back.
 			pPoints.push_back({ bbox->bbmax.x, bbox->bbmax.y - r, bbox->bbmax.z });
 
-			// get animstate ptr.
+			// Get animstate ptr.
 			CCSGOPlayerAnimState *state = pTarget->GetPlayerAnimState();
 
 			
@@ -533,9 +533,9 @@ bool RageBot::Multipoints (PlayerRecord *pRecord, matrix3x4_t Bones[], int iInde
 
 		}
 
-		// body has 5 points.
+		// Body has 5 points.
 		else if (iIndex == HITBOX_STOMACH) {
-			// center.
+			// Center.
 			pPoints.push_back(center);
 
 			pPoints.push_back({ center.x, bbox->bbmax.y - br, center.z });
@@ -546,9 +546,9 @@ bool RageBot::Multipoints (PlayerRecord *pRecord, matrix3x4_t Bones[], int iInde
 			pPoints.push_back({ center.x, bbox->bbmax.y - r, center.z });
 		}
 
-		// other stomach/chest hitboxes have 2 points.
+		// Other stomach/chest hitboxes have 2 points.
 		else if (iIndex == HITBOX_LOWER_CHEST || iIndex == HITBOX_CHEST) {
-			// add center.
+			// Add center.
 			pPoints.push_back(center);
 
 		
@@ -556,7 +556,7 @@ bool RageBot::Multipoints (PlayerRecord *pRecord, matrix3x4_t Bones[], int iInde
 		}
 
 		else if (iIndex == HITBOX_RIGHT_CALF || iIndex == HITBOX_LEFT_CALF) {
-			// add center.
+			// Add center.
 			pPoints.push_back(center);
 
 		
@@ -564,21 +564,21 @@ bool RageBot::Multipoints (PlayerRecord *pRecord, matrix3x4_t Bones[], int iInde
 		}
 
 		else if (iIndex == HITBOX_RIGHT_THIGH || iIndex == HITBOX_LEFT_THIGH) {
-			// add center.
+			// Add center.
 			pPoints.push_back(center);
 		}
 
-		// arms get only one point.
+		// Arms get only one point.
 		else if (iIndex == HITBOX_RIGHT_UPPER_ARM || iIndex == HITBOX_LEFT_UPPER_ARM) {
 			// elbow.
 			pPoints.push_back({ bbox->bbmax.x + bbox->m_flRadius, center.y, center.z });
 		}
 
-		// nothing left to do here.
+		// Nothing left to do here.
 		if (pPoints.empty())
 			return false;
 
-		// transform capsule points.
+		// Transform capsule points.
 		for (auto &p : pPoints)
 			Math::VectorTransform(p, bones[bbox->bone], p);
 	}

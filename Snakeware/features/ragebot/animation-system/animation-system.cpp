@@ -223,14 +223,15 @@ void Animations::FakeAnimation()
 }
 
 
-bool CanFix() {
+bool CanFix () {
 
 	if (g_Options.antihit_enabled)        return true;
 	if (g_Options.misc_legit_antihit)     return true;
-	if (g_Options.misc_fakelag_ticks > 1) return true;
+	if (g_Options.misc_fakelag_ticks >= 1 || g_ClientState->iChokedCommands > 1) return true;
 
 	return false;
 }
+
 void Animations::FixLocalPlayer() {
 
 	auto animstate = g_LocalPlayer->GetPlayerAnimState();
@@ -240,16 +241,22 @@ void Animations::FixLocalPlayer() {
 	if (!g_EngineClient->IsInGame()) return;
 	if (!CanFix) return;
 
-	const auto backup_frametime = g_GlobalVars->frametime;
-	const auto backup_curtime = g_GlobalVars->curtime;
+	const auto interpolation       = g_GlobalVars->interpolation_amount;
+	const auto backup_frametime    = g_GlobalVars->frametime;
+	const auto backup_curtime      = g_GlobalVars->curtime;
+	const auto backup_absframetime = g_GlobalVars->absoluteframetime;
+	const auto backup_realtime     = g_GlobalVars->realtime;
 
 	animstate->m_flGoalFeetYaw = Snakeware::RealAngle.yaw;
 
 	if (animstate->m_iLastClientSideAnimationUpdateFramecount == g_GlobalVars->framecount)
 		animstate->m_iLastClientSideAnimationUpdateFramecount -= 1.f;
 
-	g_GlobalVars->frametime = g_GlobalVars->interval_per_tick;
-	g_GlobalVars->curtime = g_LocalPlayer->m_flSimulationTime();
+	g_GlobalVars->absoluteframetime    = g_GlobalVars->interval_per_tick;
+	g_GlobalVars->frametime            = g_GlobalVars->interval_per_tick;
+	g_GlobalVars->curtime              = g_LocalPlayer->m_flSimulationTime();
+	g_GlobalVars->realtime             = g_LocalPlayer->m_flSimulationTime();
+	g_GlobalVars->interpolation_amount = 0.f;
 
 	g_LocalPlayer->m_iEFlags() &= ~0x1000;
 	g_LocalPlayer->m_vecAbsVelocity() = g_LocalPlayer->m_vecVelocity();
@@ -259,8 +266,13 @@ void Animations::FixLocalPlayer() {
 	animstate->m_flFeetYawRate = 0.f;
 
 	AnimationLayer backup_layers[13];
-	if (g_LocalPlayer->m_flSimulationTime() != g_LocalPlayer->m_flOldSimulationTime())
-	{
+	if (g_LocalPlayer->m_fFlags() & FL_ONGROUND && g_LocalPlayer->m_vecVelocity().Length2D() < 0.15) {
+
+		// B1g ot fix
+
+	}
+
+	if (g_LocalPlayer->m_flSimulationTime() != g_LocalPlayer->m_flOldSimulationTime()) {
 		std::memcpy(backup_layers, g_LocalPlayer->GetAnimOverlays(),
 			(sizeof(AnimationLayer) * g_LocalPlayer->GetNumAnimOverlays()));
 
@@ -271,14 +283,19 @@ void Animations::FixLocalPlayer() {
 
 		angle = animstate->m_flGoalFeetYaw;
 
-		std::memcpy(g_LocalPlayer->GetAnimOverlays(), backup_layers,
-			(sizeof(AnimationLayer) * g_LocalPlayer->GetNumAnimOverlays()));
+		std::memcpy(g_LocalPlayer->GetAnimOverlays(), backup_layers, (sizeof(AnimationLayer) * g_LocalPlayer->GetNumAnimOverlays()));
 	}
 
-	animstate->m_flGoalFeetYaw = angle;
-	g_GlobalVars->curtime = backup_curtime;
-	g_GlobalVars->frametime = backup_frametime;
 
+
+	animstate->m_flGoalFeetYaw      = Math::NormalizeYaw (angle);
+	g_GlobalVars->curtime           = backup_curtime;
+	g_GlobalVars->realtime          = backup_realtime
+	g_GlobalVars->frametime         = backup_frametime;
+	g_GlobalVars->absoluteframetime = backup_absframetime;
+
+	// Backup Interpolation data.
+	g_GlobalVars->interpolation_amount = interpolation;
 }
 void Animations::SetLocalPlayerAnimations()
 {
